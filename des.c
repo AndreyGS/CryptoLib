@@ -240,7 +240,7 @@ const uint8_t DES_S_TRANSFORM_OPTIMIZED[8][64] =
     },
 
     {
-         0, 13,  0,  7,  9,  0, 14,  9,  6,  3,  3,  4, 15,  6,  5, 10,
+        10, 13,  0,  7,  9,  0, 14,  9,  6,  3,  3,  4, 15,  6,  5, 10,
          1,  2, 13,  8, 12,  5,  7, 14, 11, 12,  4, 11,  2, 15,  8,  1,
         13,  1,  6, 10,  4, 13,  9,  0,  8,  6, 15,  9,  3,  8,  0,  7,
         11,  4,  1, 15,  2, 14, 12,  3,  5, 11, 10,  5, 14,  2,  7 , 12
@@ -489,7 +489,7 @@ inline uint64_t DesFinalPermutation(uint64_t encryptedBlock)
 
 // Main algo block
 
-uint64_t DesEncryptBlock(uint64_t input, uint64_t* roundsKeys)
+inline uint64_t DesEncryptBlock(uint64_t input, uint64_t* roundsKeys)
 {
     uint64_t permInput = DesInitialPermutation(input);
 
@@ -524,41 +524,44 @@ inline int CheckDesPrimaryArguments(__in const void* input, __in uint64_t inputS
         return NO_ERROR;
 }
 
-int DesEncrypt(__in void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t* roundsKeys, __out void* output, __inout uint64_t* outputSize)
+int DesEncrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t* roundsKeys, __out void* output, __inout uint64_t* outputSize)
 {
     int status = NO_ERROR;
     if (status = CheckDesPrimaryArguments(input, inputSize, roundsKeys, output, outputSize))
         return status;
 
-    if (status = GetPaddingInternal(input, inputSize, padding, 8, output, outputSize))
+    if (status = AddPaddingInternal(input, inputSize, padding, DES_BLOCK_SIZE, output, outputSize))
         return status;
 
+    uint64_t blocksNumber = (*outputSize >> 3); // (outputSize / DES_BLOCK_SIZE)
 
+    while (--blocksNumber)
+        *((uint64_t*)output)++ = DesEncryptBlock(*((uint64_t*)input)++, roundsKeys);
+   
+    if (input != output && inputSize + DES_BLOCK_SIZE != *outputSize)
+        memcpy(output, input, inputSize & 7); // (DES_BLOCK_SIZE - 1)
 
-    /*
-    if (inPlace) {
-        if (*outputSize & 7
-            || (padding == PKCSN7_padding && inputSize == *outputSize))
-        {
-            *status = ERROR_WRONG_INPUT_SIZE;
-            return NULL;
-        }
+    *((uint64_t*)output) = DesEncryptBlock(*((uint64_t*)output), roundsKeys);
 
-        uint64_t blocksNumber = (*outputSize >> 3) + 1;
+    return NO_ERROR;
+}
 
-        
+int DesDecrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t* roundsKeys, __out void* output, __inout uint64_t* outputSize)
+{
+    int status = NO_ERROR;
+    if (status = CheckDesPrimaryArguments(input, inputSize, roundsKeys, output, outputSize))
+        return status;
+    else if (inputSize & 7)
+        return ERROR_WRONG_INPUT_SIZE;
+    else if (*outputSize < inputSize)
+        return ERROR_WRONG_OUTPUT_SIZE;
 
-        while (--blocksNumber) {
+    uint64_t blocksNumber = (*outputSize >> 3); // (outputSize / DES_BLOCK_SIZE)
 
-        }
-    }
-    else {
-        uint64_t* output = NULL;
-    }
+    while (blocksNumber--)
+        *((uint64_t*)output)++ = DesDecryptBlock(*((uint64_t*)input)++, roundsKeys);
 
+    CutPaddingInternal(padding, DES_BLOCK_SIZE, (uint8_t*)output - *outputSize, outputSize);
 
-exit:
-    return NULL; */
-
-    return 0;
+    return NO_ERROR;
 }
