@@ -6,6 +6,8 @@
 */
 inline int AddZeroPaddingInternal(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize);
 inline int AddPKCSN7PaddingInternal(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize);
+inline int PullPKCSN7PaddingSizeInternal(__in const void* input, __in uint64_t blockSize, __out uint8_t* paddingSize);
+inline int PullZeroPaddingSizeInternal(__in const void* input, __in uint64_t blockSize, __out uint64_t* paddingSize);
 inline void CutZeroPaddingInternal(__in uint64_t blockSize, __in const void* paddedOutput, __inout uint64_t* outputSize);
 inline void CutPKCSN7PaddingInternal(__in uint64_t blockSize, __in const void* paddedOutput, __inout uint64_t* outputSize);
 
@@ -63,6 +65,42 @@ inline int AddPaddingInternal(__in const void* input, __in uint64_t inputSize, _
 
     case PKCSN7_padding:
         status = AddPKCSN7PaddingInternal(input, inputSize, blockSize, output, outputSize);
+        break;
+
+    default:
+        break;
+    }
+
+    return status;
+}
+
+int PullPaddingSize(__in PaddingType padding, __in void* input, __in uint64_t blockSize, __out uint64_t* paddingSize)
+{
+    int status = NO_ERROR;
+    if (status = CheckPaddingOutput(blockSize, input, paddingSize)) {
+        if (status == ERROR_WRONG_OUTPUT)
+            status = ERROR_WRONG_INPUT;
+        return status;
+    }
+
+    return PullPaddingSizeInternal(padding, input, blockSize, paddingSize);
+}
+
+inline int PullPaddingSizeInternal(__in PaddingType padding, __in void* input, __in uint64_t blockSize,  __out uint64_t* paddingSize)
+{
+    int status = NO_ERROR;
+
+    switch (padding) {
+    case No_padding:
+        *paddingSize = 0;
+        break;
+
+    case Zero_padding:
+        status = PullZeroPaddingSizeInternal(input, blockSize, paddingSize);
+        break;
+
+    case PKCSN7_padding:
+        status = PullPKCSN7PaddingSizeInternal(input, blockSize, (uint8_t*)paddingSize);
         break;
 
     default:
@@ -158,6 +196,38 @@ inline int AddZeroPaddingInternal(__in const void* input, __in uint64_t inputSiz
     return NO_ERROR;
 }
 
+inline int PullZeroPaddingSizeInternal(__in const void* input, __in uint64_t blockSize, __out uint64_t* paddingSize)
+{
+    uint8_t* p = (uint8_t*)input + blockSize;
+    while (!*--p && blockSize--)
+        *++paddingSize;
+
+    if (*paddingSize == 0)
+        return ERROR_PADDING_CORRUPTED;
+    else
+        return NO_ERROR;
+}
+
+int CutZeroPadding(__in uint64_t blockSize, __out const void* output, __inout uint64_t* outputSize)
+{
+    int status = NO_ERROR;
+    if (status = CheckPaddingOutput(blockSize, output, outputSize))
+        return status;
+
+    CutZeroPaddingInternal(blockSize, output, outputSize);
+
+    return NO_ERROR;
+}
+
+inline void CutZeroPaddingInternal(__in uint64_t blockSize, __in const void* paddedOutput, __inout uint64_t* outputSize)
+{
+    (uint8_t*)paddedOutput += *outputSize;
+
+    for (uint64_t i = blockSize; i; -- * outputSize, --i)
+        if (*--((uint8_t*)paddedOutput))
+            break;
+}
+
 int AddPKCSN7Padding(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize)
 {
     int status = NO_ERROR;
@@ -177,29 +247,18 @@ inline int AddPKCSN7PaddingInternal(__in const void* input, __in uint64_t inputS
     if (status = GetPaddingSize(inputSize, blockSize, outputSize, &paddingSize))
         return status;
 
-    FillBySingleValue((uint8_t*)output + inputSize, paddingSize, paddingSize);
+    FillBySingleValue((uint8_t*)output + inputSize, (uint8_t)paddingSize, paddingSize);
 
     return NO_ERROR;
 }
 
-int CutZeroPadding(__in uint64_t blockSize, __out const void* output, __inout uint64_t* outputSize)
+inline int PullPKCSN7PaddingSizeInternal(__in const void* input, __in uint64_t blockSize, __out uint8_t* paddingSize)
 {
-    int status = NO_ERROR;
-    if (status = CheckPaddingOutput(blockSize, output, outputSize))
-        return status;
-
-    CutZeroPaddingInternal(blockSize, output, outputSize);
-
-    return NO_ERROR;
-}
-
-inline void CutZeroPaddingInternal(__in uint64_t blockSize, __in const void* paddedOutput, __inout uint64_t* outputSize)
-{
-    (uint8_t*)paddedOutput += *outputSize;
-
-    for (uint64_t i = blockSize; i; -- *outputSize, --i)
-        if (*--((uint8_t*)paddedOutput))
-            break;
+    *paddingSize = *((uint8_t*)input + blockSize - 1);
+    if (*paddingSize == 0)
+        return ERROR_PADDING_CORRUPTED;
+    else
+        return NO_ERROR;
 }
 
 int CutPKCSN7Padding(__in uint64_t blockSize, __out const void* output, __inout uint64_t* outputSize)

@@ -508,7 +508,7 @@ uint64_t DesDecryptBlock(uint64_t input, uint64_t* roundsKeys)
     permInput = permInput >> 32 | permInput << 32;
 
     for (int i = 15; i >= 0; --i)
-        permInput = (permInput << 32) | (DesFeistel(permInput, roundsKeys[i]) ^ (permInput >> 32));
+        permInput = (permInput << 32) | (DesFeistel((uint32_t)permInput, roundsKeys[i]) ^ (permInput >> 32));
 
     return DesFinalPermutation(permInput);
 }
@@ -553,15 +553,29 @@ int DesDecrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType
         return status;
     else if (inputSize & 7)
         return ERROR_WRONG_INPUT_SIZE;
-    else if (*outputSize < inputSize)
+
+    uint64_t lastOutputBlock = DesDecryptBlock(*(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE), roundsKeys);
+    uint64_t paddingSize = 0;
+
+    if (status = PullPaddingSizeInternal(padding, (void*)&lastOutputBlock, DES_BLOCK_SIZE, &paddingSize))
+        return status;
+    else if (paddingSize > 8)
+        return ERROR_PADDING_CORRUPTED;
+
+    uint64_t requiringSize = inputSize - paddingSize;
+
+    if (requiringSize > *outputSize) {
+        *outputSize = requiringSize;
         return ERROR_WRONG_OUTPUT_SIZE;
+    }
 
-    uint64_t blocksNumber = (*outputSize >> 3); // (outputSize / DES_BLOCK_SIZE)
+    // parenthesis over inputSize - DES_BLOCK_SIZE is a little integer overflow protection
+    memcpy((uint8_t*)output + (inputSize - DES_BLOCK_SIZE), (void*)&lastOutputBlock, (size_t)(DES_BLOCK_SIZE - paddingSize));
+    
+    uint64_t blocksNumber = (inputSize >> 3); // (inputSize / DES_BLOCK_SIZE)
 
-    while (blocksNumber--)
+    while (--blocksNumber)
         *((uint64_t*)output)++ = DesDecryptBlock(*((uint64_t*)input)++, roundsKeys);
-
-    CutPaddingInternal(padding, DES_BLOCK_SIZE, (uint8_t*)output - *outputSize, outputSize);
 
     return NO_ERROR;
 }
