@@ -18,8 +18,11 @@ extern "C" {
 #define ERROR_PADDING_CORRUPTED         0x80000007
 #define ERROR_WRONG_INIT_VECTOR         0x80000008
 
+#define BITS_PER_BYTE                   8
 #define DES_BLOCK_SIZE                  8
 #define MAX_PKCSN7_BLOCK_SIZE           255
+#define SHA_BLOCK_SIZE                  64
+#define SHA2_BLOCK_SIZE                 128
 
 typedef enum _BlockCipherType {
     DES_cipher_type
@@ -40,6 +43,15 @@ typedef enum _PaddingType {
     ISO_7816_padding
 } PaddingType;
 
+typedef enum _Sha2Variant {
+    SHA_224,
+    SHA_256,
+    SHA_384,
+    SHA_512_224,
+    SHA_512_256,
+    SHA_512
+} Sha2Variant;
+
 int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
 
 uint64_t* DesGetRoundsKeys(uint64_t extendedKey);
@@ -50,6 +62,9 @@ int DesDecrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType
 
 uint64_t DesEncryptBlock(uint64_t input, uint64_t* pRoundsKeys);
 uint64_t DesDecryptBlock(uint64_t input, uint64_t* pRoundsKeys);
+
+int Sha1Get(__in const void* input, __in uint64_t inputSize, __out void* output);
+int Sha2Get(__in const void* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __in Sha2Variant variant, __out void* output);
 
 #ifdef __cplusplus
 }

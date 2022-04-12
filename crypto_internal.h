@@ -1,10 +1,15 @@
 #pragma once
 
 #include "crypto.h"
+#include "paddings.h"
 
-inline int CheckOutput(__in const void* output, __in const uint64_t* outputSize);
-extern inline int CheckInputOutput(__in const void* input, __in uint64_t inputSize, __in const void* output, __in const uint64_t* outputSize);
+int CheckInput(__in const void* input, __in uint64_t inputSize);
+int CheckOutput(__in const void* output, __in const uint64_t* outputSize);
+int CheckInputOutput(__in const void* input, __in uint64_t inputSize, __in const void* output, __in const uint64_t* outputSize);
 
-inline int AddPaddingInternal(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
-inline int PullPaddingSizeInternal(__in PaddingType padding, __in void* input, __in uint64_t blockSize, __out uint64_t* paddingSize);
-inline int CutPaddingInternal(__in PaddingType padding, __in uint64_t blockSize, __out void* paddedOutput, __inout uint64_t* outputSize);
+extern inline uint32_t Uint32BigEndianLeftRotateByOne(uint32_t word);
+extern inline uint32_t Uint32BigEndianLeftRotate(uint32_t word, int rounds);
+extern inline uint64_t Uint64LittleEndianToBigEndian(uint64_t input);
+extern inline uint32_t Uint32LittleEndianToBigEndian(uint32_t input);
+extern inline uint32_t Uint32BigEndianRightRotate(uint32_t word, int rounds);
+extern inline uint64_t Uint64BigEndianRightRotate(uint64_t word, int rounds);

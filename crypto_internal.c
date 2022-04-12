@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "crypto_internal.h"
 
-inline int CheckInput(__in const void* input, __in uint64_t inputSize)
+int CheckInput(__in const void* input, __in uint64_t inputSize)
 {
     if (!input)
         return ERROR_WRONG_INPUT;
@@ -11,7 +11,7 @@ inline int CheckInput(__in const void* input, __in uint64_t inputSize)
         return NO_ERROR;
 }
 
-inline int CheckOutput(__in const void* output, __in const uint64_t* outputSize)
+int CheckOutput(__in const void* output, __in const uint64_t* outputSize)
 {
     if (!output || !outputSize)
         return ERROR_WRONG_OUTPUT;
@@ -19,7 +19,48 @@ inline int CheckOutput(__in const void* output, __in const uint64_t* outputSize)
         return NO_ERROR;
 }
 
-inline int CheckInputOutput(__in const void* input, __in uint64_t inputSize, __in const void* output, __in const uint64_t* outputSize)
+int CheckInputOutput(__in const void* input, __in uint64_t inputSize, __in const void* output, __in const uint64_t* outputSize)
 {
     return CheckInput(input, inputSize) || CheckOutput(output, outputSize);
+}
+
+
+inline uint32_t Uint32BigEndianLeftRotateByOne(uint32_t word) // big-endian style
+{
+    return word << 1 | (word & 0x80000000 ? 1 : 0); // on 10700K this is more than 10% faster than word << 1 | word >> 31
+}
+
+inline uint32_t Uint32BigEndianLeftRotate(uint32_t word, int rounds) // big-endian style, rounds max == 32
+{
+    return word << rounds | word >> (32 - rounds);
+}
+
+inline uint32_t Uint32BigEndianRightRotate(uint32_t word, int rounds)
+{
+    return word >> rounds | word << (32 - rounds);
+}
+
+inline uint64_t Uint64BigEndianRightRotate(uint64_t word, int rounds)
+{
+    return word >> rounds | word << (64 - rounds);
+}
+
+inline uint64_t Uint64LittleEndianToBigEndian(uint64_t input)
+{
+    return input >> 56 
+         | input >> 40 & 0x000000000000ff00 
+         | input >> 24 & 0x0000000000ff0000 
+         | input >> 8  & 0x00000000ff000000
+         | input << 8  & 0x000000ff00000000
+         | input << 24 & 0x0000ff0000000000
+         | input << 40 & 0x00ff000000000000
+         | input << 56;
+}
+
+inline uint32_t Uint32LittleEndianToBigEndian(uint32_t input)
+{
+    return input >> 24
+         | input >> 8 & 0x0000ff00
+         | input << 8 & 0x00ff0000
+         | input << 24;
 }

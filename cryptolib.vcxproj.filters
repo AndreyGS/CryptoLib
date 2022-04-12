@@ -24,6 +24,9 @@
     <ClInclude Include="crypto_internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="paddings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="des.c">
@@ -39,6 +42,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="crypto_internal.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sha-1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sha-2.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

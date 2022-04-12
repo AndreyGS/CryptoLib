@@ -1,20 +1,23 @@
 #include "pch.h"
 #include "crypto_internal.h"
 
+#define SHA_START_LENGTH_OFFSET 56
+#define SHA2_START_LENGTH_OFFSET 112
+
 /*
     suffix Internal in function naming == Unsafe
 */
-inline int AddZeroPaddingInternal(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
-inline int AddPKCSN7PaddingInternal(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
-inline int AddISO7816PaddingInternal(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
-inline int PullPKCSN7PaddingSizeInternal(__in const void* input, __in uint64_t blockSize, __out uint8_t* paddingSize);
-inline int PullZeroPaddingSizeInternal(__in const void* input, __in uint64_t blockSize, __out uint64_t* paddingSize);
-inline int PullISO7816PaddingSizeInternal(__in const void* input, __in uint64_t blockSize, __out uint64_t* paddingSize);
-inline int CutZeroPaddingInternal(__in uint64_t blockSize, __in const void* output, __inout uint64_t* outputSize);
-inline int CutPKCSN7PaddingInternal(__in uint64_t blockSize, __in const void* output, __inout uint64_t* outputSize);
-inline int CutISO7816PaddingInternal(__in uint64_t blockSize, __in const void* output, __inout uint64_t* outputSize);
+int AddZeroPaddingInternal(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
+int AddPKCSN7PaddingInternal(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
+int AddISO7816PaddingInternal(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
+int PullPKCSN7PaddingSizeInternal(__in const void* input, __in uint64_t blockSize, __out uint8_t* paddingSize);
+int PullZeroPaddingSizeInternal(__in const void* input, __in uint64_t blockSize, __out uint64_t* paddingSize);
+int PullISO7816PaddingSizeInternal(__in const void* input, __in uint64_t blockSize, __out uint64_t* paddingSize);
+int CutZeroPaddingInternal(__in uint64_t blockSize, __in const void* output, __inout uint64_t* outputSize);
+int CutPKCSN7PaddingInternal(__in uint64_t blockSize, __in const void* output, __inout uint64_t* outputSize);
+int CutISO7816PaddingInternal(__in uint64_t blockSize, __in const void* output, __inout uint64_t* outputSize);
 
-inline int CheckPaddingInputOutput(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __in void* output, __in uint64_t* outputSize)
+int CheckPaddingInputOutput(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __in void* output, __in uint64_t* outputSize)
 {
     int status = NO_ERROR;
     if (status = CheckInputOutput(input, inputSize, output, outputSize))
@@ -25,7 +28,7 @@ inline int CheckPaddingInputOutput(__in const void* input, __in uint64_t inputSi
         return NO_ERROR;
 }
 
-inline int CheckPaddingOutput(__in uint64_t blockSize, __in const void* paddedOutput, __in uint64_t* outputSize)
+int CheckPaddingOutput(__in uint64_t blockSize, __in const void* paddedOutput, __in uint64_t* outputSize)
 {
     int status = NO_ERROR;
     if (status = CheckOutput(paddedOutput, outputSize))
@@ -45,7 +48,7 @@ int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType
     return AddPaddingInternal(input, inputSize, padding, blockSize, output, outputSize, fillAllBlock);
 }
 
-inline int AddPaddingInternal(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
+int AddPaddingInternal(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
 {
     int status = NO_ERROR;
 
@@ -93,7 +96,7 @@ int PullPaddingSize(__in PaddingType padding, __in void* input, __in uint64_t bl
     return PullPaddingSizeInternal(padding, input, blockSize, paddingSize);
 }
 
-inline int PullPaddingSizeInternal(__in PaddingType padding, __in void* input, __in uint64_t blockSize,  __out uint64_t* paddingSize)
+int PullPaddingSizeInternal(__in PaddingType padding, __in void* input, __in uint64_t blockSize,  __out uint64_t* paddingSize)
 {
     int status = NO_ERROR;
 
@@ -130,7 +133,7 @@ int CutPadding(__in PaddingType padding, __in uint64_t blockSize, __out void* ou
     return CutPaddingInternal(padding, blockSize, output, outputSize);
 }
 
-inline int CutPaddingInternal(__in PaddingType padding, __in uint64_t blockSize, __out void* paddedOutput, __inout uint64_t* outputSize)
+int CutPaddingInternal(__in PaddingType padding, __in uint64_t blockSize, __out void* paddedOutput, __inout uint64_t* outputSize)
 {
     int status = NO_ERROR;
 
@@ -184,7 +187,7 @@ void FillBySingleValue(__out void* output, __in uint8_t value, __in uint64_t len
 
 uint64_t GetRequiringOutputSize(__in uint64_t inputSize, __in uint64_t blockSize)
 {
-    return IsWholeBlockMultiplier(inputSize, blockSize) ? inputSize + blockSize : (inputSize + blockSize - 1) & ~(blockSize - 1);
+    return inputSize + blockSize - (IsWholeBlockMultiplier(inputSize, blockSize) ? 0 : inputSize % blockSize);
 }
 
 int GetPaddingSize(__in uint64_t inputSize, __in uint64_t blockSize, __inout uint64_t* outputSize, __inout uint64_t* paddingSize)
@@ -214,7 +217,7 @@ int AddZeroPadding(__in const void* input, __in uint64_t inputSize, __in uint64_
     return AddZeroPaddingInternal(input, inputSize, blockSize, output, outputSize, fillAllBlock);
 }
 
-inline int AddZeroPaddingInternal(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
+int AddZeroPaddingInternal(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
 {
     int status = NO_ERROR;
     uint64_t paddingSize = 0;
@@ -230,7 +233,7 @@ inline int AddZeroPaddingInternal(__in const void* input, __in uint64_t inputSiz
     return NO_ERROR;
 }
 
-inline int PullZeroPaddingSizeInternal(__in const void* input, __in uint64_t blockSize, __out uint64_t* paddingSize)
+int PullZeroPaddingSizeInternal(__in const void* input, __in uint64_t blockSize, __out uint64_t* paddingSize)
 {
     uint8_t* p = (uint8_t*)input + blockSize;
     while (!*--p && blockSize--)
@@ -251,7 +254,7 @@ int CutZeroPadding(__in uint64_t blockSize, __in const void* output, __inout uin
     return CutZeroPaddingInternal(blockSize, output, outputSize);
 }
 
-inline int CutZeroPaddingInternal(__in uint64_t blockSize, __in const void* output, __inout uint64_t* outputSize)
+int CutZeroPaddingInternal(__in uint64_t blockSize, __in const void* output, __inout uint64_t* outputSize)
 {
     int status = NO_ERROR;
     uint64_t paddingSize = 0;
@@ -276,7 +279,7 @@ int AddPKCSN7Padding(__in const void* input, __in uint64_t inputSize, __in uint6
     return AddPKCSN7PaddingInternal(input, inputSize, blockSize, output, outputSize, fillAllBlock);
 }
 
-inline int AddPKCSN7PaddingInternal(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
+int AddPKCSN7PaddingInternal(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
 {
     int status = NO_ERROR;
     uint64_t paddingSize = 0;
@@ -292,7 +295,7 @@ inline int AddPKCSN7PaddingInternal(__in const void* input, __in uint64_t inputS
     return NO_ERROR;
 }
 
-inline int PullPKCSN7PaddingSizeInternal(__in const void* input, __in uint64_t blockSize, __out uint8_t* paddingSize)
+int PullPKCSN7PaddingSizeInternal(__in const void* input, __in uint64_t blockSize, __out uint8_t* paddingSize)
 {
     *paddingSize = *((uint8_t*)input + blockSize - 1);
     if (*paddingSize == 0)
@@ -310,7 +313,7 @@ int CutPKCSN7Padding(__in uint64_t blockSize, __in const void* output, __inout u
     return CutPKCSN7PaddingInternal(blockSize, output, outputSize);
 }
 
-inline int CutPKCSN7PaddingInternal(__in uint64_t blockSize, __in const void* output, __inout uint64_t* outputSize)
+int CutPKCSN7PaddingInternal(__in uint64_t blockSize, __in const void* output, __inout uint64_t* outputSize)
 {
     int status = NO_ERROR;
     uint8_t paddingSize = 0;
@@ -333,7 +336,7 @@ int AddISO7816Padding(__in const void* input, __in uint64_t inputSize, __in uint
     return AddISO7816PaddingInternal(input, inputSize, blockSize, output, outputSize, fillAllBlock);
 }
 
-inline int AddISO7816PaddingInternal(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
+int AddISO7816PaddingInternal(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
 {
     int status = NO_ERROR;
     uint64_t paddingSize = 0;
@@ -351,7 +354,7 @@ inline int AddISO7816PaddingInternal(__in const void* input, __in uint64_t input
     return NO_ERROR;
 }
 
-inline int PullISO7816PaddingSizeInternal(__in const void* input, __in uint64_t blockSize, __out uint64_t* paddingSize)
+int PullISO7816PaddingSizeInternal(__in const void* input, __in uint64_t blockSize, __out uint64_t* paddingSize)
 {
     const uint8_t* p = (uint8_t*)input + blockSize;
 
@@ -375,7 +378,7 @@ int CutISO7816Padding(__in uint64_t blockSize, __in const void* output, __inout 
     return NO_ERROR;
 }
 
-inline int CutISO7816PaddingInternal(__in uint64_t blockSize, __in const void* output, __inout uint64_t* outputSize)
+int CutISO7816PaddingInternal(__in uint64_t blockSize, __in const void* output, __inout uint64_t* outputSize)
 {
     int status = NO_ERROR;
     uint64_t paddingSize = 0;
@@ -383,4 +386,54 @@ inline int CutISO7816PaddingInternal(__in uint64_t blockSize, __in const void* o
         return status;
     else
         return *outputSize -= paddingSize, NO_ERROR;
+}
+
+/*
+    SHA paddings
+*/
+
+// output must be zeroed before its passed here
+int AddShaPaddingInternal(__in const void* input, __in uint64_t inputSize, __out void* output, __out uint64_t* outputBlocksNum)
+{   
+    uint16_t lastBlockSize = inputSize % SHA_BLOCK_SIZE;
+    uint64_t messageBitsSize = inputSize << 3; // inputSizeLowPart * BITS_PER_BYTE;
+
+    if (lastBlockSize > 55) {                                                                                                   // 55 == SHA_BLOCK_SIZE - sizeof(uint64_t) - 1
+        uint64_t paddingFillSize = SHA_BLOCK_SIZE;
+        AddPaddingInternal(input, lastBlockSize, ISO_7816_padding, SHA_BLOCK_SIZE, output, &paddingFillSize, true);
+        ((uint64_t*)output)[15] = Uint64LittleEndianToBigEndian(messageBitsSize);                                               // 15 == SHA_BLOCK_SIZE * 2 - sizeof(uint64_t)
+        *outputBlocksNum = 2;
+    }
+    else {
+        uint64_t paddingFillSize = SHA_START_LENGTH_OFFSET;
+        AddPaddingInternal(input, lastBlockSize, ISO_7816_padding, SHA_START_LENGTH_OFFSET, output, &paddingFillSize, true);
+        ((uint64_t*)output)[7] = Uint64LittleEndianToBigEndian(messageBitsSize);                                                // 7 == SHA_BLOCK_SIZE - sizeof(uint64_t)
+        *outputBlocksNum = 1;
+    }
+
+    return NO_ERROR;
+}
+
+int AddSha2_64PaddingInternal(__in const void* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __out void* output, __out uint64_t* outputBlocksNum)
+{
+    uint16_t lastBlockSize = inputSizeLowPart % SHA2_BLOCK_SIZE;
+    uint64_t messageBitsSizeLow = inputSizeLowPart << 3; // inputSizeLowPart * BITS_PER_BYTE;
+    uint64_t messageBitsSizeHigh = (inputSizeHighPart << 3) | (inputSizeLowPart & 0xe000000000000000) >> 61;
+
+    if (lastBlockSize > 111) {                                                                                                   // 55 == SHA_BLOCK_SIZE - sizeof(uint64_t) - 1
+        uint64_t paddingFillSize = SHA2_BLOCK_SIZE;
+        AddPaddingInternal(input, lastBlockSize, ISO_7816_padding, SHA2_BLOCK_SIZE, output, &paddingFillSize, true);
+        ((uint64_t*)output)[30] = Uint64LittleEndianToBigEndian(messageBitsSizeHigh);                                           // 15 == SHA_BLOCK_SIZE * 2 - sizeof(uint64_t)
+        ((uint64_t*)output)[31] = Uint64LittleEndianToBigEndian(messageBitsSizeLow);
+        *outputBlocksNum = 2;
+    }
+    else {
+        uint64_t paddingFillSize = SHA2_START_LENGTH_OFFSET;
+        AddPaddingInternal(input, lastBlockSize, ISO_7816_padding, SHA2_START_LENGTH_OFFSET, output, &paddingFillSize, true);
+        ((uint64_t*)output)[14] = Uint64LittleEndianToBigEndian(messageBitsSizeHigh);                                           // 7 == SHA_BLOCK_SIZE - sizeof(uint64_t)
+        ((uint64_t*)output)[15] = Uint64LittleEndianToBigEndian(messageBitsSizeLow);
+        *outputBlocksNum = 1;
+    }
+
+    return NO_ERROR;
 }
