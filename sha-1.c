@@ -1,3 +1,6 @@
+// sha-1.c
+//
+
 #include "pch.h"
 #include "sha-1.h"
 #include "paddings.h"
@@ -70,36 +73,43 @@ void Sha1ProcessBlock(const uint32_t* input, uint32_t* output)
     output[4] += e;
 }
 
-int Sha1Get(__in const void* input, __in uint64_t inputSize, __out void* output)
+int Sha1Get(__in const HashInputNode* inputList, __in uint64_t inputListSize, __out void* output)
 {
-    uint64_t blocksNum = (inputSize >> 6) + 1; // inputSize / SHA_BLOCK_SIZE + 1
+    HashInputNode inputNode = *inputList++;
+    uint64_t totalSize = 0;
 
-    ((uint32_t*)output)[0] = H[0];
-    ((uint32_t*)output)[1] = H[1];
-    ((uint32_t*)output)[2] = H[2];
-    ((uint32_t*)output)[3] = H[3];
-    ((uint32_t*)output)[4] = H[4];
+    int32_t buffer[5] = { H[0], H[1], H[2], H[3], H[4] };
 
-    while (--blocksNum) {
-        Sha1ProcessBlock(input, output);
-        (uint8_t*)input += SHA_BLOCK_SIZE;
+    while (inputListSize--) {
+        totalSize += inputNode.inputSizeLowPart;
+
+        uint64_t blocksNum = (inputNode.inputSizeLowPart >> 6) + 1; // inputSize / SHA_BLOCK_SIZE + 1
+
+        while (--blocksNum) {
+            Sha1ProcessBlock(inputNode.input, buffer);
+            (uint8_t*)inputNode.input += SHA_BLOCK_SIZE;
+        }
+
+        if (inputListSize)
+            inputNode = *inputList++;
     }
 
     uint64_t tailBlocks[16] = { 0 };
-    AddShaPaddingInternal(input, inputSize, tailBlocks, &blocksNum);
+    uint64_t tailBlocksNum = 0;
+    AddShaPaddingInternal(inputNode.input, totalSize, tailBlocks, &tailBlocksNum);
 
     uint8_t* p = (uint8_t*)tailBlocks;
 
-    while (blocksNum--) {
-        Sha1ProcessBlock((uint32_t*)p, output);
+    while (tailBlocksNum--) {
+        Sha1ProcessBlock((uint32_t*)p, buffer);
         p += SHA_BLOCK_SIZE;
     }
 
-    ((uint32_t*)output)[0] = Uint32LittleEndianToBigEndian(((uint32_t*)output)[0]);
-    ((uint32_t*)output)[1] = Uint32LittleEndianToBigEndian(((uint32_t*)output)[1]);
-    ((uint32_t*)output)[2] = Uint32LittleEndianToBigEndian(((uint32_t*)output)[2]);
-    ((uint32_t*)output)[3] = Uint32LittleEndianToBigEndian(((uint32_t*)output)[3]);
-    ((uint32_t*)output)[4] = Uint32LittleEndianToBigEndian(((uint32_t*)output)[4]);
+    ((uint32_t*)output)[0] = Uint32LittleEndianToBigEndian(((uint32_t*)buffer)[0]);
+    ((uint32_t*)output)[1] = Uint32LittleEndianToBigEndian(((uint32_t*)buffer)[1]);
+    ((uint32_t*)output)[2] = Uint32LittleEndianToBigEndian(((uint32_t*)buffer)[2]);
+    ((uint32_t*)output)[3] = Uint32LittleEndianToBigEndian(((uint32_t*)buffer)[3]);
+    ((uint32_t*)output)[4] = Uint32LittleEndianToBigEndian(((uint32_t*)buffer)[4]);
 
     return NO_ERROR;
 }

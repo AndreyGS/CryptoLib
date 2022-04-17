@@ -508,7 +508,7 @@ uint64_t DesDecryptBlock(uint64_t input, uint64_t* roundsKeys)
 }
 
 int DesEncrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t* key, __out void* output, __inout uint64_t* outputSize,
-    __in BlockCipherOpMode mode, __in const void* iv)
+    __in BlockCipherOpMode mode, __in_opt const void* iv)
 {
     int status = NO_ERROR;
     if (status = AddPaddingInternal(input, inputSize, padding, DES_BLOCK_SIZE, output, outputSize, true))
@@ -573,7 +573,7 @@ int DesEncrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType
 }
 
 int DesDecrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t* key, __out void* output, __inout uint64_t* outputSize,
-    __in BlockCipherOpMode mode, __in const void* iv)
+    __in BlockCipherOpMode mode, __in_opt const void* iv)
 {
     int status = NO_ERROR;
 

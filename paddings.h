@@ -1,6 +1,9 @@
+// paddings.h
+//
+
 #pragma once
 
-#include "crypto_internal.h"
+#include "crypto_helpers.h"
 
 int CheckPaddingInputOutput(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __in void* output, __in uint64_t* outputSize);
 int CheckPaddingOutput(__in uint64_t blockSize, __in const void* paddedOutput, __in uint64_t* outputSize);

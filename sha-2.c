@@ -1,3 +1,6 @@
+// sha-2.c
+//
+
 #include "pch.h"
 #include "sha-2.h"
 #include "paddings.h"
@@ -151,8 +154,11 @@ void Sha2_32ProcessBlock(const uint32_t* input, uint32_t* output)
     output[7] += h;
 }
 
-void Sha2_32Get(__in const uint32_t* input, __in uint64_t inputSize, __in HashFunc func, __out uint32_t* output)
+void Sha2_32Get(__in const HashInputNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out uint32_t* output)
 {
+    HashInputNode inputNode = *inputList++;
+    uint64_t totalSize = 0;
+
     const uint32_t* pH = NULL;
 
     if (func == SHA_224)
@@ -161,19 +167,27 @@ void Sha2_32Get(__in const uint32_t* input, __in uint64_t inputSize, __in HashFu
         pH = H_256;
 
     uint32_t buffer[8] = { pH[0], pH[1], pH[2], pH[3], pH[4], pH[5], pH[6], pH[7] };
-    uint64_t blocksNum = (inputSize >> 6) + 1; // inputSize / SHA_BLOCK_SIZE + 1
 
-    while (--blocksNum) {
-        Sha2_32ProcessBlock(input, buffer);
-        (uint8_t*)input += SHA_BLOCK_SIZE;
+    while (inputListSize--) {
+        totalSize += inputNode.inputSizeLowPart;
+
+        uint64_t blocksNum = (inputNode.inputSizeLowPart >> 6) + 1; // inputSize / SHA_BLOCK_SIZE + 1
+
+        while (--blocksNum) {
+            Sha2_32ProcessBlock(inputNode.input, buffer);
+            (uint8_t*)inputNode.input += SHA_BLOCK_SIZE;
+        }
+
+        if (inputListSize)
+            inputNode = *inputList++;
     }
 
     uint64_t tailBlocks[16] = { 0 };
-
-    AddShaPaddingInternal(input, inputSize, tailBlocks, &blocksNum);
+    uint64_t tailBlocksNum = 0;
+    AddShaPaddingInternal(inputNode.input, totalSize, tailBlocks, &tailBlocksNum);
 
     uint8_t* p = (uint8_t*)tailBlocks;
-    while (blocksNum--) {
+    while (tailBlocksNum--) {
         Sha2_32ProcessBlock((uint32_t*)p, buffer);
         p += SHA_BLOCK_SIZE;
     }
@@ -243,8 +257,11 @@ void Sha2_64ProcessBlock(const uint64_t* input, uint64_t* output)
     output[7] += h;
 }
 
-void Sha2_64Get(__in const uint64_t* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __in HashFunc func, __out uint64_t* output)
+void Sha2_64Get(__in const HashInputNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out uint64_t* output)
 {
+    HashInputNode inputNode = *inputList++;
+    uint64_t totalSizeLow = 0, totalSizeHigh = 0;
+
     const uint64_t* pH = NULL;
 
     switch (func) {
@@ -264,30 +281,41 @@ void Sha2_64Get(__in const uint64_t* input, __in uint64_t inputSizeLowPart, __in
 
     uint64_t buffer[8] = { pH[0], pH[1], pH[2], pH[3], pH[4], pH[5], pH[6], pH[7] };
 
-    uint64_t blocksNumHigh = (inputSizeHighPart >> 7);
-    uint64_t blocksNumLow = (inputSizeLowPart >> 7) + 1 | (inputSizeHighPart & 0x000000000000007f) << 57;
+    while (inputListSize--) {
+        totalSizeHigh += inputNode.inputSizeHighPart + (inputNode.inputSizeLowPart + totalSizeLow < inputNode.inputSizeLowPart ? 1 : 0);
+        totalSizeLow += inputNode.inputSizeLowPart;
 
-    while (blocksNumHigh--) {
-        uint64_t blocksNum = 0xffffffffffffffff;
-        while (blocksNum-- > 0) {
-            Sha2_64ProcessBlock(input, buffer);
-            (uint8_t*)input += SHA2_BLOCK_SIZE;
+        uint64_t blocksNumHigh = (inputNode.inputSizeHighPart >> 7);
+        uint64_t blocksNumLow = (inputNode.inputSizeLowPart >> 7) + 1 | (inputNode.inputSizeHighPart & 0x000000000000007f) << 57;
+
+        while (blocksNumHigh--) {
+            uint64_t blocksNum = 0xffffffffffffffff;
+            while (blocksNum-- > 0) {
+                Sha2_64ProcessBlock(inputNode.input, buffer);
+                (uint8_t*)inputNode.input += SHA2_BLOCK_SIZE;
+            }
+
+            if (blocksNumHigh || blocksNumLow) {
+                Sha2_64ProcessBlock(inputNode.input, buffer);
+                (uint8_t*)inputNode.input += SHA2_BLOCK_SIZE;
+            }
         }
 
-        Sha2_64ProcessBlock(input, buffer);
-        (uint8_t*)input += SHA2_BLOCK_SIZE;
-    }
+        while (--blocksNumLow) {
+            Sha2_64ProcessBlock(inputNode.input, buffer);
+            (uint8_t*)inputNode.input += SHA2_BLOCK_SIZE;
+        }
 
-    while (--blocksNumLow) {
-        Sha2_64ProcessBlock(input, buffer);
-        (uint8_t*)input += SHA2_BLOCK_SIZE;
+        if (inputListSize)
+            inputNode = *inputList++;
     }
 
     uint64_t tailBlocks[32] = { 0 };
-    AddSha2_64PaddingInternal(input, inputSizeLowPart, inputSizeHighPart, tailBlocks, &blocksNumLow);
+    uint64_t tailBlocksNum = 0;
+    AddSha2_64PaddingInternal(inputNode.input, totalSizeLow, totalSizeHigh, tailBlocks, &tailBlocksNum);
 
     uint8_t* p = (uint8_t*)tailBlocks;
-    while (blocksNumLow--) {
+    while (tailBlocksNum--) {
         Sha2_64ProcessBlock((uint64_t*)p, buffer);
         p += SHA2_BLOCK_SIZE;
     }

@@ -1,5 +1,8 @@
+// crypto_helpers.c
+//
+
 #include "pch.h"
-#include "crypto_internal.h"
+#include "crypto_helpers.h"
 
 int CheckInput(__in const void* input, __in uint64_t inputSize)
 {

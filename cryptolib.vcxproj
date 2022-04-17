@@ -168,8 +168,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="crypto.h" />
+    <ClInclude Include="crypto_helpers.h" />
     <ClInclude Include="crypto_internal.h" />
     <ClInclude Include="des.h" />
+    <ClInclude Include="hmac.h" />
     <ClInclude Include="paddings.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="sha-1.h" />
@@ -178,9 +180,10 @@
   <ItemGroup>
     <ClCompile Include="consts.c" />
     <ClCompile Include="crypto.c" />
-    <ClCompile Include="crypto_internal.c" />
+    <ClCompile Include="crypto_helpers.c" />
     <ClCompile Include="des.c" />
     <ClCompile Include="hmac.c" />
+    <ClCompile Include="kdf.c" />
     <ClCompile Include="paddings.c" />
     <ClCompile Include="pch.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
