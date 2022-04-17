@@ -2,7 +2,8 @@
 //
 
 #include "pch.h"
-#include "crypto_internal.h"
+#include "des.h"
+#include "paddings.h"
 
 typedef struct _CDBlocks {
     uint32_t cBlock;
@@ -169,13 +170,8 @@ inline uint64_t DesGetRoundKey(CDBlocks cdBlocks)
         | ((uint64_t)cdBlocks.dBlock & 0x0000000000000010 /* 2^ 4 */) << 36;
 }
 
-uint64_t* DesGetRoundsKeys(uint64_t extendedKey)
+void DesGetRoundsKeys(uint64_t extendedKey, uint64_t* roundsKeys)
 {
-    // here we take 128 bytes instead of 96 for speed and simplicity
-    uint64_t* roundsKeys = malloc(128);
-    if (!roundsKeys)
-        return roundsKeys;
-
     CDBlocks cdBlocks = DesGetZeroCDBlocks(DesGetExtendedKeyPermutation(extendedKey));
     roundsKeys[0] = DesGetRoundKey(cdBlocks = DesGetRoundCDBlocksOne(cdBlocks));
     roundsKeys[1] = DesGetRoundKey(cdBlocks = DesGetRoundCDBlocksOne(cdBlocks));
@@ -193,8 +189,6 @@ uint64_t* DesGetRoundsKeys(uint64_t extendedKey)
     roundsKeys[13] = DesGetRoundKey(cdBlocks = DesGetRoundCDBlocksTwo(cdBlocks));
     roundsKeys[14] = DesGetRoundKey(cdBlocks = DesGetRoundCDBlocksTwo(cdBlocks));
     roundsKeys[15] = DesGetRoundKey(DesGetRoundCDBlocksOne(cdBlocks));
-
-    return roundsKeys;
 }
 
 // Feistel block
@@ -513,28 +507,15 @@ uint64_t DesDecryptBlock(uint64_t input, uint64_t* roundsKeys)
     return DesFinalPermutation(permInput);
 }
 
-inline int CheckDesPrimaryArguments(const void* input, uint64_t inputSize, uint64_t* roundsKeys,  void* output, uint64_t* outputSize, BlockCipherOpMode mode, const void* iv)
-{
-    int status = NO_ERROR;
-    if (status = CheckInputOutput(input, inputSize, output, outputSize))
-        return status;
-    else if (!roundsKeys)
-        return ERROR_WRONG_KEYS;
-    else if (mode != ECB_mode && !iv)
-        return ERROR_WRONG_INIT_VECTOR;
-    else
-        return NO_ERROR;
-}
-
-int DesEncrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t* roundsKeys, __out void* output, __inout uint64_t* outputSize,
+int DesEncrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t* key, __out void* output, __inout uint64_t* outputSize,
     __in BlockCipherOpMode mode, __in const void* iv)
 {
     int status = NO_ERROR;
-    if (status = CheckDesPrimaryArguments(input, inputSize, roundsKeys, output, outputSize, mode, iv))
-        return status;
-
     if (status = AddPaddingInternal(input, inputSize, padding, DES_BLOCK_SIZE, output, outputSize, true))
         return status;
+
+    uint64_t roundsKeys[16] = { 0 };
+    DesGetRoundsKeys(*key, roundsKeys);
 
     uint64_t blocksNumber = (*outputSize >> 3); // (outputSize / DES_BLOCK_SIZE)
     
@@ -591,14 +572,16 @@ int DesEncrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType
     return NO_ERROR;
 }
 
-int DesDecrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t* roundsKeys, __out void* output, __inout uint64_t* outputSize, 
+int DesDecrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t* key, __out void* output, __inout uint64_t* outputSize,
     __in BlockCipherOpMode mode, __in const void* iv)
 {
     int status = NO_ERROR;
-    if (status = CheckDesPrimaryArguments(input, inputSize, roundsKeys, output, outputSize, mode, iv))
-        return status;
-    else if (inputSize & 7) // (7 == DES_BLOCK_SIZE - 1)
+
+    if (inputSize & 7) // (7 == DES_BLOCK_SIZE - 1)
         return ERROR_WRONG_INPUT_SIZE;
+
+    uint64_t roundsKeys[16] = { 0 };
+    DesGetRoundsKeys(*key, roundsKeys);
 
     uint64_t blocksNumber = (inputSize >> 3); // (inputSize / DES_BLOCK_SIZE)
     uint64_t lastOutputBlock = 0;

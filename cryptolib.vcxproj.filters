@@ -27,6 +27,15 @@
     <ClInclude Include="paddings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="sha-2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sha-1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="des.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="des.c">
@@ -48,6 +57,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sha-2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hmac.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

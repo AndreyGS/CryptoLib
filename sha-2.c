@@ -1,6 +1,6 @@
 #include "pch.h"
-
-#include "crypto_internal.h"
+#include "sha-2.h"
+#include "paddings.h"
 
 const uint32_t H_224[8] = {
     0xc1059ed8,
@@ -151,11 +151,11 @@ void Sha2_32ProcessBlock(const uint32_t* input, uint32_t* output)
     output[7] += h;
 }
 
-void Sha2_32Internal(__in const uint32_t* input, __in uint64_t inputSize, __in Sha2Variant variant, __out uint32_t* output)
+void Sha2_32Get(__in const uint32_t* input, __in uint64_t inputSize, __in HashFunc func, __out uint32_t* output)
 {
     const uint32_t* pH = NULL;
 
-    if (variant == SHA_224)
+    if (func == SHA_224)
         pH = H_224;
     else
         pH = H_256;
@@ -186,7 +186,7 @@ void Sha2_32Internal(__in const uint32_t* input, __in uint64_t inputSize, __in S
     output[5] = Uint32LittleEndianToBigEndian(buffer[5]);
     output[6] = Uint32LittleEndianToBigEndian(buffer[6]);
 
-    if (variant == SHA_256)
+    if (func == SHA_256)
         output[7] = Uint32LittleEndianToBigEndian(buffer[7]);
 }
 
@@ -243,11 +243,11 @@ void Sha2_64ProcessBlock(const uint64_t* input, uint64_t* output)
     output[7] += h;
 }
 
-void Sha2_64Internal(__in const uint64_t* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __in Sha2Variant variant, __out uint64_t* output)
+void Sha2_64Get(__in const uint64_t* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __in HashFunc func, __out uint64_t* output)
 {
     const uint64_t* pH = NULL;
 
-    switch (variant) {
+    switch (func) {
     case SHA_384:
         pH = H_384;
         break;
@@ -260,8 +260,6 @@ void Sha2_64Internal(__in const uint64_t* input, __in uint64_t inputSizeLowPart,
     case SHA_512:
         pH = H_512;
         break;
-    default:
-        return;
     }
 
     uint64_t buffer[8] = { pH[0], pH[1], pH[2], pH[3], pH[4], pH[5], pH[6], pH[7] };
@@ -294,7 +292,7 @@ void Sha2_64Internal(__in const uint64_t* input, __in uint64_t inputSizeLowPart,
         p += SHA2_BLOCK_SIZE;
     }
 
-    switch (variant) {
+    switch (func) {
     case SHA_512:
         output[7] = Uint64LittleEndianToBigEndian(buffer[7]);
         output[6] = Uint64LittleEndianToBigEndian(buffer[6]);
@@ -302,7 +300,7 @@ void Sha2_64Internal(__in const uint64_t* input, __in uint64_t inputSizeLowPart,
         output[5] = Uint64LittleEndianToBigEndian(buffer[5]);
         output[4] = Uint64LittleEndianToBigEndian(buffer[4]);
     default:
-        if (variant == SHA_512_224)
+        if (func == SHA_512_224)
             output[3] = Uint32LittleEndianToBigEndian(*((((uint32_t*)&buffer[3]) + 1)));
         else
             output[3] = Uint64LittleEndianToBigEndian(buffer[3]);
@@ -312,28 +310,4 @@ void Sha2_64Internal(__in const uint64_t* input, __in uint64_t inputSizeLowPart,
         output[0] = Uint64LittleEndianToBigEndian(buffer[0]);
         break;
     }  
-}
-
-int Sha2Get(__in const void* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __in Sha2Variant variant, __out void* output)
-{
-    int status = NO_ERROR;
-    if (status = CheckInput(input, inputSizeLowPart ? inputSizeLowPart : inputSizeHighPart))
-        return status;
-    else if (!output)
-        return ERROR_WRONG_OUTPUT;
-
-    switch (variant) {
-    case SHA_224:
-    case SHA_256:
-        Sha2_32Internal(input, inputSizeLowPart, variant, output);
-        break;
-    case SHA_384:
-    case SHA_512_224:
-    case SHA_512_256:
-    case SHA_512:
-        Sha2_64Internal(input, inputSizeLowPart, inputSizeHighPart, variant, output);
-        break;
-    }
-
-    return NO_ERROR;
 }

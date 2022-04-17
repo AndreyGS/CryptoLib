@@ -25,6 +25,19 @@ int CheckInputOutput(__in const void* input, __in uint64_t inputSize, __in const
 }
 
 
+int CheckBlockCipherPrimaryArguments(const void* input, uint64_t inputSize, uint64_t* roundsKeys, void* output, uint64_t* outputSize, BlockCipherOpMode mode, const void* iv)
+{
+    int status = NO_ERROR;
+    if (status = CheckInputOutput(input, inputSize, output, outputSize))
+        return status;
+    else if (!roundsKeys)
+        return ERROR_WRONG_KEYS;
+    else if (mode != ECB_mode && !iv)
+        return ERROR_WRONG_INIT_VECTOR;
+    else
+        return NO_ERROR;
+}
+
 inline uint32_t Uint32BigEndianLeftRotateByOne(uint32_t word) // big-endian style
 {
     return word << 1 | (word & 0x80000000 ? 1 : 0); // on 10700K this is more than 10% faster than word << 1 | word >> 31

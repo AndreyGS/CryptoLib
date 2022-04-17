@@ -1,6 +1,6 @@
 #include "pch.h"
-
-#include "crypto_internal.h"
+#include "sha-1.h"
+#include "paddings.h"
 
 const uint32_t H[5] = {
     0x67452301,
@@ -72,14 +72,7 @@ void Sha1ProcessBlock(const uint32_t* input, uint32_t* output)
 
 int Sha1Get(__in const void* input, __in uint64_t inputSize, __out void* output)
 {
-    int status = NO_ERROR;
-    if (status = CheckInput(input, inputSize))
-        return status;
-    else if (!output)
-        return ERROR_WRONG_OUTPUT;
-
     uint64_t blocksNum = (inputSize >> 6) + 1; // inputSize / SHA_BLOCK_SIZE + 1
-    
 
     ((uint32_t*)output)[0] = H[0];
     ((uint32_t*)output)[1] = H[1];

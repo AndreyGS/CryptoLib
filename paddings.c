@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "crypto_internal.h"
+#include "paddings.h"
 
 #define SHA_START_LENGTH_OFFSET 56
 #define SHA2_START_LENGTH_OFFSET 112
@@ -37,15 +37,6 @@ int CheckPaddingOutput(__in uint64_t blockSize, __in const void* paddedOutput, _
         return ERROR_WRONG_BLOCK_SIZE;
     else
         return NO_ERROR;
-}
-
-int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
-{
-    int status = NO_ERROR;
-    if (status = CheckPaddingInputOutput(input, inputSize, blockSize, output, outputSize))
-        return status;
-    
-    return AddPaddingInternal(input, inputSize, padding, blockSize, output, outputSize, fillAllBlock);
 }
 
 int AddPaddingInternal(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
