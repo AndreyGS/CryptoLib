@@ -23,6 +23,7 @@ extern "C" {
 #define ERROR_HASHING_FUNC_NOT_SUPPORTED    0x80000009
 #define ERROR_CIPHER_FUNC_NOT_SUPPORTED     0x8000000a
 #define ERROR_WRONG_ITERATIONS_NUMBER       0x8000000b
+#define ERROR_NO_MEMORY                     0x8000000c
 
 #define BITS_PER_BYTE                   8
 #define DES_BLOCK_SIZE                  8
@@ -98,7 +99,7 @@ int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType
 
 int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* key, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
-int DecryptFromBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* key, __in BlockCipherType cipherType
+int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* key, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
 
 int GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out void* output);
@@ -107,17 +108,15 @@ int GetHashEx(__in const void* input, __in uint64_t inputSizeLowPart, __in uint6
 // This should be used when we have more than one distantly placed void* chunks of data, that must be hashed as single concatenated input
 int GetHashMultiple(__in const HashInputNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output);
 
-int GetHmac(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in HashFunc func, __out void* output, __out_opt uint16_t* outputSize);
+// Get pseudorandom function (currently only HMAC supported - see PRF enum)
+int GetPrf(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in PRF func, __out void* output, __out_opt uint16_t* outputSize);
 
-// Maximum saltSize you should pass here is 64 bytes
+// Maximum saltSize you should pass here is 512 bytes
 int GetPbkdf2(__in void* salt, __in uint64_t saltSize, __in void* key, __in uint64_t keySize, __in PRF func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize);
 
 // Here is no limit for saltSize except uint64_t length, but salt buffer must include additional 4 bytes for internal processing.
-// So if you pass saltSize as 108 bytes, you should allocate 112 bytes for salt.
+// So if you pass saltSize as 1008 bytes, you should allocate 1012 bytes for salt.
 int GetPbkdf2Ex(__in void* salt, __in uint64_t saltSize, __in void* key, __in uint64_t keySize, __in PRF func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize);
-
-// Get pseudorandom function
-int GetPrf(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in PRF func, __out void* output, __out_opt uint16_t* outputSize);
 
 #ifdef __cplusplus
 }

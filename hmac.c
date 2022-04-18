@@ -8,29 +8,26 @@
 int GetHmac(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in HashFunc func, __out void* output, __out_opt uint16_t* outputSize)
 {
     int status = NO_ERROR;
-    if (status = CheckInput(input, inputSize))
-        return status;
-    else if (status = CheckInput(key, keySize))
-        return status;
-    else if (!output)
-        return ERROR_WRONG_OUTPUT;
-    else
-        return GetHmacInternal(input, inputSize, key, keySize, func, output, outputSize);
-}
 
-int GetHmacInternal(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in HashFunc func, __out void* output, __out_opt uint16_t* outputSize)
-{
-    uint64_t iKeyPad[18] = { 0 };
     uint16_t blockSize = g_hashFuncsSizesMappings[func].blockSize;
+    uint16_t didgestSize = g_hashFuncsSizesMappings[func].outputSize;
+
+    uint8_t* iKeyPad = AllocBuffer(blockSize);
+    uint8_t* oKeyPad = AllocBuffer(blockSize);
+    if (!iKeyPad || !oKeyPad) {
+        status = ERROR_NO_MEMORY;
+        goto exit;
+    }
 
     if (keySize > blockSize) {
         const HashInputNode inputNode = { key, keySize, 0 };
         GetHashMultipleInternal(&inputNode, 1, func, iKeyPad);
+        keySize = didgestSize;
     }
     else
         memcpy(iKeyPad, key, (size_t)keySize);
 
-    uint64_t oKeyPad[18] = { 0 };
+    memset(iKeyPad + keySize, 0, blockSize - (uint16_t)keySize);
     memcpy(oKeyPad, iKeyPad, blockSize);
 
     uint8_t* p = (uint8_t*)iKeyPad;
@@ -41,20 +38,27 @@ int GetHmacInternal(__in void* input, __in uint64_t inputSize, __in void* key, _
     for (uint8_t i = 0; i < blockSize; ++i)
         *p++ ^= '\x5c';
 
-    uint16_t didgestSize = g_hashFuncsSizesMappings[func].outputSize;
-
-    HashInputNode inputNodes[2] = { { iKeyPad, blockSize, 0 }, { input, inputSize, 0 } };
+    HashInputNode inputNodes[2] = 
+    { 
+        { iKeyPad, blockSize, 0 }, 
+        { input,   inputSize, 0 } 
+    };
 
     GetHashMultipleInternal(inputNodes, 2, func, iKeyPad);
 
-    inputNodes[0].input = oKeyPad, inputNodes[1].input = iKeyPad, inputNodes[1].inputSizeLowPart = didgestSize;
+    inputNodes[0].input = oKeyPad,
+    inputNodes[1].input = iKeyPad, inputNodes[1].inputSizeLowPart = didgestSize;
 
     GetHashMultipleInternal(inputNodes, 2, func, output);
 
     if (outputSize)
         *outputSize = didgestSize;
 
-    return NO_ERROR;
+exit:
+    FreeBuffer(iKeyPad);
+    FreeBuffer(oKeyPad);
+
+    return status;
 }
 
 int GetHmacPrf(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in PRF func, __out void* output, __out_opt uint16_t* outputSize)
@@ -74,28 +78,6 @@ int GetHmacPrf(__in void* input, __in uint64_t inputSize, __in void* key, __in u
         return GetHmac(input, inputSize, key, keySize, SHA_512_256, output, outputSize);
     case HMAC_SHA_512:
         return GetHmac(input, inputSize, key, keySize, SHA_512, output, outputSize);
-    default:
-        return ERROR_HASHING_FUNC_NOT_SUPPORTED;
-    }
-}
-
-int GetHmacPrfInternal(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in PRF func, __out void* output, __out_opt uint16_t* outputSize)
-{
-    switch (func) {
-    case HMAC_Sha1:
-        return GetHmacInternal(input, inputSize, key, keySize, SHA1, output, outputSize);
-    case HMAC_SHA_224:
-        return GetHmacInternal(input, inputSize, key, keySize, SHA_224, output, outputSize);
-    case HMAC_SHA_256:
-        return GetHmacInternal(input, inputSize, key, keySize, SHA_256, output, outputSize);
-    case HMAC_SHA_384:
-        return GetHmacInternal(input, inputSize, key, keySize, SHA_384, output, outputSize);
-    case HMAC_SHA_512_224:
-        return GetHmacInternal(input, inputSize, key, keySize, SHA_512_224, output, outputSize);
-    case HMAC_SHA_512_256:
-        return GetHmacInternal(input, inputSize, key, keySize, SHA_512_256, output, outputSize);
-    case HMAC_SHA_512:
-        return GetHmacInternal(input, inputSize, key, keySize, SHA_512, output, outputSize);
     default:
         return ERROR_HASHING_FUNC_NOT_SUPPORTED;
     }

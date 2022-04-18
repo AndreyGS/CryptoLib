@@ -25,7 +25,7 @@ int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in P
     }
 }
 
-int DecryptFromBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* key, __in BlockCipherType cipherType
+int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* key, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv)
 {
     int status = NO_ERROR;
@@ -72,11 +72,8 @@ int GetHashMultiple(__in const HashInputNode* inputList, __in uint64_t inputList
 
     if (!output)
         return ERROR_WRONG_OUTPUT;
-    else {
-        GetHashMultipleInternal(inputList, inputListSize, func, output);
-        return NO_ERROR;
-    }
-
+    else 
+        return GetHashMultipleInternal(inputList, inputListSize, func, output);
 }
 
 int GetHashMultipleInternal(__in const HashInputNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output)
@@ -104,6 +101,14 @@ int GetHashMultipleInternal(__in const HashInputNode* inputList, __in uint64_t i
 
 int GetPrf(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in PRF func, __out void* output, __out_opt uint16_t* outputSize)
 {
+    int status = NO_ERROR;
+    if (status = CheckInput(input, inputSize))
+        return status;
+    else if (status = CheckInput(key, keySize))
+        return status;
+    else if (!output)
+        return ERROR_WRONG_OUTPUT;
+
     switch (func) {
     case HMAC_Sha1:
     case HMAC_SHA_224:
@@ -113,22 +118,6 @@ int GetPrf(__in void* input, __in uint64_t inputSize, __in void* key, __in uint6
     case HMAC_SHA_512_256:
     case HMAC_SHA_512:
         return GetHmacPrf(input, inputSize, key, keySize, func, output, outputSize);
-    default:
-        return ERROR_HASHING_FUNC_NOT_SUPPORTED;
-    }
-}
-
-int GetPrfInternal(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in PRF func, __out void* output, __out_opt uint16_t* outputSize)
-{
-    switch (func) {
-    case HMAC_Sha1:
-    case HMAC_SHA_224:
-    case HMAC_SHA_256:
-    case HMAC_SHA_384:
-    case HMAC_SHA_512_224:
-    case HMAC_SHA_512_256:
-    case HMAC_SHA_512:
-        return GetHmacPrfInternal(input, inputSize, key, keySize, func, output, outputSize);
     default:
         return ERROR_HASHING_FUNC_NOT_SUPPORTED;
     }

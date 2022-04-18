@@ -80,3 +80,20 @@ inline uint32_t Uint32LittleEndianToBigEndian(uint32_t input)
          | input << 8 & 0x00ff0000
          | input << 24;
 }
+
+inline void* AllocBuffer(size_t size)
+{
+    void* buffer = NULL;
+#ifndef KERNEL
+    buffer = malloc(size);
+#endif
+    return buffer;
+}
+
+inline void FreeBuffer(void* buffer)
+{
+#ifndef KERNEL
+    if (buffer)
+        free(buffer);
+#endif
+}

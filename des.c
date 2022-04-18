@@ -569,6 +569,8 @@ int DesEncrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType
     }
     }
 
+    memset_s(roundsKeys, 128, '\xcc', 128);
+
     return NO_ERROR;
 }
 
@@ -684,6 +686,8 @@ int DesDecrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType
     }
 
     }
+
+    memset_s(roundsKeys, 128, '\xcc', 128);
 
     return NO_ERROR;
 }

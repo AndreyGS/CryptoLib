@@ -172,6 +172,7 @@
     <ClInclude Include="crypto_internal.h" />
     <ClInclude Include="des.h" />
     <ClInclude Include="hmac.h" />
+    <ClInclude Include="kdf.h" />
     <ClInclude Include="paddings.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="sha-1.h" />

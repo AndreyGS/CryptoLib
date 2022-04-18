@@ -12,4 +12,15 @@
 #include <memory.h>
 #include <stdlib.h>
 
+#ifdef __STDC_LIB_EXT1__
+#define __STDC_WANT_LIB_EXT1__ 1
+#include <string.h>
+#else
+    errno_t memset_s(void* dest, rsize_t destsz, int ch, rsize_t count);
+    #ifdef _WIN32 
+        #include <Windows.h>
+        #undef NO_ERROR
+    #endif
+#endif
+        
 #endif //PCH_H
