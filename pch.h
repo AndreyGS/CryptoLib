@@ -16,11 +16,7 @@
 #define __STDC_WANT_LIB_EXT1__ 1
 #include <string.h>
 #else
-    errno_t memset_s(void* dest, rsize_t destsz, int ch, rsize_t count);
-    #ifdef _WIN32 
-        #include <Windows.h>
-        #undef NO_ERROR
-    #endif
+errno_t memset_s(void* dest, rsize_t destsz, int ch, rsize_t count);
 #endif
         
 #endif //PCH_H
