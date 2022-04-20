@@ -49,18 +49,18 @@ int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType
     return AddPaddingInternal(input, inputSize, padding, blockSize, output, outputSize, fillAllBlock);
 }
 
-int GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out void* output)
+int GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out void* output, __in_opt uint16_t outputSize)
 {
-    return GetHashEx(input, inputSize, 0, func, output);
+    return GetHashEx(input, inputSize, 0, func, output, outputSize);
 }
 
-int GetHashEx(__in const void* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __in HashFunc func, __out void* output)
+int GetHashEx(__in const void* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __in HashFunc func, __out void* output, __in_opt uint16_t outputSize)
 {
     const HashInputNode inputList = { (void*)input, inputSizeLowPart, inputSizeHighPart };
-    return GetHashMultiple(&inputList, 1, func, output);
+    return GetHashMultiple(&inputList, 1, func, output, outputSize);
 }
 
-int GetHashMultiple(__in const HashInputNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output)
+int GetHashMultiple(__in const HashInputNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output, __in_opt uint16_t outputSize)
 {
     int status = NO_ERROR;
     if (status = CheckInput(inputList, inputListSize))
@@ -72,11 +72,11 @@ int GetHashMultiple(__in const HashInputNode* inputList, __in uint64_t inputList
 
     if (!output)
         return ERROR_WRONG_OUTPUT;
-    else 
-        return GetHashMultipleInternal(inputList, inputListSize, func, output);
+    else
+        return GetHashMultipleInternal(inputList, inputListSize, func, output, outputSize);
 }
 
-int GetHashMultipleInternal(__in const HashInputNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output)
+int GetHashMultipleInternal(__in const HashInputNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output, __in_opt uint16_t outputSize)
 {
     switch (func) {
     case SHA1:
@@ -99,7 +99,7 @@ int GetHashMultipleInternal(__in const HashInputNode* inputList, __in uint64_t i
     return NO_ERROR;
 }
 
-int GetPrf(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in PRF func, __out void* output, __out_opt uint16_t* outputSize)
+int GetPrf(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in PRF func, __out void* output, __in_opt uint16_t outputSize)
 {
     int status = NO_ERROR;
     if (status = CheckInput(input, inputSize))
@@ -117,7 +117,7 @@ int GetPrf(__in void* input, __in uint64_t inputSize, __in void* key, __in uint6
     case HMAC_SHA_512_224:
     case HMAC_SHA_512_256:
     case HMAC_SHA_512:
-        return GetHmacPrf(input, inputSize, key, keySize, func, output, outputSize);
+        return GetHmacPrf(input, inputSize, key, keySize, func, output);
     default:
         return ERROR_HASHING_FUNC_NOT_SUPPORTED;
     }

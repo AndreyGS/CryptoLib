@@ -81,6 +81,25 @@ inline uint32_t Uint32LittleEndianToBigEndian(uint32_t input)
          | input << 24;
 }
 
+// Example of input and output of Uint64LittleEndianToBigEndianBits:
+//
+// first two bytes:
+// input:
+// 1010 0110 1110 0010 (0xa6e2)
+// output:
+// 0110 0101 0100 0111 (0x6547)
+inline uint64_t Uint64LittleEndianToBigEndianBits(uint64_t input)
+{
+    return (input & 0x8080808080808080) >> 7
+        |  (input & 0x4040404040404040) >> 5
+        |  (input & 0x2020202020202020) >> 3
+        |  (input & 0x1010101010101010) >> 1
+        |  (input & 0x0808080808080808) << 1
+        |  (input & 0x0404040404040404) << 3
+        |  (input & 0x0202020202020202) << 5
+        |  (input & 0x0101010101010101) << 7;
+}
+
 inline void* AllocBuffer(size_t size)
 {
     void* buffer = NULL;

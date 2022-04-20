@@ -66,7 +66,7 @@ int GetPbkdf2Internal(__in void* salt, __in uint64_t saltSize, __in void* key, _
     
     while (blocksNum--) {
         *(uint32_t*)((uint8_t*)salt + saltSize) = Uint32LittleEndianToBigEndian(++blocksCounter);
-        EVAL(GetPrf(salt, saltFullSize, key, keySize, func, buffer1, NULL));
+        EVAL(GetPrf(salt, saltFullSize, key, keySize, func, buffer1, didgestSize));
 
         if (blocksNum) {
             buffer2 = output;
@@ -79,7 +79,7 @@ int GetPbkdf2Internal(__in void* salt, __in uint64_t saltSize, __in void* key, _
 
         uint64_t blockIterationsNum = iterationsNum;
         while (--blockIterationsNum) {
-            EVAL(GetPrf(buffer1, didgestSize, key, keySize, func, buffer1, NULL));
+            EVAL(GetPrf(buffer1, didgestSize, key, keySize, func, buffer1, didgestSize));
             for (uint16_t i = 0; i < didgestSize; ++i)
                 buffer2[i] ^= buffer1[i];
         }

@@ -5,7 +5,7 @@
 #include "crypto_internal.h"
 #include "hmac.h"
 
-int GetHmac(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in HashFunc func, __out void* output, __out_opt uint16_t* outputSize)
+int GetHmac(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in HashFunc func, __out void* output)
 {
     int status = NO_ERROR;
 
@@ -21,7 +21,7 @@ int GetHmac(__in void* input, __in uint64_t inputSize, __in void* key, __in uint
 
     if (keySize > blockSize) {
         const HashInputNode inputNode = { key, keySize, 0 };
-        GetHashMultipleInternal(&inputNode, 1, func, iKeyPad);
+        GetHashMultipleInternal(&inputNode, 1, func, iKeyPad, didgestSize);
         keySize = didgestSize;
     }
     else
@@ -44,15 +44,12 @@ int GetHmac(__in void* input, __in uint64_t inputSize, __in void* key, __in uint
         { input,   inputSize, 0 } 
     };
 
-    GetHashMultipleInternal(inputNodes, 2, func, iKeyPad);
+    GetHashMultipleInternal(inputNodes, 2, func, iKeyPad, didgestSize);
 
     inputNodes[0].input = oKeyPad,
     inputNodes[1].input = iKeyPad, inputNodes[1].inputSizeLowPart = didgestSize;
 
-    GetHashMultipleInternal(inputNodes, 2, func, output);
-
-    if (outputSize)
-        *outputSize = didgestSize;
+    GetHashMultipleInternal(inputNodes, 2, func, output, didgestSize);
 
 exit:
     FreeBuffer(iKeyPad);
@@ -61,23 +58,23 @@ exit:
     return status;
 }
 
-int GetHmacPrf(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in PRF func, __out void* output, __out_opt uint16_t* outputSize)
+int GetHmacPrf(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in PRF func, __out void* output)
 {
     switch (func) {
     case HMAC_Sha1:
-        return GetHmac(input, inputSize, key, keySize, SHA1, output, outputSize);
+        return GetHmac(input, inputSize, key, keySize, SHA1, output);
     case HMAC_SHA_224:
-        return GetHmac(input, inputSize, key, keySize, SHA_224, output, outputSize);
+        return GetHmac(input, inputSize, key, keySize, SHA_224, output);
     case HMAC_SHA_256:
-        return GetHmac(input, inputSize, key, keySize, SHA_256, output, outputSize);
+        return GetHmac(input, inputSize, key, keySize, SHA_256, output);
     case HMAC_SHA_384:
-        return GetHmac(input, inputSize, key, keySize, SHA_384, output, outputSize);
+        return GetHmac(input, inputSize, key, keySize, SHA_384, output);
     case HMAC_SHA_512_224:
-        return GetHmac(input, inputSize, key, keySize, SHA_512_224, output, outputSize);
+        return GetHmac(input, inputSize, key, keySize, SHA_512_224, output);
     case HMAC_SHA_512_256:
-        return GetHmac(input, inputSize, key, keySize, SHA_512_256, output, outputSize);
+        return GetHmac(input, inputSize, key, keySize, SHA_512_256, output);
     case HMAC_SHA_512:
-        return GetHmac(input, inputSize, key, keySize, SHA_512, output, outputSize);
+        return GetHmac(input, inputSize, key, keySize, SHA_512, output);
     default:
         return ERROR_HASHING_FUNC_NOT_SUPPORTED;
     }

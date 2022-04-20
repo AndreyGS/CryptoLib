@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#define NO_ERROR                        0x00000000
+#define NO_ERROR                            0x00000000
 
 #define ERROR_WRONG_INPUT                   0x80000000
 #define ERROR_WRONG_OUTPUT                  0x80000001
@@ -58,7 +58,13 @@ typedef enum _HashFunc {
     SHA_384,
     SHA_512_224,
     SHA_512_256,
-    SHA_512
+    SHA_512,
+    SHA3_224,
+    SHA3_256,
+    SHA3_384,
+    SHA3_512,
+    SHAKE128,
+    SHAKE256
 } HashFunc;
 
 typedef struct _HashFuncsSizes {
@@ -76,7 +82,13 @@ static HashFuncsSizes g_hashFuncsSizesMappings[] =
     { SHA_384,      128, 48 },
     { SHA_512_224,  128, 28 },
     { SHA_512_256,  128, 32 },
-    { SHA_512,      128, 64 }
+    { SHA_512,      128, 64 },
+    { SHA3_224,     144, 28 },
+    { SHA3_256,     136, 32 },
+    { SHA3_384,     104, 48 },
+    { SHA3_512,      72, 64 },
+    { SHAKE128,     168,  0 },
+    { SHAKE256,     132,  0 }
 };
 
 typedef struct _HashInputNode {
@@ -97,19 +109,26 @@ typedef enum _PRF {
 
 int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
 
+// If you supply outputSize == 0, then function returns ERROR_WRONG_OUTPUT_SIZE error and outputSize variable will contain requiring size
 int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* key, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
 int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* key, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
 
-int GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out void* output);
-int GetHashEx(__in const void* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __in HashFunc func, __out void* output);
+// Before using GetHash and GetHashEx you should allocate output buffer according to output digest size of respective hashing function
+// outputSize parameter is only filled on variable size output hashing funcs (SHAKE128 and SHAKE256), for all the rest
+// you may check the numbers with g_hashFuncsSizesMappings array (see "func" and corresponding "blockSize" fields)
+int GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out void* output, __in_opt uint16_t outputSize);
+int GetHashEx(__in const void* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __in HashFunc func, __out void* output, __in_opt uint16_t outputSize);
 
-// This should be used when we have more than one distantly placed void* chunks of data, that must be hashed as single concatenated input
-int GetHashMultiple(__in const HashInputNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output);
+// This function should be used when we have more than one distantly placed void* chunks of data, that must be hashed as single concatenated input
+// All but last chunks sizes must be divisible by hashing func block size without remainder
+int GetHashMultiple(__in const HashInputNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output, __in_opt uint16_t outputSize);
 
-// Get pseudorandom function (currently only HMAC supported - see PRF enum)
-int GetPrf(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in PRF func, __out void* output, __out_opt uint16_t* outputSize);
+// Get pseudorandom function result (currently only HMAC supported - see PRF enum)
+// outputSize parameter is only filled on variable size output hashing funcs (SHAKE128 and SHAKE256), for all the rest
+// you may check the numbers with g_hashFuncsSizesMappings array (see respective hash function in "func" and corresponding "blockSize" fields)
+int GetPrf(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in PRF func, __out void* output, __in_opt uint16_t outputSize);
 
 // Maximum saltSize you should pass here is 512 bytes
 int GetPbkdf2(__in void* salt, __in uint64_t saltSize, __in void* key, __in uint64_t keySize, __in PRF func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize);

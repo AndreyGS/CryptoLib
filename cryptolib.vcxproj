@@ -194,6 +194,7 @@
     </ClCompile>
     <ClCompile Include="sha-1.c" />
     <ClCompile Include="sha-2.c" />
+    <ClCompile Include="sha-3.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

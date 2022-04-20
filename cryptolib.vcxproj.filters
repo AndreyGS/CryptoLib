@@ -77,5 +77,8 @@
     <ClCompile Include="kdf.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sha-3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
