@@ -8,6 +8,7 @@
 #include "paddings.h"
 #include "sha-1.h"
 #include "sha-2.h"
+#include "sha-3.h"
 #include "hmac.h"
 
 int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* key, __in BlockCipherType cipherType
@@ -91,6 +92,14 @@ int GetHashMultipleInternal(__in const HashInputNode* inputList, __in uint64_t i
     case SHA_512_256:
     case SHA_512:
         Sha2_64Get(inputList, inputListSize, func, output);
+        break;
+    case SHA3_224:
+    case SHA3_256:
+    case SHA3_384:
+    case SHA3_512:
+    case SHAKE128:
+    case SHAKE256:
+        Sha3Get(inputList, inputListSize, func, output, outputSize);
         break;
     default:
         return ERROR_HASHING_FUNC_NOT_SUPPORTED;

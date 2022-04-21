@@ -177,6 +177,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="sha-1.h" />
     <ClInclude Include="sha-2.h" />
+    <ClInclude Include="sha-3.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="consts.c" />
