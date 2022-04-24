@@ -35,18 +35,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>..\CryptoLib;$(IncludePath)</IncludePath>
     <LibraryPath>..\CryptoLib\Debug;$(LibraryPath)</LibraryPath>
+    <OutDir>$(ProjectName)$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>..\CryptoLib;$(IncludePath)</IncludePath>
     <LibraryPath>..\CryptoLib\Release;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
+    <OutDir>$(ProjectName)$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>..\CryptoLib;$(IncludePath)</IncludePath>
     <LibraryPath>..\CryptoLib\x64\Debug;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <OutDir>$(ProjectName)$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>..\CryptoLib;$(IncludePath)</IncludePath>
     <LibraryPath>..\CryptoLib\x64\Release;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <OutDir>$(ProjectName)$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -71,7 +75,7 @@
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\CryptoLib\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets" Condition="Exists('..\CryptoLib\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets')" />
+    <Import Project="packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets" Condition="Exists('packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets')" />
   </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -86,6 +90,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>CryptoLib.lib;$(MSBuildThisFileDirectory)packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\lib\native\v140\windesktop\msvcstl\static\rt-static\x86\Debug\gtest_maind.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -101,6 +106,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>CryptoLib.lib;$(MSBuildThisFileDirectory)packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\lib\native\v140\windesktop\msvcstl\static\rt-static\x64\Debug\gtest_maind.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -117,6 +123,7 @@
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <AdditionalDependencies>CryptoLib.lib;$(MSBuildThisFileDirectory)packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\lib\native\v140\windesktop\msvcstl\static\rt-static\x86\Release\gtest_main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -133,12 +140,13 @@
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <AdditionalDependencies>CryptoLib.lib;$(MSBuildThisFileDirectory)packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\lib\native\v140\windesktop\msvcstl\static\rt-static\x64\Release\gtest_main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\CryptoLib\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\CryptoLib\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets'))" />
+    <Error Condition="!Exists('packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets'))" />
   </Target>
 </Project>

@@ -11,6 +11,7 @@
 #include "hmac.h"
 
 int GetHashMultipleInternal(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output);
+int GetXofMultipleInternal(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Xof func, __out void* output, __in uint64_t outputSize);
 
 int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* key, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv)
@@ -58,7 +59,7 @@ int GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func,
 
 int GetHashEx(__in const void* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __in HashFunc func, __out void* output)
 {
-    const VoidAndSizeNode inputList = { input, inputSizeLowPart, inputSizeHighPart };
+    const VoidAndSizeNode inputList = { (void*)input, inputSizeLowPart, inputSizeHighPart };
     return GetHashMultiple(&inputList, 1, func, output);
 }
 
@@ -109,7 +110,7 @@ int GetHashMultipleInternal(__in const VoidAndSizeNode* inputList, __in uint64_t
 
 int GetXof(__in const void* input, __in uint64_t inputSize, __in Xof func, __out void* output, __in uint64_t outputSize)
 {
-    const VoidAndSizeNode inputList = { input, inputSize, 0 };
+    const VoidAndSizeNode inputList = { (void*)input, inputSize, 0 };
     return GetXofMultiple(&inputList, 1, func, output, outputSize);
 }
 
