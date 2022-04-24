@@ -73,9 +73,9 @@ void Sha1ProcessBlock(const uint32_t* input, uint32_t* output)
     output[4] += e;
 }
 
-int Sha1Get(__in const HashInputNode* inputList, __in uint64_t inputListSize, __out void* output)
+int Sha1Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __out void* output)
 {
-    HashInputNode inputNode = *inputList++;
+    VoidAndSizeNode inputNode = *inputList++;
     uint64_t totalSize = 0;
 
     int32_t buffer[5] = { H[0], H[1], H[2], H[3], H[4] };
@@ -95,7 +95,7 @@ int Sha1Get(__in const HashInputNode* inputList, __in uint64_t inputListSize, __
     }
 
     uint64_t tailBlocks[16] = { 0 };
-    uint64_t tailBlocksNum = 0;
+    uint8_t tailBlocksNum = 0;
     AddShaPaddingInternal(inputNode.input, totalSize, tailBlocks, &tailBlocksNum);
 
     uint8_t* p = (uint8_t*)tailBlocks;

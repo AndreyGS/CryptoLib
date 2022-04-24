@@ -62,9 +62,7 @@ typedef enum _HashFunc {
     SHA3_224,
     SHA3_256,
     SHA3_384,
-    SHA3_512,
-    SHAKE128,
-    SHAKE256
+    SHA3_512
 } HashFunc;
 
 typedef struct _HashFuncsSizes {
@@ -86,16 +84,14 @@ static HashFuncsSizes g_hashFuncsSizesMappings[] =
     { SHA3_224,     144, 28 },
     { SHA3_256,     136, 32 },
     { SHA3_384,     104, 48 },
-    { SHA3_512,      72, 64 },
-    { SHAKE128,     168,  0 },
-    { SHAKE256,     132,  0 }
+    { SHA3_512,      72, 64 }
 };
 
-typedef struct _HashInputNode {
+typedef struct _VoidAndSizeNode {
     void* input;
     uint64_t inputSizeLowPart;
     uint64_t inputSizeHighPart;
-} HashInputNode;
+} VoidAndSizeNode;
 
 typedef enum _PRF {
     HMAC_Sha1,
@@ -106,6 +102,22 @@ typedef enum _PRF {
     HMAC_SHA_512_256,
     HMAC_SHA_512
 } PRF;
+
+typedef enum _Xof {
+    SHAKE128,
+    SHAKE256
+} Xof;
+
+typedef struct _XofSizes {
+    Xof func;
+    uint16_t blockSize;
+} XofSizes;
+
+static XofSizes g_XofSizesMappings[] =
+{
+    { SHAKE128,     168 },
+    { SHAKE256,     136 }
+};
 
 int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
 
@@ -118,15 +130,19 @@ int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in P
 // Before using GetHash and GetHashEx you should allocate output buffer according to output digest size of respective hashing function
 // outputSize parameter is only filled on variable size output hashing funcs (SHAKE128 and SHAKE256), for all the rest
 // you may check the numbers with g_hashFuncsSizesMappings array (see "func" and corresponding "blockSize" fields)
-int GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out void* output, __in_opt uint16_t outputSize);
-int GetHashEx(__in const void* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __in HashFunc func, __out void* output, __in_opt uint16_t outputSize);
+int GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out void* output);
+int GetHashEx(__in const void* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __in HashFunc func, __out void* output);
 
 // This function should be used when we have more than one distantly placed void* chunks of data, that must be hashed as single concatenated input
 // All but last chunks sizes must be divisible by hashing func block size without remainder
-int GetHashMultiple(__in const HashInputNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output, __in_opt uint16_t outputSize);
+int GetHashMultiple(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output);
+
+int GetXof(__in const void* input, __in uint64_t inputSize, __in Xof func, __out void* output, __in uint64_t outputSize);
+
+int GetXofMultiple(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Xof func, __out void* output, __in uint64_t outputSize);
 
 // Get pseudorandom function result (currently only HMAC supported - see PRF enum)
-// outputSize parameter is only filled on variable size output hashing funcs (SHAKE128 and SHAKE256), for all the rest
+// outputSize parameter is only filled on variable size output XOF funcs (SHAKE128 and SHAKE256), for all the rest
 // you may check the numbers with g_hashFuncsSizesMappings array (see respective hash function in "func" and corresponding "blockSize" fields)
 int GetPrf(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in PRF func, __out void* output, __in_opt uint16_t outputSize);
 

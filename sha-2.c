@@ -154,9 +154,9 @@ void Sha2_32ProcessBlock(const uint32_t* input, uint32_t* output)
     output[7] += h;
 }
 
-void Sha2_32Get(__in const HashInputNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out uint32_t* output)
+void Sha2_32Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out uint32_t* output)
 {
-    HashInputNode inputNode = *inputList++;
+    VoidAndSizeNode inputNode = *inputList++;
     uint64_t totalSize = 0;
 
     const uint32_t* pH = NULL;
@@ -183,7 +183,7 @@ void Sha2_32Get(__in const HashInputNode* inputList, __in uint64_t inputListSize
     }
 
     uint64_t tailBlocks[16] = { 0 };
-    uint64_t tailBlocksNum = 0;
+    uint8_t tailBlocksNum = 0;
     AddShaPaddingInternal(inputNode.input, totalSize, tailBlocks, &tailBlocksNum);
 
     uint8_t* p = (uint8_t*)tailBlocks;
@@ -257,9 +257,9 @@ void Sha2_64ProcessBlock(const uint64_t* input, uint64_t* output)
     output[7] += h;
 }
 
-void Sha2_64Get(__in const HashInputNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out uint64_t* output)
+void Sha2_64Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out uint64_t* output)
 {
-    HashInputNode inputNode = *inputList++;
+    VoidAndSizeNode inputNode = *inputList++;
     uint64_t totalSizeLow = 0, totalSizeHigh = 0;
 
     const uint64_t* pH = NULL;
@@ -311,7 +311,7 @@ void Sha2_64Get(__in const HashInputNode* inputList, __in uint64_t inputListSize
     }
 
     uint64_t tailBlocks[32] = { 0 };
-    uint64_t tailBlocksNum = 0;
+    uint8_t tailBlocksNum = 0;
     AddSha2_64PaddingInternal(inputNode.input, totalSizeLow, totalSizeHigh, tailBlocks, &tailBlocksNum);
 
     uint8_t* p = (uint8_t*)tailBlocks;

@@ -13,5 +13,7 @@ errno_t memset_s(void* dest, rsize_t destsz, int ch, rsize_t count)
         while (count--)
             *p++ = (uint8_t)ch;
     }
+
+    return 0;
 }
 #endif // __STDC_LIB_EXT1__

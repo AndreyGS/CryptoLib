@@ -2,7 +2,6 @@
 //
 
 #include "pch.h"
-#include "crypto_internal.h"
 #include "hmac.h"
 
 int GetHmac(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in HashFunc func, __out void* output)
@@ -20,8 +19,8 @@ int GetHmac(__in void* input, __in uint64_t inputSize, __in void* key, __in uint
     }
 
     if (keySize > blockSize) {
-        const HashInputNode inputNode = { key, keySize, 0 };
-        GetHashMultipleInternal(&inputNode, 1, func, iKeyPad, didgestSize);
+        const VoidAndSizeNode inputNode = { key, keySize, 0 };
+        GetHashMultipleInternal(&inputNode, 1, func, iKeyPad);
         keySize = didgestSize;
     }
     else
@@ -38,18 +37,18 @@ int GetHmac(__in void* input, __in uint64_t inputSize, __in void* key, __in uint
     for (uint8_t i = 0; i < blockSize; ++i)
         *p++ ^= '\x5c';
 
-    HashInputNode inputNodes[2] = 
+    VoidAndSizeNode inputNodes[2] = 
     { 
         { iKeyPad, blockSize, 0 }, 
         { input,   inputSize, 0 } 
     };
 
-    GetHashMultipleInternal(inputNodes, 2, func, iKeyPad, didgestSize);
+    GetHashMultipleInternal(inputNodes, 2, func, iKeyPad);
 
     inputNodes[0].input = oKeyPad,
     inputNodes[1].input = iKeyPad, inputNodes[1].inputSizeLowPart = didgestSize;
 
-    GetHashMultipleInternal(inputNodes, 2, func, output, didgestSize);
+    GetHashMultipleInternal(inputNodes, 2, func, output);
 
 exit:
     FreeBuffer(iKeyPad);
