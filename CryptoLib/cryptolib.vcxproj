@@ -24,6 +24,7 @@
     <ProjectGuid>{fda7e835-0db6-41f3-8281-a5de8272ab9c}</ProjectGuid>
     <RootNamespace>cryptolib</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>CryptoLib</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
