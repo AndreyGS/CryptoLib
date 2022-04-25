@@ -154,8 +154,9 @@ void Sha2_32ProcessBlock(const uint32_t* input, uint32_t* output)
     output[7] += h;
 }
 
-void Sha2_32Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out uint32_t* output)
+int Sha2_32Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out uint32_t* output)
 {
+    int status = NO_ERROR;
     VoidAndSizeNode inputNode = *inputList++;
     uint64_t totalSize = 0;
 
@@ -169,6 +170,9 @@ void Sha2_32Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSi
     uint32_t buffer[8] = { pH[0], pH[1], pH[2], pH[3], pH[4], pH[5], pH[6], pH[7] };
 
     while (inputListSize--) {
+        if (inputListSize && (inputNode.inputSizeLowPart % SHA_BLOCK_SIZE))
+            return ERROR_WRONG_INPUT_SIZE;
+
         totalSize += inputNode.inputSizeLowPart;
 
         uint64_t blocksNum = (inputNode.inputSizeLowPart >> 6) + 1; // inputSize / SHA_BLOCK_SIZE + 1
@@ -202,6 +206,8 @@ void Sha2_32Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSi
 
     if (func == SHA_256)
         output[7] = Uint32LittleEndianToBigEndian(buffer[7]);
+
+    return status;
 }
 
 void Sha2_64ProcessBlock(const uint64_t* input, uint64_t* output)
@@ -257,8 +263,10 @@ void Sha2_64ProcessBlock(const uint64_t* input, uint64_t* output)
     output[7] += h;
 }
 
-void Sha2_64Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out uint64_t* output)
+int Sha2_64Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out uint64_t* output)
 {
+    int status = NO_ERROR;
+
     VoidAndSizeNode inputNode = *inputList++;
     uint64_t totalSizeLow = 0, totalSizeHigh = 0;
 
@@ -282,6 +290,9 @@ void Sha2_64Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSi
     uint64_t buffer[8] = { pH[0], pH[1], pH[2], pH[3], pH[4], pH[5], pH[6], pH[7] };
 
     while (inputListSize--) {
+        if (inputListSize && (inputNode.inputSizeLowPart % SHA2_BLOCK_SIZE))
+            return ERROR_WRONG_INPUT_SIZE;
+
         totalSizeHigh += inputNode.inputSizeHighPart + (inputNode.inputSizeLowPart + totalSizeLow < inputNode.inputSizeLowPart ? 1 : 0);
         totalSizeLow += inputNode.inputSizeLowPart;
 
@@ -329,7 +340,7 @@ void Sha2_64Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSi
         output[4] = Uint64LittleEndianToBigEndian(buffer[4]);
     default:
         if (func == SHA_512_224)
-            output[3] = Uint32LittleEndianToBigEndian(*((((uint32_t*)&buffer[3]) + 1)));
+            (uint32_t)output[3] = Uint32LittleEndianToBigEndian(*((((uint32_t*)&buffer[3]) + 1)));
         else
             output[3] = Uint64LittleEndianToBigEndian(buffer[3]);
 
@@ -337,5 +348,7 @@ void Sha2_64Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSi
         output[1] = Uint64LittleEndianToBigEndian(buffer[1]);
         output[0] = Uint64LittleEndianToBigEndian(buffer[0]);
         break;
-    }  
+    }
+
+    return status;
 }

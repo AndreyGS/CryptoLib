@@ -70,8 +70,8 @@ int GetHashMultiple(__in const VoidAndSizeNode* inputList, __in uint64_t inputLi
         return status;
     else
         for (uint64_t i = 0; i < inputListSize; ++i)
-            if (status = CheckInput(inputList[i].input, inputList[i].inputSizeLowPart ? inputList[i].inputSizeLowPart : inputList[i].inputSizeHighPart))
-                return status;
+            if (!inputList[i].input && (inputList[i].inputSizeLowPart || inputList[i].inputSizeHighPart))
+                return ERROR_WRONG_INPUT;
 
     if (!output)
         return ERROR_WRONG_OUTPUT;
@@ -83,29 +83,27 @@ int GetHashMultipleInternal(__in const VoidAndSizeNode* inputList, __in uint64_t
 {
     switch (func) {
     case SHA1:
-        Sha1Get(inputList, inputListSize, output);
+        return Sha1Get(inputList, inputListSize, output);
         break;
     case SHA_224:
     case SHA_256:
-        Sha2_32Get(inputList, inputListSize, func, output);
+        return Sha2_32Get(inputList, inputListSize, func, output);
         break;
     case SHA_384:
     case SHA_512_224:
     case SHA_512_256:
     case SHA_512:
-        Sha2_64Get(inputList, inputListSize, func, output);
+        return Sha2_64Get(inputList, inputListSize, func, output);
         break;
     case SHA3_224:
     case SHA3_256:
     case SHA3_384:
     case SHA3_512:
-        Sha3GetHash(inputList, inputListSize, func, output);
+        return Sha3GetHash(inputList, inputListSize, func, output);
         break;
     default:
         return ERROR_HASHING_FUNC_NOT_SUPPORTED;
     }
-
-    return NO_ERROR;
 }
 
 int GetXof(__in const void* input, __in uint64_t inputSize, __in Xof func, __out void* output, __in uint64_t outputSize)
@@ -121,8 +119,8 @@ int GetXofMultiple(__in const VoidAndSizeNode* inputList, __in uint64_t inputLis
         return status;
     else
         for (uint64_t i = 0; i < inputListSize; ++i)
-            if (status = CheckInput(inputList[i].input, inputList[i].inputSizeLowPart ? inputList[i].inputSizeLowPart : inputList[i].inputSizeHighPart))
-                return status;
+            if (!inputList[i].input && (inputList[i].inputSizeLowPart || inputList[i].inputSizeHighPart))
+                return ERROR_WRONG_INPUT;
 
    return GetXofMultipleInternal(inputList, inputListSize, func, output, outputSize);
 }

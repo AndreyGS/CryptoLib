@@ -447,9 +447,9 @@ int AddSha3PaddingInternal(__in const void* input, __in uint64_t inputSize, __in
     // which is not very nice fits Sha3 padding scheme
 
     ((uint8_t*)output)[paddingSize ? lastBlockSize : blockSize]          = func == Sha3Func_SHAKE128 || func == Sha3Func_SHAKE256
-                                                                         ? 0xf8  // here and below numbers already as little-endian bits
-                                                                         : 0x60;
-    ((uint8_t*)output)[paddingSize ? blockSize - 1 : blockSize * 2 - 1] |= 0x01;
+                                                                         ? 0x1f
+                                                                         : 0x06;
+    ((uint8_t*)output)[paddingSize ? blockSize - 1 : blockSize * 2 - 1] |= 0x80;
 
     *outputBlocksNum = paddingSize ? 1 : 2;
 

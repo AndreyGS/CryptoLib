@@ -4,7 +4,7 @@
 #include "crypto_internal.h"
 #include "paddings.h"
 
-void Sha3Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Sha3Func func, __out uint64_t* output, __in_opt uint64_t outputSize);
+int Sha3Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Sha3Func func, __out uint64_t* output, __in_opt uint64_t outputSize);
 
 const uint64_t RC[] =
 {
@@ -92,48 +92,49 @@ inline void Sha3StateXor(__in const uint64_t* input, __in Sha3Func func, __inout
     uint64_t x = 1;
     switch (func) {
     case Sha3Func_SHAKE128:
-        state[20] ^= Uint64LittleEndianToBigEndianBits(input[20]);
-        state[19] ^= Uint64LittleEndianToBigEndianBits(input[19]);
-        state[18] ^= Uint64LittleEndianToBigEndianBits(input[18]);
+        state[20] ^= (input[20]);
+        state[19] ^= (input[19]);
+        state[18] ^= (input[18]);
     case Sha3Func_SHA3_224:
-        state[17] ^= Uint64LittleEndianToBigEndianBits(input[17]);
+        state[17] ^= (input[17]);
     case Sha3Func_SHAKE256:
     case Sha3Func_SHA3_256:
-        state[16] ^= Uint64LittleEndianToBigEndianBits(input[16]);
-        state[15] ^= Uint64LittleEndianToBigEndianBits(input[15]);
-        state[14] ^= Uint64LittleEndianToBigEndianBits(input[14]);
-        state[13] ^= Uint64LittleEndianToBigEndianBits(input[13]);
+        state[16] ^= (input[16]);
+        state[15] ^= (input[15]);
+        state[14] ^= (input[14]);
+        state[13] ^= (input[13]);
     case Sha3Func_SHA3_384:
-        state[12] ^= Uint64LittleEndianToBigEndianBits(input[12]);
-        state[11] ^= Uint64LittleEndianToBigEndianBits(input[11]);
-        state[10] ^= Uint64LittleEndianToBigEndianBits(input[10]);
-        state[9] ^= Uint64LittleEndianToBigEndianBits(input[9]);
+        state[12] ^= (input[12]);
+        state[11] ^= (input[11]);
+        state[10] ^= (input[10]);
+        state[9] ^= (input[9]);
     case Sha3Func_SHA3_512:
-        state[8] ^= Uint64LittleEndianToBigEndianBits(input[8]);
-        state[7] ^= Uint64LittleEndianToBigEndianBits(input[7]);
-        state[6] ^= Uint64LittleEndianToBigEndianBits(input[6]);
-        state[5] ^= Uint64LittleEndianToBigEndianBits(input[5]);
-        state[4] ^= Uint64LittleEndianToBigEndianBits(input[4]);
-        state[3] ^= Uint64LittleEndianToBigEndianBits(input[3]);
-        state[2] ^= Uint64LittleEndianToBigEndianBits(input[2]);
-        state[1] ^= Uint64LittleEndianToBigEndianBits(input[1]);
-        state[0] ^= Uint64LittleEndianToBigEndianBits(*input);
+        state[8] ^= (input[8]);
+        state[7] ^= (input[7]);
+        state[6] ^= (input[6]);
+        state[5] ^= (input[5]);
+        state[4] ^= (input[4]);
+        state[3] ^= (input[3]);
+        state[2] ^= (input[2]);
+        state[1] ^= (input[1]);
+        state[0] ^= (*input);
     default:
         break;
     }  
 }
-void Sha3GetHash(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out uint64_t* output)
+int Sha3GetHash(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out uint64_t* output)
 {
-    Sha3Get(inputList, inputListSize, func - SHA3_224, output, 0);
+    return Sha3Get(inputList, inputListSize, func - SHA3_224, output, 0);
 }
 
-void Sha3GetXof(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Xof func, __out uint64_t* output, __in uint64_t outputSize)
+int Sha3GetXof(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Xof func, __out uint64_t* output, __in uint64_t outputSize)
 {
-    Sha3Get(inputList, inputListSize, func + Sha3Func_SHA3_512 + 1, output, outputSize);
+    return Sha3Get(inputList, inputListSize, func + Sha3Func_SHA3_512 + 1, output, outputSize);
 }
 
-void Sha3Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Sha3Func func, __out uint64_t* output, __in_opt uint64_t outputSize)
+int Sha3Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Sha3Func func, __out uint64_t* output, __in_opt uint64_t outputSize)
 {
+    int status = NO_ERROR;
     uint16_t blockSize = func == Sha3Func_SHAKE128 || func == Sha3Func_SHAKE256
                        ? g_XofSizesMappings[func - Sha3Func_SHAKE128].blockSize
                        : g_hashFuncsSizesMappings[func + SHA3_224].blockSize;
@@ -142,6 +143,9 @@ void Sha3Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize,
     VoidAndSizeNode inputNode = *inputList++;
 
     while (inputListSize--) {
+        if (inputListSize && (inputNode.inputSizeLowPart % blockSize))
+            return ERROR_WRONG_INPUT_SIZE;
+
         uint64_t blocksNum = inputNode.inputSizeLowPart / blockSize + 1;
 
         while (--blocksNum) {
@@ -219,7 +223,7 @@ void Sha3Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize,
             output[4] = state[0][4];
         default:
             if (func == Sha3Func_SHA3_224)
-                output[3] = *((((uint32_t*)&state[0][3]) + 1));
+                (uint32_t)output[3] = *((uint32_t*)&state[0][3]);
             else
                 output[3] = state[0][3];
 
@@ -229,4 +233,6 @@ void Sha3Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize,
             break;
         }
     }
+
+    return status;
 }

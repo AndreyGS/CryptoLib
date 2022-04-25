@@ -75,12 +75,16 @@ void Sha1ProcessBlock(const uint32_t* input, uint32_t* output)
 
 int Sha1Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __out void* output)
 {
+    int status = NO_ERROR;
     VoidAndSizeNode inputNode = *inputList++;
     uint64_t totalSize = 0;
 
     int32_t buffer[5] = { H[0], H[1], H[2], H[3], H[4] };
 
     while (inputListSize--) {
+        if (inputListSize && (inputNode.inputSizeLowPart % SHA_BLOCK_SIZE))
+            return ERROR_WRONG_INPUT_SIZE;
+
         totalSize += inputNode.inputSizeLowPart;
 
         uint64_t blocksNum = (inputNode.inputSizeLowPart >> 6) + 1; // inputSize / SHA_BLOCK_SIZE + 1
@@ -111,5 +115,5 @@ int Sha1Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, 
     ((uint32_t*)output)[3] = Uint32LittleEndianToBigEndian(((uint32_t*)buffer)[3]);
     ((uint32_t*)output)[4] = Uint32LittleEndianToBigEndian(((uint32_t*)buffer)[4]);
 
-    return NO_ERROR;
+    return status;
 }
