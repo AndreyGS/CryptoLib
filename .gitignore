@@ -21,6 +21,8 @@ obj/
 [Rr]elease*/
 _ReSharper*/
 .vs/
+CryptoTestsDebug*/
+CryptoTestsRelease*/
 
 *.exe
 *.pdb
