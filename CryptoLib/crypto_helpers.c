@@ -24,7 +24,8 @@ int CheckOutput(__in const void* output, __in const uint64_t* outputSize)
 
 int CheckInputOutput(__in const void* input, __in uint64_t inputSize, __in const void* output, __in const uint64_t* outputSize)
 {
-    return CheckInput(input, inputSize) || CheckOutput(output, outputSize);
+    int status = NO_ERROR;
+    return !(status = CheckInput(input, inputSize)) ? CheckOutput(output, outputSize) : status;
 }
 
 

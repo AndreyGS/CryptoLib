@@ -200,7 +200,7 @@ int Sha3Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, 
                 break;
             }
 
-            output += func == Sha3Func_SHAKE128 ? 4 : 8;
+            output += func == Sha3Func_SHAKE128 ? 21 : 17;
             
             Keccak_p_Rnds((uint64_t*)state);
 

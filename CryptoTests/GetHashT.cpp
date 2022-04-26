@@ -1,6 +1,11 @@
+//  GetHashT.cpp
+//
+
 #include "pch.h"
 
 #include "common.h"
+
+// Wrong arguments
 
 TEST(GetHashTest, WrongInput) {
     uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA1].outputSize];
@@ -26,7 +31,9 @@ TEST(GetHashTest, UnknownHashFunc) {
     delete[] buffer;
 }
 
-TEST(GetHashTest, Sha_1) {
+// Main test
+
+TEST(GetHashTest, SHA_1) {
     uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA1].outputSize];
     int status = GetHash(TEST_STRING_55, 55, SHA1, buffer);
     std::string result = GetHexResult(buffer, 20);
@@ -141,6 +148,129 @@ TEST(GetHashTest, SHA3_512) {
     int status = GetHash(TEST_STRING_111, 111, SHA3_512, buffer);
     std::string result = GetHexResult(buffer, 64);
     std::string expectingResult = "485dad72c9718dad11d711fceba23c705e8e1353fd295138ffa025365e0d48935d8327f8102fee7eefeee2732d97d9e7e2c97eabd3065f1cc2c89d75c64bc649";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+// Full Single Block test
+
+TEST(GetHashTest, SHA_1_FullSingleBlock) {
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA1].outputSize];
+    int status = GetHash(TEST_STRING_64, 64, SHA1, buffer);
+    std::string result = GetHexResult(buffer, 20);
+    std::string expectingResult = "4a6eeccd631ff56df6cf3764335ccd4efb6b8f70";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(GetHashTest, SHA_224_FullSingleBlock) {
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_224].outputSize];
+    int status = GetHash(TEST_STRING_64, 64, SHA_224, buffer);
+    std::string result = GetHexResult(buffer, 28);
+    std::string expectingResult = "ae75e9336bca85dce69b6086a93babd2209e7d4cfb8ec504624c69bf";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(GetHashTest, SHA_256_FullSingleBlock) {
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_256].outputSize];
+    int status = GetHash(TEST_STRING_64, 64, SHA_256, buffer);
+    std::string result = GetHexResult(buffer, 32);
+    std::string expectingResult = "b571d37bc49653f29e0449e716bc5688530720163320d67ebe07843ba3c857f9";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(GetHashTest, SHA_384_FullSingleBlock) {
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_384].outputSize];
+    int status = GetHash(TEST_STRING_128, 128, SHA_384, buffer);
+    std::string result = GetHexResult(buffer, 48);
+    std::string expectingResult = "143d6472641961e0ce5e81a787aca8579c621afeb0ee57b8a44cf08bf38eea3c160b5d5cc99e6bd405f580bd1e3aab3f";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(GetHashTest, SHA_512_224_FullSingleBlock) {
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_512_224].outputSize];
+    int status = GetHash(TEST_STRING_128, 128, SHA_512_224, buffer);
+    std::string result = GetHexResult(buffer, 28);
+    std::string expectingResult = "2277ad2704dc473658951709a8a861c7be81b57487c6118e5131414b";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(GetHashTest, SHA_512_256_FullSingleBlock) {
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_512_256].outputSize];
+    int status = GetHash(TEST_STRING_128, 128, SHA_512_256, buffer);
+    std::string result = GetHexResult(buffer, 32);
+    std::string expectingResult = "71d9585dc49e7549834b32a571e0458dc46ce60ca4bffd8e27ac4d1e0c258f9a";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(GetHashTest, SHA_512_FullSingleBlock) {
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_512].outputSize];
+    int status = GetHash(TEST_STRING_128, 128, SHA_512, buffer);
+    std::string result = GetHexResult(buffer, 64);
+    std::string expectingResult = "fd00a61360d10bfdb5e4869bb69e0eb39e75c8b83d3bc3fa7bb0c613b47c02b93742f00571cbca199d9c0ce90c0920651293162717c5b616172f8ad74f8339de";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(GetHashTest, SHA3_224_FullSingleBlock) {
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA3_224].outputSize];
+    int status = GetHash(TEST_STRING_144, 144, SHA3_224, buffer);
+    std::string result = GetHexResult(buffer, 28);
+    std::string expectingResult = "cfac1ceed1ec81fa1f9d630b7c130f2e152a36edd329123eeb389998";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(GetHashTest, SHA3_256_FullSingleBlock) {
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA3_256].outputSize];
+    int status = GetHash(TEST_STRING_136, 136, SHA3_256, buffer);
+    std::string result = GetHexResult(buffer, 32);
+    std::string expectingResult = "17209330cc1cfaf85a36c3e631c723ea4cd852a1cf9be52ea607cf28ff257366";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(GetHashTest, SHA3_384_FullSingleBlock) {
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA3_384].outputSize];
+    int status = GetHash(TEST_STRING_104, 104, SHA3_384, buffer);
+    std::string result = GetHexResult(buffer, 48);
+    std::string expectingResult = "85fea65f966e0620af79d65be954d25a421f8c7a4c6a95e454fa130d8e2d3d6a128891956281f1cbe982234890404073";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(GetHashTest, SHA3_512_FullSingleBlock) {
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA3_512].outputSize];
+    int status = GetHash(TEST_STRING_72, 72, SHA3_512, buffer);
+    std::string result = GetHexResult(buffer, 64);
+    std::string expectingResult = "81c4079df448fe8172060b15041571be980918d9614585386dd02568933670d1752b270c84aa8d026fc99863ed1d75f25991e6723fcdf12f07d0ddd83f99c4aa";
 
     EXPECT_EQ(result, expectingResult);
     EXPECT_TRUE(status == NO_ERROR);

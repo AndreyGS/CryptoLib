@@ -117,6 +117,8 @@ int GetXofMultiple(__in const VoidAndSizeNode* inputList, __in uint64_t inputLis
     int status = NO_ERROR;
     if (status = CheckInputOutput(inputList, inputListSize, output, &outputSize))
         return status;
+    else if (!outputSize)
+        return ERROR_WRONG_OUTPUT_SIZE;
     else
         for (uint64_t i = 0; i < inputListSize; ++i)
             if (!inputList[i].input && (inputList[i].inputSizeLowPart || inputList[i].inputSizeHighPart))
@@ -127,8 +129,19 @@ int GetXofMultiple(__in const VoidAndSizeNode* inputList, __in uint64_t inputLis
 
 int GetXofMultipleInternal(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Xof func, __out void* output, __in uint64_t outputSize)
 {
-    Sha3GetXof(inputList, inputListSize, func, output, outputSize);
-    return NO_ERROR;
+    int status = NO_ERROR;
+
+    switch (func) {
+    case SHAKE128:
+    case SHAKE256:
+        status = Sha3GetXof(inputList, inputListSize, func, output, outputSize);
+        break;
+    default:
+        status = ERROR_XOF_NOT_SUPPORTED;
+        break;
+    }
+
+    return status;
 }
 
 int GetPrf(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in PRF func, __out void* output, __in_opt uint16_t outputSize)

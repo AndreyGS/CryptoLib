@@ -1,6 +1,11 @@
+//  GetHashMultipleT.cpp
+//
+
 #include "pch.h"
 
 #include "common.h"
+
+// Wrong arguments
 
 TEST(GetHashMultipleTest, WrongInput_VoidAndSizeNode) {
     uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA1].outputSize];
@@ -19,7 +24,7 @@ TEST(GetHashMultipleTest, WrongInput_ListSize) {
     delete[] buffer;
 }
 
-TEST(GetHashMultipleTest, WrongInput_InputSize) {
+TEST(GetHashMultipleTest, WrongInput_VoidInputSize) {
     uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA1].outputSize];
     VoidAndSizeNode chunks[2] = { { nullptr, 64 }, { (void*)TEST_STRING_55, 55 } };
     int status = GetHashMultiple(chunks, 2, SHA1, buffer);
@@ -46,7 +51,47 @@ TEST(GetHashMultipleTest, UnknownHashFunc) {
     delete[] buffer;
 }
 
-TEST(GetHashMultipleTest, Sha_1) {
+// Test wrong input size of not last chunk
+
+TEST(GetHashMultipleTest, Sha_1_wrongInputSize) {
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA1].outputSize];
+    VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_55, 55 }, { (void*)TEST_STRING_55, 55 } };
+    int status = GetHashMultiple(chunks, 2, SHA1, buffer);
+
+    EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
+    delete[] buffer;
+}
+
+TEST(GetHashMultipleTest, SHA2_32_wrongInputSize) {
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_224].outputSize];
+    VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_55, 55 }, { (void*)TEST_STRING_55, 55 } };
+    int status = GetHashMultiple(chunks, 2, SHA_224, buffer);
+
+    EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
+    delete[] buffer;
+}
+
+TEST(GetHashMultipleTest, SHA2_64_wrongInputSize) {
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_384].outputSize];
+    VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_55, 55 }, { (void*)TEST_STRING_111, 111 } };
+    int status = GetHashMultiple(chunks, 2, SHA_384, buffer);
+
+    EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
+    delete[] buffer;
+}
+
+TEST(GetHashMultipleTest, SHA3_wrongInputSize) {
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA3_224].outputSize];
+    VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_55, 55 }, { (void*)TEST_STRING_111, 111 } };
+    int status = GetHashMultiple(chunks, 2, SHA3_224, buffer);
+
+    EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
+    delete[] buffer;
+}
+
+// Main test
+
+TEST(GetHashMultipleTest, SHA_1) {
     uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA1].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_64, 64 }, { (void*)TEST_STRING_55, 55 } };
     int status = GetHashMultiple(chunks, 2, SHA1, buffer);
@@ -178,40 +223,3 @@ TEST(GetHashMultipleTest, SHA3_512) {
     delete[] buffer;
 }
 
-// Test wrong input size of first chunk
-
-TEST(GetHashMultipleTest, Sha_1_wrongInputSize) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA1].outputSize];
-    VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_55, 55 }, { (void*)TEST_STRING_55, 55 } };
-    int status = GetHashMultiple(chunks, 2, SHA1, buffer);
-
-    EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
-    delete[] buffer;
-}
-
-TEST(GetHashMultipleTest, SHA2_32_wrongInputSize) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_224].outputSize];
-    VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_55, 55 }, { (void*)TEST_STRING_55, 55 } };
-    int status = GetHashMultiple(chunks, 2, SHA_224, buffer);
-
-    EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
-    delete[] buffer;
-}
-
-TEST(GetHashMultipleTest, SHA2_64_wrongInputSize) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_384].outputSize];
-    VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_55, 55 }, { (void*)TEST_STRING_111, 111 } };
-    int status = GetHashMultiple(chunks, 2, SHA_384, buffer);
-
-    EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
-    delete[] buffer;
-}
-
-TEST(GetHashMultipleTest, SHA3_wrongInputSize) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA3_224].outputSize];
-    VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_55, 55 }, { (void*)TEST_STRING_111, 111 } };
-    int status = GetHashMultiple(chunks, 2, SHA3_224, buffer);
-
-    EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
-    delete[] buffer;
-}

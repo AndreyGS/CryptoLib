@@ -58,8 +58,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="common.cpp" />
+    <ClCompile Include="GetHashExT.cpp" />
     <ClCompile Include="GetHashMultipleT.cpp" />
     <ClCompile Include="GetHashT.cpp" />
+    <ClCompile Include="GetXofMultipleT.cpp" />
+    <ClCompile Include="GetXofT.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -24,6 +24,7 @@ extern "C" {
 #define ERROR_CIPHER_FUNC_NOT_SUPPORTED     0x8000000a
 #define ERROR_WRONG_ITERATIONS_NUMBER       0x8000000b
 #define ERROR_NO_MEMORY                     0x8000000c
+#define ERROR_XOF_NOT_SUPPORTED             0x8000000d
 
 #define BITS_PER_BYTE                   8
 #define DES_BLOCK_SIZE                  8
@@ -128,9 +129,13 @@ int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in P
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
 
 // Before using GetHash and GetHashEx you should allocate output buffer according to output digest size of respective hashing function
-// outputSize parameter is only filled on variable size output hashing funcs (SHAKE128 and SHAKE256), for all the rest
-// you may check the numbers with g_hashFuncsSizesMappings array (see "func" and corresponding "blockSize" fields)
+// You may check the numbers with g_hashFuncsSizesMappings array (see "func" and corresponding "blockSize" fields)
 int GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out void* output);
+// Before using GetHash and GetHashEx you should allocate output buffer according to output digest size of respective hashing function
+// You may check the numbers with g_hashFuncsSizesMappings array (see "func" and corresponding "blockSize" fields)
+// GetHashEx is only need if size of your single input is larger than (2^61 - 1) and you using SHA-224, SHA-256, SHA-384, SHA512/224, SHA512/256 or SHA-512 hashing,
+// cause only that functions supports such sizes in current realisation. Unfortunately I do not have a resources for now to fully test its input.
+// But partially it was tested and internal cycles should working correctly.
 int GetHashEx(__in const void* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __in HashFunc func, __out void* output);
 
 // This function should be used when we have more than one distantly placed void* chunks of data, that must be hashed as single concatenated input
@@ -139,6 +144,8 @@ int GetHashMultiple(__in const VoidAndSizeNode* inputList, __in uint64_t inputLi
 
 int GetXof(__in const void* input, __in uint64_t inputSize, __in Xof func, __out void* output, __in uint64_t outputSize);
 
+// This function should be used when we have more than one distantly placed void* chunks of data, that must be hashed as single concatenated input
+// All but last chunks sizes must be divisible by XOF func block size without remainder
 int GetXofMultiple(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Xof func, __out void* output, __in uint64_t outputSize);
 
 // Get pseudorandom function result (currently only HMAC supported - see PRF enum)
