@@ -144,26 +144,30 @@ int GetXofMultipleInternal(__in const VoidAndSizeNode* inputList, __in uint64_t 
     return status;
 }
 
-int GetPrf(__in void* input, __in uint64_t inputSize, __in void* key, __in uint64_t keySize, __in PRF func, __out void* output, __in_opt uint16_t outputSize)
+int GetPrf(__in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in PRF func, __out void* output, __in_opt uint16_t outputSize)
 {
     int status = NO_ERROR;
-    if (status = CheckInput(input, inputSize))
-        return status;
-    else if (status = CheckInput(key, keySize))
-        return status;
+    if (!input && inputSize)
+        return ERROR_WRONG_INPUT;
+    else if (!key && keySize)
+        return ERROR_WRONG_KEY;
     else if (!output)
         return ERROR_WRONG_OUTPUT;
 
     switch (func) {
-    case HMAC_Sha1:
+    case HMAC_SHA1:
     case HMAC_SHA_224:
     case HMAC_SHA_256:
     case HMAC_SHA_384:
     case HMAC_SHA_512_224:
     case HMAC_SHA_512_256:
     case HMAC_SHA_512:
+    case HMAC_SHA3_224:
+    case HMAC_SHA3_256:
+    case HMAC_SHA3_384:
+    case HMAC_SHA3_512:
         return GetHmacPrf(input, inputSize, key, keySize, func, output);
     default:
-        return ERROR_HASHING_FUNC_NOT_SUPPORTED;
+        return ERROR_PRF_FUNC_NOT_SUPPORTED;
     }
 }

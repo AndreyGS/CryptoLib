@@ -61,6 +61,8 @@
     <ClCompile Include="GetHashExT.cpp" />
     <ClCompile Include="GetHashMultipleT.cpp" />
     <ClCompile Include="GetHashT.cpp" />
+    <ClCompile Include="GetPbkdf2T.cpp" />
+    <ClCompile Include="GetPrfT.cpp" />
     <ClCompile Include="GetXofMultipleT.cpp" />
     <ClCompile Include="GetXofT.cpp" />
     <ClCompile Include="test.cpp" />

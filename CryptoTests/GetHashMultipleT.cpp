@@ -8,7 +8,7 @@
 // Wrong arguments
 
 TEST(GetHashMultipleTest, WrongInput_VoidAndSizeNode) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA1].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA1].outputSize];
     int status = GetHashMultiple(nullptr, 55, SHA1, buffer);
 
     EXPECT_TRUE(status == ERROR_WRONG_INPUT);
@@ -16,7 +16,7 @@ TEST(GetHashMultipleTest, WrongInput_VoidAndSizeNode) {
 }
 
 TEST(GetHashMultipleTest, WrongInput_ListSize) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA1].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA1].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_64, 64 }, { (void*)TEST_STRING_55, 55 } };
     int status = GetHashMultiple(chunks, 0, SHA1, buffer);
 
@@ -25,7 +25,7 @@ TEST(GetHashMultipleTest, WrongInput_ListSize) {
 }
 
 TEST(GetHashMultipleTest, WrongInput_VoidInputSize) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA1].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA1].outputSize];
     VoidAndSizeNode chunks[2] = { { nullptr, 64 }, { (void*)TEST_STRING_55, 55 } };
     int status = GetHashMultiple(chunks, 2, SHA1, buffer);
 
@@ -34,7 +34,7 @@ TEST(GetHashMultipleTest, WrongInput_VoidInputSize) {
 }
 
 TEST(GetHashMultipleTest, WrongOuput) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA1].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA1].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_64, 64 }, { (void*)TEST_STRING_55, 55 } };
     int status = GetHashMultiple(chunks, 2, SHA1, nullptr);
 
@@ -43,7 +43,7 @@ TEST(GetHashMultipleTest, WrongOuput) {
 }
 
 TEST(GetHashMultipleTest, UnknownHashFunc) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA1].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA1].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_64, 64 }, { (void*)TEST_STRING_55, 55 } };
     int status = GetHashMultiple(chunks, 2, (HashFunc)-1, buffer);
 
@@ -54,7 +54,7 @@ TEST(GetHashMultipleTest, UnknownHashFunc) {
 // Test wrong input size of not last chunk
 
 TEST(GetHashMultipleTest, Sha_1_wrongInputSize) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA1].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA1].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_55, 55 }, { (void*)TEST_STRING_55, 55 } };
     int status = GetHashMultiple(chunks, 2, SHA1, buffer);
 
@@ -63,7 +63,7 @@ TEST(GetHashMultipleTest, Sha_1_wrongInputSize) {
 }
 
 TEST(GetHashMultipleTest, SHA2_32_wrongInputSize) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_224].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA_224].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_55, 55 }, { (void*)TEST_STRING_55, 55 } };
     int status = GetHashMultiple(chunks, 2, SHA_224, buffer);
 
@@ -72,7 +72,7 @@ TEST(GetHashMultipleTest, SHA2_32_wrongInputSize) {
 }
 
 TEST(GetHashMultipleTest, SHA2_64_wrongInputSize) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_384].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA_384].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_55, 55 }, { (void*)TEST_STRING_111, 111 } };
     int status = GetHashMultiple(chunks, 2, SHA_384, buffer);
 
@@ -81,7 +81,7 @@ TEST(GetHashMultipleTest, SHA2_64_wrongInputSize) {
 }
 
 TEST(GetHashMultipleTest, SHA3_wrongInputSize) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA3_224].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA3_224].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_55, 55 }, { (void*)TEST_STRING_111, 111 } };
     int status = GetHashMultiple(chunks, 2, SHA3_224, buffer);
 
@@ -92,7 +92,7 @@ TEST(GetHashMultipleTest, SHA3_wrongInputSize) {
 // Main test
 
 TEST(GetHashMultipleTest, SHA_1) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA1].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA1].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_64, 64 }, { (void*)TEST_STRING_55, 55 } };
     int status = GetHashMultiple(chunks, 2, SHA1, buffer);
     std::string result = GetHexResult(buffer, 20);
@@ -104,7 +104,7 @@ TEST(GetHashMultipleTest, SHA_1) {
 }
 
 TEST(GetHashMultipleTest, SHA_224) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_224].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA_224].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_64, 64 }, { (void*)TEST_STRING_55, 55 } };
     int status = GetHashMultiple(chunks, 2, SHA_224, buffer);
     std::string result = GetHexResult(buffer, 28);
@@ -116,7 +116,7 @@ TEST(GetHashMultipleTest, SHA_224) {
 }
 
 TEST(GetHashMultipleTest, SHA_256) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_256].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA_256].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_64, 64 }, { (void*)TEST_STRING_55, 55 } };
     int status = GetHashMultiple(chunks, 2, SHA_256, buffer);
     std::string result = GetHexResult(buffer, 32);
@@ -128,7 +128,7 @@ TEST(GetHashMultipleTest, SHA_256) {
 }
 
 TEST(GetHashMultipleTest, SHA_384) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_384].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA_384].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_128, 128 }, { (void*)TEST_STRING_111, 111 } };
     int status = GetHashMultiple(chunks, 2, SHA_384, buffer);
     std::string result = GetHexResult(buffer, 48);
@@ -140,7 +140,7 @@ TEST(GetHashMultipleTest, SHA_384) {
 }
 
 TEST(GetHashMultipleTest, SHA_512_224) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_512_224].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA_512_224].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_128, 128 }, { (void*)TEST_STRING_111, 111 } };
     int status = GetHashMultiple(chunks, 2, SHA_512_224, buffer);
     std::string result = GetHexResult(buffer, 28);
@@ -152,7 +152,7 @@ TEST(GetHashMultipleTest, SHA_512_224) {
 }
 
 TEST(GetHashMultipleTest, SHA_512_256) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_512_256].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA_512_256].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_128, 128 }, { (void*)TEST_STRING_111, 111 } };
     int status = GetHashMultiple(chunks, 2, SHA_512_256, buffer);
     std::string result = GetHexResult(buffer, 32);
@@ -164,7 +164,7 @@ TEST(GetHashMultipleTest, SHA_512_256) {
 }
 
 TEST(GetHashMultipleTest, SHA_512) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA_512].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA_512].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_128, 128 }, { (void*)TEST_STRING_111, 111 } };
     int status = GetHashMultiple(chunks, 2, SHA_512, buffer);
     std::string result = GetHexResult(buffer, 64);
@@ -176,7 +176,7 @@ TEST(GetHashMultipleTest, SHA_512) {
 }
 
 TEST(GetHashMultipleTest, SHA3_224) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA3_224].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA3_224].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_144, 144 }, { (void*)TEST_STRING_111, 111 } };
     int status = GetHashMultiple(chunks, 2, SHA3_224, buffer);
     std::string result = GetHexResult(buffer, 28);
@@ -188,7 +188,7 @@ TEST(GetHashMultipleTest, SHA3_224) {
 }
 
 TEST(GetHashMultipleTest, SHA3_256) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA3_256].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA3_256].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_136, 136 }, { (void*)TEST_STRING_111, 111 } };
     int status = GetHashMultiple(chunks, 2, SHA3_256, buffer);
     std::string result = GetHexResult(buffer, 32);
@@ -200,7 +200,7 @@ TEST(GetHashMultipleTest, SHA3_256) {
 }
 
 TEST(GetHashMultipleTest, SHA3_384) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA3_384].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA3_384].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_104, 104 }, { (void*)TEST_STRING_111, 111 } };
     int status = GetHashMultiple(chunks, 2, SHA3_384, buffer);
     std::string result = GetHexResult(buffer, 48);
@@ -212,7 +212,7 @@ TEST(GetHashMultipleTest, SHA3_384) {
 }
 
 TEST(GetHashMultipleTest, SHA3_512) {
-    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMappings[SHA3_512].outputSize];
+    uint8_t* buffer = new uint8_t[g_hashFuncsSizesMapping[SHA3_512].outputSize];
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_72, 72 }, { (void*)TEST_STRING_111, 111 } };
     int status = GetHashMultiple(chunks, 2, SHA3_512, buffer);
     std::string result = GetHexResult(buffer, 64);

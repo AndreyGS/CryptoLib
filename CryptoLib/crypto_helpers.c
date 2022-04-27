@@ -35,7 +35,7 @@ int CheckBlockCipherPrimaryArguments(const void* input, uint64_t inputSize, uint
     if (status = CheckInputOutput(input, inputSize, output, outputSize))
         return status;
     else if (!roundsKeys)
-        return ERROR_WRONG_KEYS;
+        return ERROR_WRONG_KEY;
     else if (mode != ECB_mode && !iv)
         return ERROR_WRONG_INIT_VECTOR;
     else

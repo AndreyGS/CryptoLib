@@ -136,8 +136,8 @@ int Sha3Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, 
 {
     int status = NO_ERROR;
     uint16_t blockSize = func == Sha3Func_SHAKE128 || func == Sha3Func_SHAKE256
-                       ? g_XofSizesMappings[func - Sha3Func_SHAKE128].blockSize
-                       : g_hashFuncsSizesMappings[func + SHA3_224].blockSize;
+                       ? g_XofSizesMapping[func - Sha3Func_SHAKE128].blockSize
+                       : g_hashFuncsSizesMapping[func + SHA3_224].blockSize;
     uint64_t state[5][5] = { {0}, {0}, {0}, {0}, {0} };
 
     VoidAndSizeNode inputNode = *inputList++;
@@ -170,7 +170,7 @@ int Sha3Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, 
     }
 
     if (func == Sha3Func_SHAKE128 || func == Sha3Func_SHAKE256) {
-        uint16_t digestBlockSize = g_XofSizesMappings[func - Sha3Func_SHAKE128].blockSize;
+        uint16_t digestBlockSize = g_XofSizesMapping[func - Sha3Func_SHAKE128].blockSize;
 
         while (digestBlockSize < outputSize) {
             switch (func) {
