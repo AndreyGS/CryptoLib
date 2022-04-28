@@ -144,7 +144,7 @@ int GetXofMultipleInternal(__in const VoidAndSizeNode* inputList, __in uint64_t 
     return status;
 }
 
-int GetPrf(__in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in PRF func, __out void* output, __in_opt uint16_t outputSize)
+int GetPrf(__in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in PRF func, __out void* output, __in_opt uint64_t outputSize)
 {
     int status = NO_ERROR;
     if (!input && inputSize)

@@ -175,7 +175,7 @@ int GetXofMultiple(__in const VoidAndSizeNode* inputList, __in uint64_t inputLis
 // Get pseudorandom function result (currently only HMAC supported - see PRF enum)
 // outputSize parameter is only filled on variable size output XOF funcs - SHAKE128 and SHAKE256 - but KMAC functions are not supported yet,
 // For all the rest you may check the numbers with g_hashFuncsSizesMapping array (see respective hash function in "func" and corresponding "blockSize" fields)
-int GetPrf(__in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in PRF func, __out void* output, __in_opt uint16_t outputSize);
+int GetPrf(__in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in PRF func, __out void* output, __in_opt uint64_t outputSize);
 
 // Maximum saltSize you should pass here is 512 bytes
 int GetPbkdf2(__in const void* salt, __in uint64_t saltSize, __in const void* key, __in uint64_t keySize, __in PRF func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize);
