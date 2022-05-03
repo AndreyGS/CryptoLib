@@ -57,7 +57,9 @@ int EncryptByBlockCipherInternal(__in const void* input, __in uint64_t inputSize
 {
     switch (cipherType) {
     case DES_cipher_type:
-        return DesEncrypt(input, inputSize, padding, roundsKeys, output, outputSize, mode, iv);
+        return SingleDesEncrypt(input, inputSize, padding, roundsKeys, output, outputSize, mode, iv);
+    case TDES_cipher_type:
+        return TripleDesEncrypt(input, inputSize, padding, roundsKeys, output, outputSize, mode, iv);
     default:
         return ERROR_CIPHER_FUNC_NOT_SUPPORTED;
     }
@@ -101,7 +103,9 @@ int DecryptByBlockCipherInternal(__in const void* input, __in uint64_t inputSize
 {
     switch (cipherType) {
     case DES_cipher_type:
-        return DesDecrypt(input, inputSize, padding, roundsKeys, output, outputSize, mode, iv);
+        return SingleDesDecrypt(input, inputSize, padding, roundsKeys, output, outputSize, mode, iv);
+    case TDES_cipher_type:
+        return TripleDesDecrypt(input, inputSize, padding, roundsKeys, output, outputSize, mode, iv);
     default:
         return ERROR_CIPHER_FUNC_NOT_SUPPORTED;
     }
@@ -122,13 +126,21 @@ int GetBlockCipherRoundsKeys(__in const void* key, __in BlockCipherType cipherTy
 
 int GetBlockCipherRoundsKeysInternal(__in const void* key, __in BlockCipherType cipherType, __out void* output)
 {
+    int status = NO_ERROR;
+
     switch (cipherType) {
     case DES_cipher_type:
-        DesGetRoundsKeys(*(uint64_t*)key, output);
-        return NO_ERROR;
+        SingleDesGetRoundsKeys(*(uint64_t*)key, output);
+        break;
+    case TDES_cipher_type:
+        TripleDesGetRoundsKeys(key, output);
+        break;
     default:
-        return ERROR_CIPHER_FUNC_NOT_SUPPORTED;
+        status = ERROR_CIPHER_FUNC_NOT_SUPPORTED;
+        break;
     }
+
+    return status;
 }
 
 int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)

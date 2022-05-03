@@ -38,6 +38,7 @@ extern "C" {
 
 typedef enum _BlockCipherType {
     DES_cipher_type,
+    TDES_cipher_type,       // 3DES-EDE3 with single IV
     BlockCipherType_max
 } BlockCipherType;
 
@@ -48,7 +49,8 @@ typedef struct _BlockCipherKeysSizes {
 } BlockCipherKeysSizes;
 
 static const BlockCipherKeysSizes g_blockCipherKeysSizes[] = {
-    { DES_cipher_type, 8, 128 }
+    { DES_cipher_type,   8, 128 },
+    { TDES_cipher_type, 24, 384 }
 };
 
 typedef enum _BlockCipherOpMode {
@@ -166,6 +168,9 @@ static const PrfHashPair g_PrfHashPairMapping[] = {
 int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
 
 // If you supply outputSize == 0, then function returns ERROR_WRONG_OUTPUT_SIZE error and outputSize variable will contain requiring size
+// For DES algo outputSize in DecryptByBlockCipher will return exact bytes length.
+// but with 3DES if you pass there outputSize < inputSize you will get an error and outputSize returned will be equal inputSize.
+// But if there is no error outputSize will always contain exact bytes length.
 int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* key, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
 int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* key, __in BlockCipherType cipherType

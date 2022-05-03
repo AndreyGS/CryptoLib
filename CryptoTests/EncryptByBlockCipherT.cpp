@@ -248,3 +248,142 @@ TEST(EncryptByBlockCipherTest, DES_CTR_multi) {
     EXPECT_TRUE(status == NO_ERROR);
     delete[] buffer;
 }
+
+// 3DES Single
+
+TEST(EncryptByBlockCipherTest, TDES_ECB_single) {
+    uint64_t outputSize = DES_BLOCK_SIZE;
+    uint8_t* buffer = new uint8_t[outputSize];
+    int8_t key[] = "81cav5ASkv8vwel0ve8hve40";
+    int status = EncryptByBlockCipher(TEST_STRING_7, 7, PKCSN7_padding, key, TDES_cipher_type, buffer, &outputSize, ECB_mode, nullptr);
+    std::string result = GetHexResult(buffer, outputSize);
+    std::string expectingResult = "d8a2721ab3f542cb";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(EncryptByBlockCipherTest, TDES_CBC_single) {
+    uint64_t outputSize = DES_BLOCK_SIZE;
+    uint8_t* buffer = new uint8_t[outputSize];
+    int8_t key[] = "81cav5ASkv8vwel0ve8hve40";
+    int status = EncryptByBlockCipher(TEST_STRING_7, 7, PKCSN7_padding, key, TDES_cipher_type, buffer, &outputSize, CBC_mode, TEST_STRING_8);
+    std::string result = GetHexResult(buffer, outputSize);
+    std::string expectingResult = "075e74323668642d";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(EncryptByBlockCipherTest, TDES_CFB_single) {
+    uint64_t outputSize = DES_BLOCK_SIZE;
+    uint8_t* buffer = new uint8_t[outputSize];
+    int8_t key[] = "81cav5ASkv8vwel0ve8hve40";
+    int status = EncryptByBlockCipher(TEST_STRING_7, 7, PKCSN7_padding, key, TDES_cipher_type, buffer, &outputSize, CFB_mode, TEST_STRING_8);
+    std::string result = GetHexResult(buffer, outputSize);
+    std::string expectingResult = "83259fa605f0f00e";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(EncryptByBlockCipherTest, TDES_OFB_single) {
+    uint64_t outputSize = DES_BLOCK_SIZE;
+    uint8_t* buffer = new uint8_t[outputSize];
+    int8_t key[] = "81cav5ASkv8vwel0ve8hve40";
+    int status = EncryptByBlockCipher(TEST_STRING_7, 7, PKCSN7_padding, key, TDES_cipher_type, buffer, &outputSize, OFB_mode, TEST_STRING_8);
+    std::string result = GetHexResult(buffer, outputSize);
+    std::string expectingResult = "83259fa605f0f00e";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(EncryptByBlockCipherTest, TDES_CTR_single) {
+    uint64_t outputSize = DES_BLOCK_SIZE;
+    uint8_t* buffer = new uint8_t[outputSize];
+    int8_t key[] = "81cav5ASkv8vwel0ve8hve40";
+    int status = EncryptByBlockCipher(TEST_STRING_7, 7, PKCSN7_padding, key, TDES_cipher_type, buffer, &outputSize, CTR_mode, TEST_STRING_8);
+    std::string result = GetHexResult(buffer, outputSize);
+    std::string expectingResult = "83259fa605f0f00e";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+// 3DES Multi
+
+TEST(EncryptByBlockCipherTest, TDES_ECB_multi) {
+    uint64_t outputSize = sizeof(TEST_STRING_128) - 1 + DES_BLOCK_SIZE;
+    uint8_t* buffer = new uint8_t[outputSize];
+    int8_t key[] = "81cav5ASkv8vwel0ve8hve40";
+    int status = EncryptByBlockCipher(TEST_STRING_128, 128, PKCSN7_padding, key, TDES_cipher_type, buffer, &outputSize, ECB_mode, nullptr);
+    std::string result = GetHexResult(buffer, outputSize);
+    std::string expectingResult = "3933842094a7bed7784ad34d8ac29c73b1e6f7b64205e89077fc45e6da0dc73047807cdcf29133f2d7b2ba13baa8af1ec078c79c07cd773d2d1"
+                                  "0ceabdadbdd1f234bdb9a0a882e027f78ed91279fecb246fb170987fcefa8e4cb1e05850ec8744fccb5556052b1ca04e7ede117b83526550cf1519bdb3cfa1466de5e8178a758adff9406fb2aa6d7";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(EncryptByBlockCipherTest, TDES_CBC_multi) {
+    uint64_t outputSize = sizeof(TEST_STRING_128) - 1 + DES_BLOCK_SIZE;
+    uint8_t* buffer = new uint8_t[outputSize];
+    int8_t key[] = "81cav5ASkv8vwel0ve8hve40";
+    int status = EncryptByBlockCipher(TEST_STRING_128, 128, PKCSN7_padding, key, TDES_cipher_type, buffer, &outputSize, CBC_mode, TEST_STRING_8);
+    std::string result = GetHexResult(buffer, outputSize);
+    std::string expectingResult = "ba1976b002c886673370a0014d1bc216e445c728afae86dcd23abb2c02f282b25ac6d7cc245336d6d5d3a9f4973b87b68b1cbde6828d3dee296"
+                                  "a5bca512713e51591e7bf049c825929a70530697cf9d5013b87424cf589d28b2a833adbbf6cbecb5be03b06d696424fa84d72d64adcaa40e27dd4571ec5a4f6513fa95eaed8cec5ff7d1b60d8f963";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(EncryptByBlockCipherTest, TDES_CFB_multi) {
+    uint64_t outputSize = sizeof(TEST_STRING_128) - 1 + DES_BLOCK_SIZE;
+    uint8_t* buffer = new uint8_t[outputSize];
+    int8_t key[] = "81cav5ASkv8vwel0ve8hve40";
+    int status = EncryptByBlockCipher(TEST_STRING_128, 128, PKCSN7_padding, key, TDES_cipher_type, buffer, &outputSize, CFB_mode, TEST_STRING_8);
+    std::string result = GetHexResult(buffer, outputSize);
+    std::string expectingResult = "2263ee3ce2a5013b2008cc55336536b911aba94c7f3e96240ec9960c4e1316235688a15c369e9f2b919fc49ef1259d0160c89be6a7adcc4bec0"
+                                  "de6ae5e270f33c60f1751c6fe231d9652d0d51bd798494d6cd7859036e42d3491099b4209d7a02153175c62dbf0090ee9c3c4405f1e95c144a9008287792510e9ccf4a4a02640402ff0e68dd55c92";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(EncryptByBlockCipherTest, TDES_OFB_multi) {
+    uint64_t outputSize = sizeof(TEST_STRING_128) - 1 + DES_BLOCK_SIZE;
+    uint8_t* buffer = new uint8_t[outputSize];
+    int8_t key[] = "81cav5ASkv8vwel0ve8hve40";
+    int status = EncryptByBlockCipher(TEST_STRING_128, 128, PKCSN7_padding, key, TDES_cipher_type, buffer, &outputSize, OFB_mode, TEST_STRING_8);
+    std::string result = GetHexResult(buffer, outputSize);
+    std::string expectingResult = "8ca8da07c07a31a13c1de0b35f5eadd88510c2ef3f16ba52a27ba0f3e0cd8a71e4b609239508875599fce69a08adc97a6df6a55be107791a1d2"
+                                  "6a67e1362c961e39eff3db05aa30baffd676fa3ea9cde9284133c0cd60994789fa0ad29c93dde9d9fd5454ce4a9112b6446fe667f5e7ead0c7d085e6988e4e0fcd0fd2ec270e55c5ac91121642ed5";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(EncryptByBlockCipherTest, TDES_CTR_multi) {
+    uint64_t outputSize = sizeof(TEST_STRING_128) - 1 + DES_BLOCK_SIZE;
+    uint8_t* buffer = new uint8_t[outputSize];
+    int8_t key[] = "81cav5ASkv8vwel0ve8hve40";
+    int status = EncryptByBlockCipher(TEST_STRING_128, 128, PKCSN7_padding, key, TDES_cipher_type, buffer, &outputSize, CTR_mode, TEST_STRING_8);
+    std::string result = GetHexResult(buffer, outputSize);
+    std::string expectingResult = "8ca8da07c07a31a13c1de0b35f5eadd88510c2ef3f16ba52a27ba0f3e0cd8a71e4b609239508875599fce69a08adc97a6df6a55be107791a1d2"
+                                  "6a67e1362c961e39eff3db05aa30baffd676fa3ea9cde9284133c0cd60994789fa0ad29c93dde9d9fd5454ce4a9112b6446fe667f5e7ead0c7d085e6988e4e0fcd0fd2ec270e55c5ac91121642ed5";
+
+    EXPECT_EQ(result, expectingResult);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}

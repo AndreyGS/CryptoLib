@@ -284,3 +284,65 @@ TEST(DecryptByBlockCipherTest, DES_CTR_multi) {
     EXPECT_TRUE(status == NO_ERROR);
     delete[] buffer;
 }
+
+// 3DES Single
+
+TEST(DecryptByBlockCipherTest, TDES_ECB_single) {
+    uint8_t input[] = { 0xd8, 0xa2, 0x72, 0x1a, 0xb3, 0xf5, 0x42, 0xcb };
+    uint64_t outputSize = 8;
+    uint8_t* buffer = new uint8_t[outputSize];
+    int8_t key[] = "81cav5ASkv8vwel0ve8hve40";
+    int status = DecryptByBlockCipher(input, 8, PKCSN7_padding, key, TDES_cipher_type, buffer, &outputSize, ECB_mode, TEST_STRING_8);
+
+    EXPECT_EQ(memcmp(buffer, TEST_STRING_7, 7), 0);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(DecryptByBlockCipherTest, TDES_CBC_single) {
+    uint8_t input[] = { 0x07, 0x5e, 0x74, 0x32, 0x36, 0x68, 0x64, 0x2d };
+    uint64_t outputSize = 8;
+    uint8_t* buffer = new uint8_t[outputSize];
+    int8_t key[] = "81cav5ASkv8vwel0ve8hve40";
+    int status = DecryptByBlockCipher(input, 8, PKCSN7_padding, key, TDES_cipher_type, buffer, &outputSize, CBC_mode, TEST_STRING_8);
+
+    EXPECT_EQ(memcmp(buffer, TEST_STRING_7, 7), 0);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(DecryptByBlockCipherTest, TDES_CFB_single) {
+    uint8_t input[] = { 0x83, 0x25, 0x9f, 0xa6, 0x05, 0xf0, 0xf0, 0x0e };
+    uint64_t outputSize = 8;
+    uint8_t* buffer = new uint8_t[outputSize];
+    int8_t key[] = "81cav5ASkv8vwel0ve8hve40";
+    int status = DecryptByBlockCipher(input, 8, PKCSN7_padding, key, TDES_cipher_type, buffer, &outputSize, CFB_mode, TEST_STRING_8);
+
+    EXPECT_EQ(memcmp(buffer, TEST_STRING_7, 7), 0);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(DecryptByBlockCipherTest, TDES_OFB_single) {
+    uint8_t input[] = { 0x83, 0x25, 0x9f, 0xa6, 0x05, 0xf0, 0xf0, 0x0e };
+    uint64_t outputSize = 8;
+    uint8_t* buffer = new uint8_t[outputSize];
+    int8_t key[] = "81cav5ASkv8vwel0ve8hve40";
+    int status = DecryptByBlockCipher(input, 8, PKCSN7_padding, key, TDES_cipher_type, buffer, &outputSize, OFB_mode, TEST_STRING_8);
+
+    EXPECT_EQ(memcmp(buffer, TEST_STRING_7, 7), 0);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
+
+TEST(DecryptByBlockCipherTest, TDES_CTR_single) {
+    uint8_t input[] = { 0x83, 0x25, 0x9f, 0xa6, 0x05, 0xf0, 0xf0, 0x0e };
+    uint64_t outputSize = 8;
+    uint8_t* buffer = new uint8_t[outputSize];
+    int8_t key[] = "81cav5ASkv8vwel0ve8hve40";
+    int status = DecryptByBlockCipher(input, 8, PKCSN7_padding, key, TDES_cipher_type, buffer, &outputSize, CTR_mode, TEST_STRING_8);
+
+    EXPECT_EQ(memcmp(buffer, TEST_STRING_7, 7), 0);
+    EXPECT_TRUE(status == NO_ERROR);
+    delete[] buffer;
+}
