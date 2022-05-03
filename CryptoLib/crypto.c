@@ -13,31 +13,119 @@
 int GetHashMultipleInternal(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output);
 int GetXofMultipleInternal(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Xof func, __out void* output, __in uint64_t outputSize);
 
-int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* key, __in BlockCipherType cipherType
+int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv)
 {
     int status = NO_ERROR;
-    if (status = CheckBlockCipherPrimaryArguments(input, inputSize, key, output, outputSize, mode, iv))
+    if (status = CheckBlockCipherPrimaryArguments(input, inputSize, padding, key, cipherType, output, outputSize, mode, iv))
         return status;
 
+    void* roundsKeys = NULL;
+    
+    if (*outputSize) {
+        roundsKeys = AllocBuffer(g_blockCipherKeysSizes[cipherType].roundsKeysSize);
+        if (!roundsKeys)
+            return ERROR_NO_MEMORY;
+        else
+            GetBlockCipherRoundsKeysInternal(key, cipherType, roundsKeys);
+    }
+
+    status = EncryptByBlockCipherInternal(input, inputSize, padding, roundsKeys, cipherType, output, outputSize, mode, iv);
+
+    if (roundsKeys) {
+        memset_s(roundsKeys, g_blockCipherKeysSizes[cipherType].roundsKeysSize, '\xcc', 128);
+        FreeBuffer(roundsKeys);
+    }
+
+    return status;
+}
+
+int EncryptByBlockCipherEx(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* roundsKeys, __in BlockCipherType cipherType
+    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv)
+{
+    int status = NO_ERROR;
+    if (status = CheckBlockCipherPrimaryArguments(input, inputSize, padding, roundsKeys, cipherType, output, outputSize, mode, iv))
+        return status;
+
+    status = EncryptByBlockCipherInternal(input, inputSize, padding, roundsKeys, cipherType, output, outputSize, mode, iv);
+
+    return status;
+}
+
+int EncryptByBlockCipherInternal(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* roundsKeys, __in BlockCipherType cipherType
+    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv)
+{
     switch (cipherType) {
     case DES_cipher_type:
-        return DesEncrypt(input, inputSize, padding, key, output, outputSize, mode, iv);
+        return DesEncrypt(input, inputSize, padding, roundsKeys, output, outputSize, mode, iv);
     default:
         return ERROR_CIPHER_FUNC_NOT_SUPPORTED;
     }
 }
 
-int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* key, __in BlockCipherType cipherType
+int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv)
 {
     int status = NO_ERROR;
-    if (status = CheckBlockCipherPrimaryArguments(input, inputSize, key, output, outputSize, mode, iv))
+    if (status = CheckBlockCipherPrimaryArguments(input, inputSize, padding, key, cipherType, output, outputSize, mode, iv))
         return status;
 
+    void* roundsKeys = AllocBuffer(g_blockCipherKeysSizes[cipherType].roundsKeysSize);
+    if (!roundsKeys)
+        return ERROR_NO_MEMORY;
+    else
+        GetBlockCipherRoundsKeysInternal(key, cipherType, roundsKeys);
+
+    status = DecryptByBlockCipherInternal(input, inputSize, padding, roundsKeys, cipherType, output, outputSize, mode, iv);
+
+    memset_s(roundsKeys, g_blockCipherKeysSizes[cipherType].roundsKeysSize, '\xcc', 128);
+    FreeBuffer(roundsKeys);
+
+    return status;
+}
+
+int DecryptByBlockCipherEx(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* roundsKeys, __in BlockCipherType cipherType
+    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv)
+{
+    int status = NO_ERROR;
+    if (status = CheckBlockCipherPrimaryArguments(input, inputSize, padding, roundsKeys, cipherType, output, outputSize, mode, iv))
+        return status;
+
+    status = DecryptByBlockCipherInternal(input, inputSize, padding, roundsKeys, cipherType, output, outputSize, mode, iv);
+
+    return status;
+}
+
+int DecryptByBlockCipherInternal(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* roundsKeys, __in BlockCipherType cipherType
+    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv)
+{
     switch (cipherType) {
     case DES_cipher_type:
-        return DesDecrypt(input, inputSize, padding, key, output, outputSize, mode, iv);
+        return DesDecrypt(input, inputSize, padding, roundsKeys, output, outputSize, mode, iv);
+    default:
+        return ERROR_CIPHER_FUNC_NOT_SUPPORTED;
+    }
+}
+
+int GetBlockCipherRoundsKeys(__in const void* key, __in BlockCipherType cipherType, __out void* output)
+{
+    int status = NO_ERROR;
+    if (!key)
+        return ERROR_WRONG_KEY;
+    else if (cipherType >= sizeof(g_blockCipherKeysSizes) / sizeof(BlockCipherType))
+        return ERROR_CIPHER_FUNC_NOT_SUPPORTED;
+    else if (!output)
+        return ERROR_WRONG_OUTPUT;
+    else
+        return GetBlockCipherRoundsKeysInternal(key, cipherType, output);
+}
+
+int GetBlockCipherRoundsKeysInternal(__in const void* key, __in BlockCipherType cipherType, __out void* output)
+{
+    switch (cipherType) {
+    case DES_cipher_type:
+        DesGetRoundsKeys(*(uint64_t*)key, output);
+        return NO_ERROR;
     default:
         return ERROR_CIPHER_FUNC_NOT_SUPPORTED;
     }

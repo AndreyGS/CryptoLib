@@ -23,6 +23,7 @@ _ReSharper*/
 .vs/
 CryptoTestsDebug*/
 CryptoTestsRelease*/
+CryptoLib/package*/
 
 *.exe
 *.pdb

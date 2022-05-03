@@ -335,7 +335,7 @@ inline uint32_t DesFeistelPermutation(uint32_t transformed) // correct
         | (transformed & 0x0000000080000000 /* 2^31 */) >>  7;
 }
 
-inline uint32_t DesFeistel(uint32_t r, uint64_t roundKey)
+inline uint32_t DesFeistelFunc(uint32_t r, uint64_t roundKey)
 {
     return DesFeistelPermutation(DesSTransform(DesFeistelExtention(r) ^ roundKey));
 }
@@ -488,7 +488,7 @@ inline uint64_t DesEncryptBlock(uint64_t input, uint64_t* roundsKeys)
     uint64_t permInput = DesInitialPermutation(input);
 
     for (int i = 0; i < 16; ++i)
-        permInput = (permInput >> 32) | ((DesFeistel(permInput >> 32, roundsKeys[i]) ^ permInput) << 32);
+        permInput = (permInput >> 32) | ((DesFeistelFunc(permInput >> 32, roundsKeys[i]) ^ permInput) << 32);
 
     permInput = permInput >> 32 | permInput << 32;
 
@@ -502,20 +502,17 @@ uint64_t DesDecryptBlock(uint64_t input, uint64_t* roundsKeys)
     permInput = permInput >> 32 | permInput << 32;
 
     for (int i = 15; i >= 0; --i)
-        permInput = (permInput << 32) | (DesFeistel((uint32_t)permInput, roundsKeys[i]) ^ (permInput >> 32));
+        permInput = (permInput << 32) | (DesFeistelFunc((uint32_t)permInput, roundsKeys[i]) ^ (permInput >> 32));
 
     return DesFinalPermutation(permInput);
 }
 
-int DesEncrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t* key, __out void* output, __inout uint64_t* outputSize,
+int DesEncrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t* roundsKeys, __out void* output, __inout uint64_t* outputSize,
     __in BlockCipherOpMode mode, __in_opt const void* iv)
 {
     int status = NO_ERROR;
     if (status = AddPaddingInternal(input, inputSize, padding, DES_BLOCK_SIZE, output, outputSize, true))
         return status;
-
-    uint64_t roundsKeys[16] = { 0 };
-    DesGetRoundsKeys(*key, roundsKeys);
 
     uint64_t blocksNumber = (*outputSize >> 3); // (outputSize / DES_BLOCK_SIZE)
     
@@ -561,29 +558,28 @@ int DesEncrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType
     }
 
     case CTR_mode: {
-        uint32_t counter = 0;
-        while (--blocksNumber)
-            *((uint64_t*)output)++ = DesEncryptBlock(*(uint64_t*)iv << 32 | counter++, roundsKeys) ^ *((uint64_t*)input)++;
-        *(uint64_t*)output = DesEncryptBlock(*(uint64_t*)iv << 32 | counter, roundsKeys) ^ *(uint64_t*)output;
+        uint64_t counter = *(uint64_t*)iv;
+        while (--blocksNumber) {
+            *((uint64_t*)output)++ = DesEncryptBlock(counter, roundsKeys) ^ *((uint64_t*)input)++;
+            counter = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(counter) + 1); // I'm not sure that approach with Big Endian counter is necessary
+                                                                                                 // but the only other working example of des with ctr with which I can compare the result 
+                                                                                                 // of the work has that (based on my calculations).
+        }
+        *(uint64_t*)output = DesEncryptBlock(counter, roundsKeys) ^ *(uint64_t*)output;
         break;
     }
     }
 
-    memset_s(roundsKeys, 128, '\xcc', 128);
-
     return NO_ERROR;
 }
 
-int DesDecrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t* key, __out void* output, __inout uint64_t* outputSize,
+int DesDecrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t* roundsKeys, __out void* output, __inout uint64_t* outputSize,
     __in BlockCipherOpMode mode, __in_opt const void* iv)
 {
     int status = NO_ERROR;
 
     if (inputSize & 7) // (7 == DES_BLOCK_SIZE - 1)
         return ERROR_WRONG_INPUT_SIZE;
-
-    uint64_t roundsKeys[16] = { 0 };
-    DesGetRoundsKeys(*key, roundsKeys);
 
     uint64_t blocksNumber = (inputSize >> 3); // (inputSize / DES_BLOCK_SIZE)
     uint64_t lastOutputBlock = 0;
@@ -619,7 +615,7 @@ int DesDecrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType
     }
 
     case CTR_mode: {
-        lastOutputBlock = DesEncryptBlock(*(uint64_t*)iv << 32 | blocksNumber - 1, roundsKeys) ^ *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE);
+        lastOutputBlock = DesEncryptBlock(Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(*(uint64_t*)iv) + blocksNumber - 1), roundsKeys) ^ *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE);
         break;
     }
 
@@ -670,7 +666,7 @@ int DesDecrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType
 
     case OFB_mode: {
         uint64_t ivBlock = *(uint64_t*)iv;
-        ++blocksNumber;
+        blocksNumber = (inputSize >> 3);
         while (--blocksNumber) {
             ivBlock = DesEncryptBlock(ivBlock, roundsKeys);
             *((uint64_t*)output)++ = *((uint64_t*)input)++ ^ ivBlock;
@@ -679,15 +675,15 @@ int DesDecrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType
     }
 
     case CTR_mode: {
-        uint32_t counter = 0;
-        while (--blocksNumber)
-            *((uint64_t*)output)++ = DesEncryptBlock(*(uint64_t*)iv << 32 | counter++, roundsKeys) ^ *((uint64_t*)input)++;
+        uint64_t counter = *(uint64_t*)iv;
+        while (--blocksNumber) {
+            *((uint64_t*)output)++ = DesEncryptBlock(counter, roundsKeys) ^ *((uint64_t*)input)++;
+            counter = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(counter) + 1);
+        }
         break;
     }
 
     }
-
-    memset_s(roundsKeys, 128, '\xcc', 128);
 
     return NO_ERROR;
 }

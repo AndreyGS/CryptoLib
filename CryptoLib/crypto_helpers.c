@@ -16,8 +16,10 @@ int CheckInput(__in const void* input, __in uint64_t inputSize)
 
 int CheckOutput(__in const void* output, __in const uint64_t* outputSize)
 {
-    if (!output || !outputSize)
+    if (!output && outputSize && *outputSize)
         return ERROR_WRONG_OUTPUT;
+    else if (!outputSize)
+        return ERROR_OUTPUT_SIZE_IS_NULL;
     else
         return NO_ERROR;
 }
@@ -29,13 +31,19 @@ int CheckInputOutput(__in const void* input, __in uint64_t inputSize, __in const
 }
 
 
-int CheckBlockCipherPrimaryArguments(const void* input, uint64_t inputSize, uint64_t* roundsKeys, void* output, uint64_t* outputSize, BlockCipherOpMode mode, const void* iv)
+int CheckBlockCipherPrimaryArguments(const void* input, uint64_t inputSize, PaddingType padding, const uint64_t* key, BlockCipherType cipherType, const void* output, const uint64_t* outputSize, BlockCipherOpMode mode, const void* iv)
 {
     int status = NO_ERROR;
     if (status = CheckInputOutput(input, inputSize, output, outputSize))
         return status;
-    else if (!roundsKeys)
+    else if ((uint64_t)padding >= PaddingType_max)
+        return ERROR_PADDING_NOT_SUPPORTED;
+    else if (!key)
         return ERROR_WRONG_KEY;
+    else if ((uint64_t)cipherType >= BlockCipherType_max)
+        return ERROR_CIPHER_FUNC_NOT_SUPPORTED;
+    else if ((uint64_t)mode >= BlockCipherOpMode_max)
+        return ERROR_UNSUPPROTED_ENCRYPTION_MODE;
     else if (mode != ECB_mode && !iv)
         return ERROR_WRONG_INIT_VECTOR;
     else

@@ -26,6 +26,9 @@ extern "C" {
 #define ERROR_NO_MEMORY                     0x8000000c
 #define ERROR_XOF_NOT_SUPPORTED             0x8000000d
 #define ERROR_PRF_FUNC_NOT_SUPPORTED        0x8000000e
+#define ERROR_OUTPUT_SIZE_IS_NULL           0x8000000f
+#define ERROR_PADDING_NOT_SUPPORTED         0x80000010
+#define ERROR_UNSUPPROTED_ENCRYPTION_MODE   0x80000011
 
 #define BITS_PER_BYTE                   8
 #define DES_BLOCK_SIZE                  8
@@ -34,22 +37,35 @@ extern "C" {
 #define SHA2_BLOCK_SIZE                 128
 
 typedef enum _BlockCipherType {
-    DES_cipher_type
+    DES_cipher_type,
+    BlockCipherType_max
 } BlockCipherType;
 
-typedef enum _BlockCipherMode {
+typedef struct _BlockCipherKeysSizes {
+    BlockCipherType cipherType;
+    uint16_t keySize;
+    uint16_t roundsKeysSize;
+} BlockCipherKeysSizes;
+
+static const BlockCipherKeysSizes g_blockCipherKeysSizes[] = {
+    { DES_cipher_type, 8, 128 }
+};
+
+typedef enum _BlockCipherOpMode {
     ECB_mode,
     CBC_mode,
     CFB_mode,
     OFB_mode,
-    CTR_mode
+    CTR_mode,
+    BlockCipherOpMode_max
 } BlockCipherOpMode;
 
 typedef enum _PaddingType {
     No_padding,
     Zero_padding,
     PKCSN7_padding,
-    ISO_7816_padding
+    ISO_7816_padding,
+    PaddingType_max
 } PaddingType;
 
 typedef uint32_t _HashFuncs;
@@ -64,7 +80,8 @@ typedef enum _HashFunc {
     SHA3_224,
     SHA3_256,
     SHA3_384,
-    SHA3_512
+    SHA3_512,
+    HashFunc_max
 } HashFunc;
 
 typedef struct _HashFuncsSizes {
@@ -74,7 +91,7 @@ typedef struct _HashFuncsSizes {
 } HashFuncsSizes;
 
 // The order of mappings must be equal to the order of HashFunc consts
-static HashFuncsSizes g_hashFuncsSizesMapping[] =
+static const HashFuncsSizes g_hashFuncsSizesMapping[] =
 {
     { SHA1,          64, 20 },
     { SHA_224,       64, 28 },
@@ -106,12 +123,14 @@ typedef enum _PRF {
     HMAC_SHA3_224,
     HMAC_SHA3_256,
     HMAC_SHA3_384,
-    HMAC_SHA3_512
+    HMAC_SHA3_512,
+    Prf_max
 } PRF;
 
 typedef enum _Xof {
     SHAKE128,
-    SHAKE256
+    SHAKE256,
+    Xof_max
 } Xof;
 
 typedef struct _XofSizes {
@@ -119,7 +138,7 @@ typedef struct _XofSizes {
     uint16_t blockSize;
 } XofSizes;
 
-static XofSizes g_XofSizesMapping[] =
+static const XofSizes g_XofSizesMapping[] =
 {
     { SHAKE128,     168 },
     { SHAKE256,     136 }
@@ -130,7 +149,7 @@ typedef struct _PrfHashPair {
     HashFunc hashFunc;
 } PrfHashPair;
 
-static PrfHashPair g_PrfHashPairMapping[] = {
+static const PrfHashPair g_PrfHashPairMapping[] = {
     { HMAC_SHA1,        SHA1        },
     { HMAC_SHA_224,     SHA_224     },
     { HMAC_SHA_256,     SHA_256     },
@@ -151,6 +170,15 @@ int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in P
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
 int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* key, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
+
+// Ex version has the roundsKeys input instead of key in main version
+int EncryptByBlockCipherEx(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* roundsKeys, __in BlockCipherType cipherType
+    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
+int DecryptByBlockCipherEx(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* roundsKeys, __in BlockCipherType cipherType
+    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
+
+// Check g_blockCipherKeysSizes for key sizes that you should supply with your ouput buffer for get respective rounds keys
+int GetBlockCipherRoundsKeys(__in const void* key, __in BlockCipherType cipherType, __out void* output);
 
 // Before using GetHash and GetHashEx you should allocate output buffer according to output digest size of respective hashing function
 // You may check the numbers with g_hashFuncsSizesMapping array (see "func" and corresponding "blockSize" fields)
@@ -182,7 +210,7 @@ int GetPbkdf2(__in const void* salt, __in uint64_t saltSize, __in const void* ke
 
 // Here is no limit for saltSize except uint64_t length, but salt buffer must include additional 4 bytes for internal processing.
 // So if you pass saltSize as 1008 bytes, you should allocate 1012 bytes for salt.
-int GetPbkdf2Ex(__in void* salt, __in uint64_t saltSize, __in void* key, __in uint64_t keySize, __in PRF func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize);
+int GetPbkdf2Ex(__in const void* salt, __in uint64_t saltSize, __in const void* key, __in uint64_t keySize, __in PRF func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize);
 
 #ifdef __cplusplus
 }

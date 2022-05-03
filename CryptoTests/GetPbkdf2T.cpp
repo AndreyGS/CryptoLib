@@ -16,6 +16,15 @@ TEST(GetPbkdf2Test, WrongInput) {
     delete[] buffer;
 }
 
+TEST(GetPbkdf2Test, WrongInputSize) {
+    uint16_t outputSize = 20;
+    uint8_t* buffer = new uint8_t[outputSize];
+    int status = GetPbkdf2(TEST_STRING_513, 513, TEST_STRING_8, 8, HMAC_SHA1, 100, buffer, outputSize);
+
+    EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
+    delete[] buffer;
+}
+
 TEST(GetPbkdf2Test, WrongKey) {
     uint16_t outputSize = 20;
     uint8_t* buffer = new uint8_t[outputSize];

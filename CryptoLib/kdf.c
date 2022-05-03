@@ -14,7 +14,7 @@ int CheckPbkdf2Arguments(__in const void* salt, __in uint64_t saltSize, __in con
         return ERROR_WRONG_KEY;
     else if (!output)
         return ERROR_WRONG_OUTPUT;
-    else if (func >= sizeof(g_PrfHashPairMapping) / sizeof(PrfHashPair))
+    else if ((uint64_t)func >= Prf_max)
         return ERROR_PRF_FUNC_NOT_SUPPORTED;
     else if (!iterationsNum)
         return ERROR_WRONG_ITERATIONS_NUMBER;

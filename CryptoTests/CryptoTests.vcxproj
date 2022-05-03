@@ -58,9 +58,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="common.cpp" />
+    <ClCompile Include="DecryptByBlockCipherT.cpp" />
+    <ClCompile Include="EncryptByBlockCipherT.cpp" />
     <ClCompile Include="GetHashExT.cpp" />
     <ClCompile Include="GetHashMultipleT.cpp" />
     <ClCompile Include="GetHashT.cpp" />
+    <ClCompile Include="GetPbkdf2ExT.cpp" />
     <ClCompile Include="GetPbkdf2T.cpp" />
     <ClCompile Include="GetPrfT.cpp" />
     <ClCompile Include="GetXofMultipleT.cpp" />

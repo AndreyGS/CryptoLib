@@ -19,6 +19,10 @@ const char TEST_STRING_137[] = "KECCAK algorithm that NIST selected as the winne
 const char TEST_STRING_144[] = "This Standard specifies the Secure Hash Algorithm-3 (SHA-3) family of functions on binary data.Each of the SHA - 3 functions is based on an inst";
 const char TEST_STRING_145[] = "This Standard (FIPS 202) specifies the Secure Hash Algorithm-3 (SHA-3) family of functions on binary data. Each of the SHA-3 functions is based o";
 const char TEST_STRING_168[] = "Information Security Management Act(FISMA) of 2002. Comments concerning FIPS publications are welcomed and should be addressed to the Director, Information Technology L";
+const char TEST_STRING_513[] = "In early 2013 NIST announced they would select different values for the capacity, the overall strength vs speed parameter, for the SHA-3 standard, compared"
+                               "to the submission.[25][26] The changes caused some turmoil. The hash function competition called for hash functions at least as secure as the SHA-2 instances."
+                               "It means that a d-bit output should have d/2-bit resistance to collision attacks and d-bit resistance to preimage attacks, the maximum achievable for d bits of output."
+                               "Keccak's security proof allows an";
 
 #define STR_ERROR_WRONG_INPUT                   "ERROR_WRONG_INPUT"
 #define STR_ERROR_WRONG_OUTPUT                  "ERROR_WRONG_OUTPUT"
