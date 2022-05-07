@@ -24,3 +24,5 @@ extern inline uint64_t Uint64LittleEndianToBigEndianBits(uint64_t input);
 
 extern inline void* AllocBuffer(size_t size);
 extern inline void FreeBuffer(void* buffer);
+
+int FillLastDecryptedBlockInternal(__in PaddingType padding, __in uint64_t blockSize, __in const void* lastOutputBlock, __in uint64_t inputSize, __out void* output, __inout uint64_t* outputSize);

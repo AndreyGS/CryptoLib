@@ -24,6 +24,9 @@ const char TEST_STRING_513[] = "In early 2013 NIST announced they would select d
                                "It means that a d-bit output should have d/2-bit resistance to collision attacks and d-bit resistance to preimage attacks, the maximum achievable for d bits of output."
                                "Keccak's security proof allows an";
 
+const char TEST_STRING_8_7[] = "somekindThis is";
+const char TEST_STRING_64_7[] = "here I don't really now. Maybe it should be something clever or This is";
+
 #define STR_ERROR_WRONG_INPUT                   "ERROR_WRONG_INPUT"
 #define STR_ERROR_WRONG_OUTPUT                  "ERROR_WRONG_OUTPUT"
 #define STR_ERROR_WRONG_KEY                     "ERROR_WRONG_KEY"

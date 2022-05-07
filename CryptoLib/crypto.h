@@ -168,19 +168,19 @@ static const PrfHashPair g_PrfHashPairMapping[] = {
 int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
 
 // If you supply outputSize == 0, then function returns ERROR_WRONG_OUTPUT_SIZE error and outputSize variable will contain requiring size
-// For DES algo outputSize in DecryptByBlockCipher will return exact bytes length.
-// but with 3DES if you pass there outputSize < inputSize you will get an error and outputSize returned will be equal inputSize.
-// But if there is no error outputSize will always contain exact bytes length.
-int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* key, __in BlockCipherType cipherType
-    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
-int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* key, __in BlockCipherType cipherType
-    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
+// For all cipher modes outputSize in DecryptByBlockCipher will return exact bytes length.
+// but with OFB if you pass there outputSize < inputSize you will get an error and outputSize returned will be equal inputSize.
+// And if there is no error outputSize will always contain exact bytes length.
+int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
+    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv);
+int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
+    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv);
 
 // Ex version has the roundsKeys input instead of key in main version
-int EncryptByBlockCipherEx(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* roundsKeys, __in BlockCipherType cipherType
-    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
-int DecryptByBlockCipherEx(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in void* roundsKeys, __in BlockCipherType cipherType
-    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
+int EncryptByBlockCipherEx(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* roundsKeys, __in BlockCipherType cipherType
+    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv);
+int DecryptByBlockCipherEx(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* roundsKeys, __in BlockCipherType cipherType
+    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv);
 
 // Check g_blockCipherKeysSizes for key sizes that you should supply with your ouput buffer for get respective rounds keys
 int GetBlockCipherRoundsKeys(__in const void* key, __in BlockCipherType cipherType, __out void* output);

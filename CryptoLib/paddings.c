@@ -56,6 +56,11 @@ int AddPaddingInternal(__in const void* input, __in uint64_t inputSize, __in Pad
                 status = ERROR_WRONG_OUTPUT_SIZE;
 
             *outputSize = inputSize;
+
+            if (fillAllBlock) {
+                uint64_t offset = inputSize - blockSize;
+                memcpy((uint8_t*)output + offset, (uint8_t*)input + offset, blockSize);
+            }
         }
         break;
 
@@ -90,7 +95,7 @@ int PullPaddingSize(__in PaddingType padding, __in void* input, __in uint64_t bl
     return PullPaddingSizeInternal(padding, input, blockSize, paddingSize);
 }
 
-int PullPaddingSizeInternal(__in PaddingType padding, __in void* input, __in uint64_t blockSize,  __out uint64_t* paddingSize)
+int PullPaddingSizeInternal(__in PaddingType padding, __in const void* input, __in uint64_t blockSize,  __out uint64_t* paddingSize)
 {
     int status = NO_ERROR;
 
