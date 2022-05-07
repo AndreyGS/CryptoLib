@@ -10,9 +10,6 @@
 #include "sha-3.h"
 #include "hmac.h"
 
-int GetHashMultipleInternal(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output);
-int GetXofMultipleInternal(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Xof func, __out void* output, __in uint64_t outputSize);
-
 int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv)
 {
@@ -152,96 +149,67 @@ int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType
     return AddPaddingInternal(input, inputSize, padding, blockSize, output, outputSize, fillAllBlock);
 }
 
-int GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out void* output)
-{
-    return GetHashEx(input, inputSize, 0, func, output);
-}
-
-int GetHashEx(__in const void* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __in HashFunc func, __out void* output)
-{
-    const VoidAndSizeNode inputList = { (void*)input, inputSizeLowPart, inputSizeHighPart };
-    return GetHashMultiple(&inputList, 1, func, output);
-}
-
-int GetHashMultiple(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output)
+int GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out void* output, __in StageType stageType, __inout_opt void* state)
 {
     int status = NO_ERROR;
-    if (status = CheckInput(inputList, inputListSize))
+    if (func >= HashFunc_max)
+        return ERROR_HASHING_FUNC_NOT_SUPPORTED;
+    else if (status = CheckHashAndXofPrimaryArguments(input, inputSize, func, output, stageType, state))
         return status;
-    else
-        for (uint64_t i = 0; i < inputListSize; ++i)
-            if (!inputList[i].input && (inputList[i].inputSizeLowPart || inputList[i].inputSizeHighPart))
-                return ERROR_WRONG_INPUT;
 
-    if (!output)
-        return ERROR_WRONG_OUTPUT;
-    else
-        return GetHashMultipleInternal(inputList, inputListSize, func, output);
+    GetHashInternal(input, inputSize, func, output, stageType, state);
+    return NO_ERROR;
 }
 
-int GetHashMultipleInternal(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output)
+void GetHashInternal(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out void* output, __in StageType stageType, __inout_opt void* state)
 {
     switch (func) {
     case SHA1:
-        return Sha1Get(inputList, inputListSize, output);
+        Sha1Get(input, inputSize, output, stageType, state);
         break;
     case SHA_224:
     case SHA_256:
-        return Sha2_32Get(inputList, inputListSize, func, output);
+        Sha2_32Get(input, inputSize, func, output, stageType, state);
         break;
     case SHA_384:
     case SHA_512_224:
     case SHA_512_256:
     case SHA_512:
-        return Sha2_64Get(inputList, inputListSize, func, output);
+        Sha2_64Get(input, inputSize, func, output, stageType, state);
         break;
     case SHA3_224:
     case SHA3_256:
     case SHA3_384:
     case SHA3_512:
-        return Sha3GetHash(inputList, inputListSize, func, output);
+        Sha3GetHash(input, inputSize, func, output, stageType, state);
         break;
     default:
-        return ERROR_HASHING_FUNC_NOT_SUPPORTED;
+        break;
     }
 }
 
-int GetXof(__in const void* input, __in uint64_t inputSize, __in Xof func, __out void* output, __in uint64_t outputSize)
-{
-    const VoidAndSizeNode inputList = { (void*)input, inputSize, 0 };
-    return GetXofMultiple(&inputList, 1, func, output, outputSize);
-}
-
-int GetXofMultiple(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Xof func, __out void* output, __in uint64_t outputSize)
+int GetXof(__in const void* input, __in uint64_t inputSize, __in Xof func, __out void* output, __in StageType stageType, __in uint64_t outputSize, __inout_opt void* state)
 {
     int status = NO_ERROR;
-    if (status = CheckInputOutput(inputList, inputListSize, output, &outputSize))
+    if (func >= Xof_max)
+        return ERROR_XOF_NOT_SUPPORTED;
+    else if (status = CheckHashAndXofPrimaryArguments(input, inputSize, func, output, stageType, state))
         return status;
-    else if (!outputSize)
-        return ERROR_WRONG_OUTPUT_SIZE;
-    else
-        for (uint64_t i = 0; i < inputListSize; ++i)
-            if (!inputList[i].input && (inputList[i].inputSizeLowPart || inputList[i].inputSizeHighPart))
-                return ERROR_WRONG_INPUT;
 
-   return GetXofMultipleInternal(inputList, inputListSize, func, output, outputSize);
+    GetXofInternal(input, inputSize, func, output, stageType, outputSize, state);
+    return NO_ERROR;
 }
 
-int GetXofMultipleInternal(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Xof func, __out void* output, __in uint64_t outputSize)
+void GetXofInternal(__in const void* input, __in uint64_t inputSize, __in Xof func, __out void* output, __in StageType stageType, __in uint64_t outputSize, __inout_opt void* state)
 {
-    int status = NO_ERROR;
-
     switch (func) {
     case SHAKE128:
     case SHAKE256:
-        status = Sha3GetXof(inputList, inputListSize, func, output, outputSize);
+        Sha3GetXof(input, inputSize, func, output, stageType, outputSize, state);
         break;
     default:
-        status = ERROR_XOF_NOT_SUPPORTED;
         break;
     }
-
-    return status;
 }
 
 int GetPrf(__in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in PRF func, __out void* output, __in_opt uint64_t outputSize)

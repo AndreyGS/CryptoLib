@@ -12,5 +12,5 @@ int DecryptByBlockCipherInternal(__in const void* input, __in uint64_t inputSize
 
 int GetBlockCipherRoundsKeysInternal(__in const void* key, __in BlockCipherType cipherType, __out void* output);
 
-int GetHashMultipleInternal(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output);
-
+void GetHashInternal(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out void* output, __in StageType stageType, __inout_opt void* state);
+void GetXofInternal(__in const void* input, __in uint64_t inputSize, __in Xof func, __out void* output, __in StageType stageType, __in uint64_t outputSize, __inout_opt void* state);

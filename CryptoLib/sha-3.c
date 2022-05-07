@@ -4,7 +4,7 @@
 #include "crypto_internal.h"
 #include "paddings.h"
 
-int Sha3Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Sha3Func func, __out uint64_t* output, __in_opt uint64_t outputSize);
+void Sha3Get(__in const void* input, __in uint64_t inputSize, __in Sha3Func func, __in bool lastPart, __out uint64_t* output, __in uint64_t outputSize);
 
 const uint64_t RC[] =
 {
@@ -122,81 +122,85 @@ inline void Sha3StateXor(__in const uint64_t* input, __in Sha3Func func, __inout
         break;
     }  
 }
-int Sha3GetHash(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out uint64_t* output)
+
+void Sha3GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out uint64_t* output, __in StageType stageType, __inout_opt void* state)
 {
-    return Sha3Get(inputList, inputListSize, func - SHA3_224, output, 0);
+    Sha3Get(input, inputSize, func - SHA3_224, output, stageType, 0, state);
 }
 
-int Sha3GetXof(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Xof func, __out uint64_t* output, __in uint64_t outputSize)
+void Sha3GetXof(__in const void* input, __in uint64_t inputSize, __in Xof func, __out uint64_t* output, __in StageType stageType, __in uint64_t outputSize, __inout_opt void* state)
 {
-    return Sha3Get(inputList, inputListSize, func + Sha3Func_SHA3_512 + 1, output, outputSize);
+    Sha3Get(input, inputSize, func + Sha3Func_SHA3_512 + 1, output, stageType, outputSize, state);
 }
 
-int Sha3Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Sha3Func func, __out uint64_t* output, __in_opt uint64_t outputSize)
+void Sha3Get(__in const void* input, __in uint64_t inputSize, __in Sha3Func func, __out uint64_t* output, __in StageType stageType, __in uint64_t outputSize, __inout_opt void* state)
 {
     int status = NO_ERROR;
     uint16_t blockSize = func == Sha3Func_SHAKE128 || func == Sha3Func_SHAKE256
                        ? g_XofSizesMapping[func - Sha3Func_SHAKE128].blockSize
                        : g_hashFuncsSizesMapping[func + SHA3_224].blockSize;
-    uint64_t state[5][5] = { {0}, {0}, {0}, {0}, {0} };
+    uint64_t stackBuffer[5][5] = { {0}, {0}, {0}, {0}, {0} };
+    uint32_t* buffer = NULL;
 
-    VoidAndSizeNode inputNode = *inputList++;
+    if (state != Single_stage)
+        buffer = state;
+    else
+        buffer = stackBuffer;
 
-    while (inputListSize--) {
-        if (inputListSize && (inputNode.inputSizeLowPart % blockSize))
-            return ERROR_WRONG_INPUT_SIZE;
+    if (state == First_stage)
+        memset(buffer, 0, SHA3_FULL_STATE_SIZE);
 
-        uint64_t blocksNum = inputNode.inputSizeLowPart / blockSize + 1;
+    uint64_t blocksNum = inputSize / blockSize + (stageType == Single_stage || stageType == Final_stage ? 1 : 2);
 
-        while (--blocksNum) {
-            Sha3StateXor(inputNode.input, func, (uint64_t*)state);
-            (uint8_t*)inputNode.input += blockSize;
-            Keccak_p_Rnds((uint64_t*)state);
+    while (--blocksNum) {
+        Sha3StateXor(input, func, (uint64_t*)buffer);
+        (uint8_t*)input += blockSize;
+        Keccak_p_Rnds((uint64_t*)buffer);
+    }
+
+    bool lastPart = state == Single_stage || state == Final_stage;
+
+    if (lastPart) {
+        uint64_t tailBlocks[42] = { 0 };
+        uint8_t tailBlocksNum = 0;
+        AddSha3PaddingInternal(input, inputSize, func, tailBlocks, &tailBlocksNum);
+
+        uint8_t* p = (uint8_t*)tailBlocks;
+        while (tailBlocksNum--) {
+            Sha3StateXor((uint64_t*)p, func, (uint64_t*)buffer);
+            p += SHA2_BLOCK_SIZE;
+            Keccak_p_Rnds((uint64_t*)buffer);
         }
-
-        if (inputListSize)
-            inputNode = *inputList++;
     }
 
-    uint64_t tailBlocks[42] = { 0 };
-    uint8_t tailBlocksNum = 0;
-    AddSha3PaddingInternal(inputNode.input, inputNode.inputSizeLowPart, func, tailBlocks, &tailBlocksNum);
-
-    uint8_t* p = (uint8_t*)tailBlocks;
-    while (tailBlocksNum--) {
-        Sha3StateXor((uint64_t*)p, func, (uint64_t*)state);
-        p += SHA2_BLOCK_SIZE;
-        Keccak_p_Rnds((uint64_t*)state);
-    }
-
-    if (func == Sha3Func_SHAKE128 || func == Sha3Func_SHAKE256) {
+    if (lastPart && (func == Sha3Func_SHAKE128 || func == Sha3Func_SHAKE256)) {
         uint16_t digestBlockSize = g_XofSizesMapping[func - Sha3Func_SHAKE128].blockSize;
 
         while (digestBlockSize < outputSize) {
             switch (func) {
             case Sha3Func_SHAKE128:
-                output[20] = state[4][0];
-                output[19] = state[3][4];
-                output[18] = state[3][3];
-                output[17] = state[3][2];
+                output[20] = buffer[20];
+                output[19] = buffer[19];
+                output[18] = buffer[18];
+                output[17] = buffer[17];
             case Sha3Func_SHAKE256:
-                output[16] = state[3][1];
-                output[15] = state[3][0];
-                output[14] = state[2][4];
-                output[13] = state[2][3];
-                output[12] = state[2][2];
-                output[11] = state[2][1];
-                output[10] = state[2][0];
-                output[9] = state[1][4];
-                output[8] = state[1][3];
-                output[7] = state[1][2];
-                output[6] = state[1][1];
-                output[5] = state[1][0];
-                output[4] = state[0][4];
-                output[3] = state[0][3];
-                output[2] = state[0][2];
-                output[1] = state[0][1];
-                output[0] = state[0][0];
+                output[16] = buffer[16];
+                output[15] = buffer[15];
+                output[14] = buffer[14];
+                output[13] = buffer[13];
+                output[12] = buffer[12];
+                output[11] = buffer[11];
+                output[10] = buffer[10];
+                output[9] = buffer[9];
+                output[8] = buffer[8];
+                output[7] = buffer[7];
+                output[6] = buffer[6];
+                output[5] = buffer[5];
+                output[4] = buffer[4];
+                output[3] = buffer[3];
+                output[2] = buffer[2];
+                output[1] = buffer[1];
+                output[0] = buffer[0];
                 break;
             }
 
@@ -213,26 +217,24 @@ int Sha3Get(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, 
             *((uint8_t*)output)++ = *p++;
 
     }
-    else {
+    else if (!lastPart || (func != Sha3Func_SHAKE128 && func != Sha3Func_SHAKE256)) {
         switch (func) {
         case Sha3Func_SHA3_512:
-            output[7] = state[1][2];
-            output[6] = state[1][1];
+            output[7] = buffer[7];
+            output[6] = buffer[6];
         case Sha3Func_SHA3_384:
-            output[5] = state[1][0];
-            output[4] = state[0][4];
+            output[5] = buffer[5];
+            output[4] = buffer[4];
         default:
             if (func == Sha3Func_SHA3_224)
-                (uint32_t)output[3] = *((uint32_t*)&state[0][3]);
+                (uint32_t)output[3] = *((uint32_t*)&buffer[3]);
             else
-                output[3] = state[0][3];
+                output[3] = buffer[3];
 
-            output[2] = state[0][2];
-            output[1] = state[0][1];
-            output[0] = state[0][0];
+            output[2] = buffer[2];
+            output[1] = buffer[1];
+            output[0] = buffer[0];
             break;
         }
     }
-
-    return status;
 }

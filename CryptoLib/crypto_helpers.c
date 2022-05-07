@@ -51,6 +51,20 @@ int CheckBlockCipherPrimaryArguments(const void* input, uint64_t inputSize, Padd
         return NO_ERROR;
 }
 
+int CheckHashAndXofPrimaryArguments(const void* input, uint64_t inputSize, HashFunc func, void* output, StageType stageType, void* state)
+{
+    if (!input && inputSize)
+        return ERROR_WRONG_INPUT;
+    else if (stageType != Single_stage && !state)
+        return ERROR_WRONG_STATE;
+    else if (!output)
+        return ERROR_WRONG_OUTPUT;
+    else if (stageType != Single_stage && stageType != Final_stage && (inputSize % g_hashFuncsSizesMapping[func].blockSize))
+        return ERROR_WRONG_INPUT_SIZE;
+    else
+        return NO_ERROR;
+}
+
 inline uint32_t Uint32BigEndianLeftRotateByOne(uint32_t word) // big-endian style
 {
     return word << 1 | (word & 0x80000000 ? 1 : 0); // on 10700K this is more than 10% faster than word << 1 | word >> 31

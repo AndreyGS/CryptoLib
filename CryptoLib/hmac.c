@@ -17,8 +17,7 @@ int GetHmac(__in const void* input, __in uint64_t inputSize, __in const void* ke
         EVAL(ERROR_NO_MEMORY);
 
     if (keySize > blockSize) {
-        const VoidAndSizeNode inputNode = { (void*)key, keySize, 0 };
-        GetHashMultipleInternal(&inputNode, 1, func, iKeyPad);
+        GetHashInternal(key, keySize, NULL, NULL, func, true, iKeyPad);
         keySize = didgestSize;
     }
     else
@@ -40,6 +39,10 @@ int GetHmac(__in const void* input, __in uint64_t inputSize, __in const void* ke
         { iKeyPad, blockSize, 0 }, 
         { (void*)input,   inputSize, 0 }
     };
+
+    uint64_t prevInputSizeLowPart = 0, prevInputSizeHighPart = 0;
+
+    GetHashInternal(iKeyPad, blockSize, &prevInputSizeLowPart, &prevInputSizeHighPart, func, false, iKeyPad);
 
     GetHashMultipleInternal(inputNodes, 2, func, iKeyPad);
 

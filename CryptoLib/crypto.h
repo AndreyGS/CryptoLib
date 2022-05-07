@@ -29,12 +29,23 @@ extern "C" {
 #define ERROR_OUTPUT_SIZE_IS_NULL           0x8000000f
 #define ERROR_PADDING_NOT_SUPPORTED         0x80000010
 #define ERROR_UNSUPPROTED_ENCRYPTION_MODE   0x80000011
+#define ERROR_WRONG_STATE                   0x80000012
 
 #define BITS_PER_BYTE                   8
 #define DES_BLOCK_SIZE                  8
 #define MAX_PKCSN7_BLOCK_SIZE           255
-#define SHA_BLOCK_SIZE                  64
+#define SHA1_BLOCK_SIZE                 64
 #define SHA2_BLOCK_SIZE                 128
+
+#define SHA1_STATE_SIZE                 20
+#define SHA2_32_STATE_SIZE              32
+#define SHA2_64_STATE_SIZE              64
+#define SHA3_STATE_SIZE                 200
+
+#define SHA1_FULL_STATE_SIZE            28
+#define SHA2_32_FULL_STATE_SIZE         40
+#define SHA2_64_FULL_STATE_SIZE         80
+#define SHA3_FULL_STATE_SIZE            200
 
 typedef enum _BlockCipherType {
     DES_cipher_type,
@@ -90,23 +101,32 @@ typedef struct _HashFuncsSizes {
     HashFunc func;
     uint16_t blockSize;
     uint16_t outputSize;
+    uint16_t stateSize;
+    uint16_t fullStateSize;
 } HashFuncsSizes;
 
 // The order of mappings must be equal to the order of HashFunc consts
 static const HashFuncsSizes g_hashFuncsSizesMapping[] =
 {
-    { SHA1,          64, 20 },
-    { SHA_224,       64, 28 },
-    { SHA_256,       64, 32 },
-    { SHA_384,      128, 48 },
-    { SHA_512_224,  128, 28 },
-    { SHA_512_256,  128, 32 },
-    { SHA_512,      128, 64 },
-    { SHA3_224,     144, 28 },
-    { SHA3_256,     136, 32 },
-    { SHA3_384,     104, 48 },
-    { SHA3_512,      72, 64 }
+    { SHA1,          64, 20, SHA1_STATE_SIZE,       SHA1_FULL_STATE_SIZE    },
+    { SHA_224,       64, 28, SHA2_32_STATE_SIZE,    SHA2_32_FULL_STATE_SIZE },
+    { SHA_256,       64, 32, SHA2_32_STATE_SIZE,    SHA2_32_FULL_STATE_SIZE },
+    { SHA_384,      128, 48, SHA2_64_STATE_SIZE,    SHA2_64_FULL_STATE_SIZE },
+    { SHA_512_224,  128, 28, SHA2_64_STATE_SIZE,    SHA2_64_FULL_STATE_SIZE },
+    { SHA_512_256,  128, 32, SHA2_64_STATE_SIZE,    SHA2_64_FULL_STATE_SIZE },
+    { SHA_512,      128, 64, SHA2_64_STATE_SIZE,    SHA2_64_FULL_STATE_SIZE },
+    { SHA3_224,     144, 28, SHA3_STATE_SIZE,       SHA3_FULL_STATE_SIZE    },
+    { SHA3_256,     136, 32, SHA3_STATE_SIZE,       SHA3_FULL_STATE_SIZE    },
+    { SHA3_384,     104, 48, SHA3_STATE_SIZE,       SHA3_FULL_STATE_SIZE    },
+    { SHA3_512,      72, 64, SHA3_STATE_SIZE,       SHA3_FULL_STATE_SIZE    }
 };
+
+typedef enum _StageType {
+    Single_stage,
+    First_stage,
+    Intermediate_stage,
+    Final_stage
+} StageType;
 
 typedef struct _VoidAndSizeNode {
     void* input;
@@ -138,12 +158,13 @@ typedef enum _Xof {
 typedef struct _XofSizes {
     Xof func;
     uint16_t blockSize;
+    uint16_t fullStateSize;
 } XofSizes;
 
 static const XofSizes g_XofSizesMapping[] =
 {
-    { SHAKE128,     168 },
-    { SHAKE256,     136 }
+    { SHAKE128, 168, SHA3_FULL_STATE_SIZE },
+    { SHAKE256, 136, SHA3_FULL_STATE_SIZE }
 };
 
 typedef struct _PrfHashPair {
@@ -187,23 +208,9 @@ int GetBlockCipherRoundsKeys(__in const void* key, __in BlockCipherType cipherTy
 
 // Before using GetHash and GetHashEx you should allocate output buffer according to output digest size of respective hashing function
 // You may check the numbers with g_hashFuncsSizesMapping array (see "func" and corresponding "blockSize" fields)
-int GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out void* output);
-// Before using GetHash and GetHashEx you should allocate output buffer according to output digest size of respective hashing function
-// You may check the numbers with g_hashFuncsSizesMapping array (see "func" and corresponding "blockSize" fields)
-// GetHashEx is only need if size of your single input is larger than (2^61 - 1) and you using SHA-224, SHA-256, SHA-384, SHA512/224, SHA512/256 or SHA-512 hashing,
-// cause only that functions supports such sizes in current realisation. Unfortunately I do not have a resources for now to fully test its input.
-// But partially it was tested and internal cycles should working correctly.
-int GetHashEx(__in const void* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __in HashFunc func, __out void* output);
+int GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out void* output, __in StageType stageType, __inout_opt void* state);
 
-// This function should be used when we have more than one distantly placed void* chunks of data, that must be hashed as single concatenated input
-// All but last chunks sizes must be divisible by hashing func block size without remainder
-int GetHashMultiple(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in HashFunc func, __out void* output);
-
-int GetXof(__in const void* input, __in uint64_t inputSize, __in Xof func, __out void* output, __in uint64_t outputSize);
-
-// This function should be used when we have more than one distantly placed void* chunks of data, that must be hashed as single concatenated input
-// All but last chunks sizes must be divisible by XOF func block size without remainder
-int GetXofMultiple(__in const VoidAndSizeNode* inputList, __in uint64_t inputListSize, __in Xof func, __out void* output, __in uint64_t outputSize);
+int GetXof(__in const void* input, __in uint64_t inputSize, __in Xof func, __out void* output, __in StageType stageType, __in uint64_t outputSize, __inout_opt void* state);
 
 // Get pseudorandom function result (currently only HMAC supported - see PRF enum)
 // outputSize parameter is only filled on variable size output XOF funcs - SHAKE128 and SHAKE256 - but KMAC functions are not supported yet,
