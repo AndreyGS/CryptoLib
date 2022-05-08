@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "sha-2.h"
 #include "paddings.h"
+#include "crypto_internal.h"
 
 const uint32_t H_224[8] = {
     0xc1059ed8,
@@ -154,7 +155,7 @@ void Sha2_32ProcessBlock(const uint32_t* input, uint32_t* output)
     output[7] += h;
 }
 
-void Sha2_32Get(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out uint32_t* output, __in StageType stageType, __inout_opt void* state)
+void Sha2_32Get(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out uint32_t* output, __in bool finalize, __inout void* state)
 {
     int status = NO_ERROR;
 
@@ -165,53 +166,38 @@ void Sha2_32Get(__in const void* input, __in uint64_t inputSize, __in HashFunc f
     else
         pH = H_256;
 
-    uint32_t stackBuffer[8] = { pH[0], pH[1], pH[2], pH[3], pH[4], pH[5], pH[6], pH[7] };
-    uint32_t* buffer = NULL;
-
-    if (state != Single_stage)
-        buffer = state;
-    else
-        buffer = stackBuffer;
-
-    if (state == First_stage)
-        memset(buffer, 0, SHA2_32_FULL_STATE_SIZE);
-
-    uint64_t blocksNum = (inputSize >> 6) + (stageType == Single_stage || stageType == Final_stage ? 1 : 2); // inputSize / SHA1_BLOCK_SIZE + 1
+    uint64_t blocksNum = (inputSize >> 6) + (finalize ? 1 : 2); // inputSize / SHA1_BLOCK_SIZE + 1
 
     while (--blocksNum) {
-        Sha2_32ProcessBlock(input, buffer);
+        Sha2_32ProcessBlock(input, state);
         (uint8_t*)input += SHA1_BLOCK_SIZE;
     }
     
-    uint64_t totalSize = 0;
+    uint64_t* totalSize = (uint64_t*)((uint8_t*)state + SHA2_32_STATE_SIZE);
+    *totalSize += inputSize;
 
-    if (state != Single_stage)
-        totalSize = *(uint64_t*)((uint8_t*)state + SHA2_32_STATE_SIZE) += inputSize;
-    else
-        totalSize = inputSize;
-
-    if (state == Single_stage || state == Final_stage) {
+    if (finalize) {
         uint64_t tailBlocks[16] = { 0 };
         uint8_t tailBlocksNum = 0;
-        AddShaPaddingInternal(input, totalSize, tailBlocks, &tailBlocksNum);
+        AddShaPaddingInternal(input, *totalSize, tailBlocks, &tailBlocksNum);
 
         uint8_t* p = (uint8_t*)tailBlocks;
         while (tailBlocksNum--) {
-            Sha2_32ProcessBlock((uint32_t*)p, buffer);
+            Sha2_32ProcessBlock((uint32_t*)p, state);
             p += SHA1_BLOCK_SIZE;
         }
+
+        output[0] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[0]);
+        output[1] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[1]);
+        output[2] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[2]);
+        output[3] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[3]);
+        output[4] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[4]);
+        output[5] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[5]);
+        output[6] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[6]);
+
+        if (func == SHA_256)
+            output[7] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[7]);
     }
-
-    output[0] = Uint32LittleEndianToBigEndian(buffer[0]);
-    output[1] = Uint32LittleEndianToBigEndian(buffer[1]);
-    output[2] = Uint32LittleEndianToBigEndian(buffer[2]);
-    output[3] = Uint32LittleEndianToBigEndian(buffer[3]);
-    output[4] = Uint32LittleEndianToBigEndian(buffer[4]);
-    output[5] = Uint32LittleEndianToBigEndian(buffer[5]);
-    output[6] = Uint32LittleEndianToBigEndian(buffer[6]);
-
-    if (func == SHA_256)
-        output[7] = Uint32LittleEndianToBigEndian(buffer[7]);
 }
 
 void Sha2_64ProcessBlock(const uint64_t* input, uint64_t* output)
@@ -267,7 +253,7 @@ void Sha2_64ProcessBlock(const uint64_t* input, uint64_t* output)
     output[7] += h;
 }
 
-void Sha2_64Get(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out uint64_t* output, __in StageType stageType, __inout_opt void* state)
+void Sha2_64Get(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out uint64_t* output, __in bool finalize, __inout void* state)
 {
     int status = NO_ERROR;
 
@@ -288,64 +274,47 @@ void Sha2_64Get(__in const void* input, __in uint64_t inputSize, __in HashFunc f
         break;
     }
 
-    uint64_t stackBuffer[8] = { pH[0], pH[1], pH[2], pH[3], pH[4], pH[5], pH[6], pH[7] };
-    uint32_t* buffer = NULL;
-
-    if (state != Single_stage)
-        buffer = state;
-    else
-        buffer = stackBuffer;
-
-    if (state == First_stage)
-        memset(buffer, 0, SHA2_64_FULL_STATE_SIZE);
-
-    uint64_t blocksNumLow = (inputSize >> 7) + (stageType == Single_stage || stageType == Final_stage ? 1 : 2);
+    uint64_t blocksNumLow = (inputSize >> 7) + (finalize ? 1 : 2);
 
     while (--blocksNumLow) {
-        Sha2_64ProcessBlock(input, buffer);
+        Sha2_64ProcessBlock(input, state);
         (uint8_t*)input += SHA2_BLOCK_SIZE;
     }
 
-    uint64_t totalSizeLowPart = 0, totalSizeHighPart = 0;
+    uint64_t* totalSizeHighPart = (uint64_t*)((uint8_t*)state + SHA2_64_STATE_SIZE + sizeof(uint64_t));
+    *totalSizeHighPart += (inputSize + *(uint64_t*)((uint8_t*)state + SHA2_64_STATE_SIZE) < inputSize ? 1 : 0);
 
-    if (state != Single_stage) {
-        totalSizeHighPart = *(uint64_t*)((uint8_t*)state + SHA2_64_FULL_STATE_SIZE - sizeof(uint64_t)) 
-            += (inputSize + *(uint64_t*)((uint8_t*)state + SHA2_64_STATE_SIZE) < inputSize ? 1 : 0);
-        totalSizeLowPart = *(uint64_t*)((uint8_t*)state + SHA2_64_STATE_SIZE) += inputSize;
-    }
-    else {
-        totalSizeHighPart = 0;
-        totalSizeLowPart = inputSize;
-    }
+    uint64_t* totalSizeLowPart = (uint64_t*)((uint8_t*)state + SHA2_64_STATE_SIZE);
+    *totalSizeLowPart += inputSize;
 
-    if (state == Single_stage || state == Final_stage) {
+    if (finalize) {
         uint64_t tailBlocks[32] = { 0 };
         uint8_t tailBlocksNum = 0;
-        AddSha2_64PaddingInternal(input, totalSizeLowPart, totalSizeHighPart, tailBlocks, &tailBlocksNum);
+        AddSha2_64PaddingInternal(input, *totalSizeLowPart, *totalSizeHighPart, tailBlocks, &tailBlocksNum);
 
         uint8_t* p = (uint8_t*)tailBlocks;
         while (tailBlocksNum--) {
-            Sha2_64ProcessBlock((uint64_t*)p, buffer);
+            Sha2_64ProcessBlock((uint64_t*)p, state);
             p += SHA2_BLOCK_SIZE;
         }
-    }
 
-    switch (func) {
-    case SHA_512:
-        output[7] = Uint64LittleEndianToBigEndian(buffer[7]);
-        output[6] = Uint64LittleEndianToBigEndian(buffer[6]);
-    case SHA_384:
-        output[5] = Uint64LittleEndianToBigEndian(buffer[5]);
-        output[4] = Uint64LittleEndianToBigEndian(buffer[4]);
-    default:
-        if (func == SHA_512_224)
-            (uint32_t)output[3] = Uint32LittleEndianToBigEndian(*((((uint32_t*)&buffer[3]) + 1)));
-        else
-            output[3] = Uint64LittleEndianToBigEndian(buffer[3]);
+        switch (func) {
+        case SHA_512:
+            output[7] = Uint64LittleEndianToBigEndian(((uint64_t*)state)[7]);
+            output[6] = Uint64LittleEndianToBigEndian(((uint64_t*)state)[6]);
+        case SHA_384:
+            output[5] = Uint64LittleEndianToBigEndian(((uint64_t*)state)[5]);
+            output[4] = Uint64LittleEndianToBigEndian(((uint64_t*)state)[4]);
+        default:
+            if (func == SHA_512_224)
+                (uint32_t)output[3] = Uint32LittleEndianToBigEndian(*((((uint32_t*)&((uint64_t*)state)[3]) + 1)));
+            else
+                output[3] = Uint64LittleEndianToBigEndian(((uint64_t*)state)[3]);
 
-        output[2] = Uint64LittleEndianToBigEndian(buffer[2]);
-        output[1] = Uint64LittleEndianToBigEndian(buffer[1]);
-        output[0] = Uint64LittleEndianToBigEndian(buffer[0]);
-        break;
+            output[2] = Uint64LittleEndianToBigEndian(((uint64_t*)state)[2]);
+            output[1] = Uint64LittleEndianToBigEndian(((uint64_t*)state)[1]);
+            output[0] = Uint64LittleEndianToBigEndian(((uint64_t*)state)[0]);
+            break;
+        }
     }
 }

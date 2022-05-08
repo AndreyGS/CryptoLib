@@ -14,6 +14,6 @@ typedef enum _Sha3Func {
     Sha3Func_SHAKE256
 } Sha3Func;
 
-void Sha3GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out uint64_t* output, __in StageType stageType, __inout_opt void* state);
-void Sha3GetXof(__in const void* input, __in uint64_t inputSize, __in Xof func, __out uint64_t* output, __in StageType stageType, __in uint64_t outputSize, __inout_opt void* state);
+void Sha3GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out uint64_t* output, __in bool finalize, __inout HashState state);
+void Sha3GetXof(__in const void* input, __in uint64_t inputSize, __in Xof func, __out uint64_t* output, __in uint64_t outputSize, __in bool finalize, __inout XofState state);
 

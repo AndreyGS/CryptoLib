@@ -3,6 +3,7 @@
 
 #include "pch.h"
 #include "paddings.h"
+#include "crypto_internal.h"
 
 #define SHA_START_LENGTH_OFFSET 56
 #define SHA2_START_LENGTH_OFFSET 112
@@ -394,19 +395,19 @@ int CutISO7816PaddingInternal(__in uint64_t blockSize, __in const void* output, 
 // output must be zeroed before its passed here
 int AddShaPaddingInternal(__in const void* input, __in uint64_t inputSize, __out void* output, __out uint8_t* outputBlocksNum)
 {   
-    uint16_t lastBlockSize = inputSize % SHA_BLOCK_SIZE;
+    uint16_t lastBlockSize = inputSize % SHA1_BLOCK_SIZE;
     uint64_t messageBitsSize = inputSize << 3; // inputSizeLowPart * BITS_PER_BYTE;
 
     if (lastBlockSize >= SHA_START_LENGTH_OFFSET) {
-        uint64_t paddingFillSize = SHA_BLOCK_SIZE;
-        AddPaddingInternal(input, lastBlockSize, ISO_7816_padding, SHA_BLOCK_SIZE, output, &paddingFillSize, true);
-        ((uint64_t*)output)[15] = Uint64LittleEndianToBigEndian(messageBitsSize);                                               // 15 == ((SHA_BLOCK_SIZE * 2) / sizeof(uint64_t)) - 1
+        uint64_t paddingFillSize = SHA1_BLOCK_SIZE;
+        AddPaddingInternal(input, lastBlockSize, ISO_7816_padding, SHA1_BLOCK_SIZE, output, &paddingFillSize, true);
+        ((uint64_t*)output)[15] = Uint64LittleEndianToBigEndian(messageBitsSize);                                               // 15 == ((SHA1_BLOCK_SIZE * 2) / sizeof(uint64_t)) - 1
         *outputBlocksNum = 2;
     }
     else {
         uint64_t paddingFillSize = SHA_START_LENGTH_OFFSET;
         AddPaddingInternal(input, lastBlockSize, ISO_7816_padding, SHA_START_LENGTH_OFFSET, output, &paddingFillSize, true);
-        ((uint64_t*)output)[7] = Uint64LittleEndianToBigEndian(messageBitsSize);                                                // 7 == (SHA_BLOCK_SIZE / sizeof(uint64_t)) - 1
+        ((uint64_t*)output)[7] = Uint64LittleEndianToBigEndian(messageBitsSize);                                                // 7 == (SHA1_BLOCK_SIZE / sizeof(uint64_t)) - 1
         *outputBlocksNum = 1;
     }
 

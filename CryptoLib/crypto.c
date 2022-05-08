@@ -20,15 +20,13 @@ int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in P
     void* roundsKeys = NULL;
     
     if (*outputSize) {
-        roundsKeys = AllocBuffer(g_blockCipherKeysSizes[cipherType].roundsKeysSize);
-        if (!roundsKeys)
-            return ERROR_NO_MEMORY;
-        else
-            GetBlockCipherRoundsKeysInternal(key, cipherType, roundsKeys);
+        EVAL(AllocBuffer(g_blockCipherKeysSizes[cipherType].roundsKeysSize, &roundsKeys));
+        GetBlockCipherRoundsKeysInternal(key, cipherType, roundsKeys);
     }
 
     status = EncryptByBlockCipherInternal(input, inputSize, padding, roundsKeys, cipherType, output, outputSize, mode, iv);
 
+exit:
     if (roundsKeys) {
         memset_s(roundsKeys, g_blockCipherKeysSizes[cipherType].roundsKeysSize, '\xcc', 128);
         FreeBuffer(roundsKeys);
@@ -69,16 +67,18 @@ int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in P
     if (status = CheckBlockCipherPrimaryArguments(input, inputSize, padding, key, cipherType, output, outputSize, mode, iv))
         return status;
 
-    void* roundsKeys = AllocBuffer(g_blockCipherKeysSizes[cipherType].roundsKeysSize);
-    if (!roundsKeys)
-        return ERROR_NO_MEMORY;
-    else
-        GetBlockCipherRoundsKeysInternal(key, cipherType, roundsKeys);
+    void* roundsKeys = NULL;
+    EVAL(AllocBuffer(g_blockCipherKeysSizes[cipherType].roundsKeysSize, &roundsKeys));
+
+    GetBlockCipherRoundsKeysInternal(key, cipherType, roundsKeys);
 
     status = DecryptByBlockCipherInternal(input, inputSize, padding, roundsKeys, cipherType, output, outputSize, mode, iv);
 
-    memset_s(roundsKeys, g_blockCipherKeysSizes[cipherType].roundsKeysSize, '\xcc', 128);
-    FreeBuffer(roundsKeys);
+exit:
+    if (roundsKeys) {
+        memset_s(roundsKeys, g_blockCipherKeysSizes[cipherType].roundsKeysSize, 0, 128);
+        FreeBuffer(roundsKeys);
+    }
 
     return status;
 }
@@ -149,70 +149,175 @@ int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType
     return AddPaddingInternal(input, inputSize, padding, blockSize, output, outputSize, fillAllBlock);
 }
 
-int GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out void* output, __in StageType stageType, __inout_opt void* state)
+int InitHashState(__in HashFunc func, __inout HashState* state)
 {
     int status = NO_ERROR;
-    if (func >= HashFunc_max)
+    if ((unsigned)func >= HashFunc_max)
         return ERROR_HASHING_FUNC_NOT_SUPPORTED;
-    else if (status = CheckHashAndXofPrimaryArguments(input, inputSize, func, output, stageType, state))
-        return status;
+    else if (!state)
+        return ERROR_WRONG_STATE;
 
-    GetHashInternal(input, inputSize, func, output, stageType, state);
+    EVAL(AllocBuffer(g_hashFuncsSizesMapping[func].fullStateSize, state));
+    *(HashFunc*)state = func;
+    ResetHashState(*state);
+
+exit:
+    return status;
+}
+
+void ResetHashState(__inout HashState state)
+{
+    if (state)
+        memset((HashFunc*)state + 1, 0, g_hashFuncsSizesMapping[*(HashFunc*)state].fullStateSize - sizeof(HashFunc));
+}
+
+void FreeHashState(__inout HashState state)
+{
+    if (state) {
+        memset_s(state, g_hashFuncsSizesMapping[*(HashFunc*)state].fullStateSize, 0, g_hashFuncsSizesMapping[*(HashFunc*)state].fullStateSize);
+        FreeBuffer(state);
+    }
+}
+
+int GetHash(__in const void* input, __in uint64_t inputSize, __out void* output, __in bool finalize, __inout HashState state)
+{
+    int status = NO_ERROR;
+    if (status = CheckHashAndXofPrimaryArguments(input, inputSize, output, state))
+        return status;
+    else if (finalize && (inputSize % g_hashFuncsSizesMapping[*(HashFunc*)state].blockSize))
+        return ERROR_WRONG_INPUT_SIZE;
+
+    GetHashInternal(input, inputSize, output, finalize, state);
     return NO_ERROR;
 }
 
-void GetHashInternal(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out void* output, __in StageType stageType, __inout_opt void* state)
+void GetHashInternal(__in const void* input, __in uint64_t inputSize, __out void* output, __in bool finalize, __inout HashState state)
 {
-    switch (func) {
+    HashFunc* func = (HashFunc*)state;
+
+    switch (*func) {
     case SHA1:
-        Sha1Get(input, inputSize, output, stageType, state);
+        Sha1Get(input, inputSize, output, finalize, func + 1);
         break;
     case SHA_224:
     case SHA_256:
-        Sha2_32Get(input, inputSize, func, output, stageType, state);
+        Sha2_32Get(input, inputSize, *func, output, finalize, func + 1);
         break;
     case SHA_384:
     case SHA_512_224:
     case SHA_512_256:
     case SHA_512:
-        Sha2_64Get(input, inputSize, func, output, stageType, state);
+        Sha2_64Get(input, inputSize, *func, output, finalize, func + 1);
         break;
     case SHA3_224:
     case SHA3_256:
     case SHA3_384:
     case SHA3_512:
-        Sha3GetHash(input, inputSize, func, output, stageType, state);
+        Sha3GetHash(input, inputSize, *func, output, finalize, func + 1);
         break;
     default:
         break;
     }
+
+    if (finalize)
+        ResetHashState(state);
 }
 
-int GetXof(__in const void* input, __in uint64_t inputSize, __in Xof func, __out void* output, __in StageType stageType, __in uint64_t outputSize, __inout_opt void* state)
+int InitXofState(__in Xof func, __inout XofState* state)
 {
     int status = NO_ERROR;
-    if (func >= Xof_max)
+    if ((unsigned)func >= Xof_max)
         return ERROR_XOF_NOT_SUPPORTED;
-    else if (status = CheckHashAndXofPrimaryArguments(input, inputSize, func, output, stageType, state))
-        return status;
+    else if (!state)
+        return ERROR_WRONG_STATE;
 
-    GetXofInternal(input, inputSize, func, output, stageType, outputSize, state);
+    EVAL(AllocBuffer(g_XofSizesMapping[func].fullStateSize, state));
+    *(Xof*)state = func;
+    ResetHashState(*state);
+
+exit:
+    return status;
+}
+
+void ResetXofState(__inout XofState state)
+{
+    if (state)
+        memset((Xof*)state + 1, 0, g_XofSizesMapping[*(Xof*)state].fullStateSize - sizeof(Xof));
+}
+
+void FreeXofState(__inout XofState state)
+{
+    if (state) {
+        memset_s(state, g_XofSizesMapping[*(Xof*)state].fullStateSize, 0, g_XofSizesMapping[*(Xof*)state].fullStateSize);
+        FreeBuffer(state);
+    }
+}
+
+int GetXof(__in const void* input, __in uint64_t inputSize, __out void* output, __in uint64_t outputSize, __in bool finalize, __inout XofState state)
+{
+    int status = NO_ERROR;
+    if (status = CheckHashAndXofPrimaryArguments(input, inputSize, output, state))
+        return status;
+    else if (finalize && (inputSize % g_XofSizesMapping[*(Xof*)state].blockSize))
+        return ERROR_WRONG_INPUT_SIZE;
+    else if (!outputSize)
+        return ERROR_WRONG_OUTPUT_SIZE;
+
+    GetXofInternal(input, inputSize, output, outputSize, finalize, state);
     return NO_ERROR;
 }
 
-void GetXofInternal(__in const void* input, __in uint64_t inputSize, __in Xof func, __out void* output, __in StageType stageType, __in uint64_t outputSize, __inout_opt void* state)
+void GetXofInternal(__in const void* input, __in uint64_t inputSize, __out void* output, __in uint64_t outputSize, __in bool finalize, __inout XofState state)
 {
-    switch (func) {
+    Xof* func = (Xof*)state;
+
+    switch (*func) {
     case SHAKE128:
     case SHAKE256:
-        Sha3GetXof(input, inputSize, func, output, stageType, outputSize, state);
+        Sha3GetXof(input, inputSize, *func, output, outputSize, finalize, func + 1);
         break;
     default:
         break;
     }
+
+    if (finalize)
+        ResetXofState(state);
 }
 
-int GetPrf(__in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in PRF func, __out void* output, __in_opt uint64_t outputSize)
+int InitPrfState(__in Prf func, __inout PrfState* state)
+{
+    int status = NO_ERROR;
+    if ((unsigned)func >= HashFunc_max)
+        return ERROR_HASHING_FUNC_NOT_SUPPORTED;
+    else if (!state)
+        return ERROR_WRONG_STATE;
+
+    EVAL(AllocBuffer(g_PrfSizesMapping[func].fullStateSize, state));
+    *(Prf*)state = func;
+    ResetHashState(*state);
+
+exit:
+    return status;
+}
+
+void ResetPrfState(__inout PrfState state)
+{
+    if (state) {
+        bool* isStart = (bool*)((Prf*)state + 1);
+        *isStart = true;
+        memset(isStart + 1, 0, g_PrfSizesMapping[*(Prf*)state].fullStateSize - sizeof(Prf) - sizeof(bool));
+    }
+}
+
+void FreePrfState(__inout PrfState state)
+{
+    if (state) {
+        memset_s(state, g_PrfSizesMapping[*(Prf*)state].fullStateSize, 0, g_PrfSizesMapping[*(Prf*)state].fullStateSize);
+        FreeBuffer(state);
+    }
+}
+
+int GetPrf(__in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __out void* output, __in_opt uint64_t outputSize, __in bool finalize, __inout PrfState state)
 {
     int status = NO_ERROR;
     if (!input && inputSize)
@@ -221,8 +326,19 @@ int GetPrf(__in const void* input, __in uint64_t inputSize, __in const void* key
         return ERROR_WRONG_KEY;
     else if (!output)
         return ERROR_WRONG_OUTPUT;
+    else if (!finalize && (inputSize % g_hashFuncsSizesMapping[g_PrfSizesMapping[*(Prf*)state].hashFunc].blockSize))
+        return ERROR_WRONG_STATE;
+    
+    GetPrfInternal(input, inputSize, key, keySize, output, finalize, state);
+    return NO_ERROR;
+}
 
-    switch (func) {
+void GetPrfInternal(__in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __out void* output, __in bool finalize, __inout PrfState state)
+{
+    Prf* func = (Prf*)state;
+    bool* isStart = (bool*)(func + 1);
+
+    switch (*func) {
     case HMAC_SHA1:
     case HMAC_SHA_224:
     case HMAC_SHA_256:
@@ -233,9 +349,16 @@ int GetPrf(__in const void* input, __in uint64_t inputSize, __in const void* key
     case HMAC_SHA3_224:
     case HMAC_SHA3_256:
     case HMAC_SHA3_384:
-    case HMAC_SHA3_512:
-        return GetHmacPrf(input, inputSize, key, keySize, func, output);
-    default:
-        return ERROR_PRF_FUNC_NOT_SUPPORTED;
+    case HMAC_SHA3_512: {
+        GetHmac(input, inputSize, key, keySize, g_PrfSizesMapping[*func].hashFunc, output, *isStart, finalize, isStart + 1);
+        break;
     }
+    default:
+        break;
+    }
+
+    *isStart = false;
+
+    if (finalize)
+        ResetPrfState(state);
 }

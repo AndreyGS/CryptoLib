@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "des.h"
 #include "paddings.h"
+#include "crypto_internal.h"
 
 typedef struct _CDBlocks {
     uint32_t cBlock;

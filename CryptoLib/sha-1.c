@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "sha-1.h"
 #include "paddings.h"
+#include "crypto_internal.h"
 
 const uint32_t H[5] = {
     0x67452301,
@@ -73,52 +74,36 @@ void Sha1ProcessBlock(const uint32_t* input, uint32_t* output)
     output[4] += e;
 }
 
-void Sha1Get(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out uint32_t* output, __in StageType stageType, __inout_opt void* state)
+void Sha1Get(__in const void* input, __in uint64_t inputSize, __out uint32_t* output, __in bool finalize, __inout void* state)
 {
     int status = NO_ERROR;
-    uint64_t totalSize = 0;
-
-    int32_t stackBuffer[5] = { H[0], H[1], H[2], H[3], H[4] };
-    int32_t* buffer = NULL;
-
-    if (state != Single_stage)
-        buffer = state;
-    else
-        buffer = stackBuffer;
-
-    if (state == First_stage)
-        memset(buffer, 0, SHA1_FULL_STATE_SIZE);
-
-    uint64_t blocksNum = (inputSize >> 6 /* inputSize / SHA1_BLOCK_SIZE */) + (stageType == Single_stage || stageType == Final_stage ? 1 : 2);
+   
+    uint64_t blocksNum = (inputSize >> 6 /* inputSize / SHA1_BLOCK_SIZE */) + (finalize ? 1 : 2);
 
     while (--blocksNum) {
-        Sha1ProcessBlock(input, buffer);
+        Sha1ProcessBlock(input, state);
         (uint8_t*)input += SHA1_BLOCK_SIZE;
     }
     
-    uint64_t totalSize = 0;
+    uint64_t* totalSize = (uint64_t*)((uint8_t*)state + SHA1_STATE_SIZE);
+    *totalSize += inputSize;
 
-    if (state != Single_stage)
-        totalSize = *(uint64_t*)((uint8_t*)state + SHA1_STATE_SIZE) += inputSize;
-    else
-        totalSize = inputSize;
-
-    if (state == Single_stage || state == Final_stage) {
+    if (finalize) {
         uint64_t tailBlocks[16] = { 0 };
         uint8_t tailBlocksNum = 0;
-        AddShaPaddingInternal(input, totalSize, tailBlocks, &tailBlocksNum);
+        AddShaPaddingInternal(input, *totalSize, tailBlocks, &tailBlocksNum);
 
         uint8_t* p = (uint8_t*)tailBlocks;
 
         while (tailBlocksNum--) {
-            Sha1ProcessBlock((uint32_t*)p, buffer);
+            Sha1ProcessBlock((uint32_t*)p, state);
             p += SHA1_BLOCK_SIZE;
         }
-    }
 
-    output[0] = Uint32LittleEndianToBigEndian(((uint32_t*)buffer)[0]);
-    output[1] = Uint32LittleEndianToBigEndian(((uint32_t*)buffer)[1]);
-    output[2] = Uint32LittleEndianToBigEndian(((uint32_t*)buffer)[2]);
-    output[3] = Uint32LittleEndianToBigEndian(((uint32_t*)buffer)[3]);
-    output[4] = Uint32LittleEndianToBigEndian(((uint32_t*)buffer)[4]);
+        output[0] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[0]);
+        output[1] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[1]);
+        output[2] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[2]);
+        output[3] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[3]);
+        output[4] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[4]);
+    }
 }

@@ -4,7 +4,7 @@
 #include "crypto_internal.h"
 #include "paddings.h"
 
-void Sha3Get(__in const void* input, __in uint64_t inputSize, __in Sha3Func func, __in bool lastPart, __out uint64_t* output, __in uint64_t outputSize);
+void Sha3Get(__in const void* input, __in uint64_t inputSize, __in Sha3Func func, __out uint64_t* output, __in uint64_t outputSize, __in bool lastPart, __inout void* state);
 
 const uint64_t RC[] =
 {
@@ -123,118 +123,106 @@ inline void Sha3StateXor(__in const uint64_t* input, __in Sha3Func func, __inout
     }  
 }
 
-void Sha3GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out uint64_t* output, __in StageType stageType, __inout_opt void* state)
+void Sha3GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out uint64_t* output, __in bool finalize, __inout HashState state)
 {
-    Sha3Get(input, inputSize, func - SHA3_224, output, stageType, 0, state);
+    Sha3Get(input, inputSize, func - SHA3_224, output, 0, finalize, state);
 }
 
-void Sha3GetXof(__in const void* input, __in uint64_t inputSize, __in Xof func, __out uint64_t* output, __in StageType stageType, __in uint64_t outputSize, __inout_opt void* state)
+void Sha3GetXof(__in const void* input, __in uint64_t inputSize, __in Xof func, __out uint64_t* output, __in uint64_t outputSize, __in bool finalize, __inout XofState state)
 {
-    Sha3Get(input, inputSize, func + Sha3Func_SHA3_512 + 1, output, stageType, outputSize, state);
+    Sha3Get(input, inputSize, func + Sha3Func_SHA3_512 + 1, output, outputSize, finalize, state);
 }
 
-void Sha3Get(__in const void* input, __in uint64_t inputSize, __in Sha3Func func, __out uint64_t* output, __in StageType stageType, __in uint64_t outputSize, __inout_opt void* state)
+void Sha3Get(__in const void* input, __in uint64_t inputSize, __in Sha3Func func, __out uint64_t* output, __in uint64_t outputSize, __in bool finalize, __inout void* state)
 {
     int status = NO_ERROR;
     uint16_t blockSize = func == Sha3Func_SHAKE128 || func == Sha3Func_SHAKE256
                        ? g_XofSizesMapping[func - Sha3Func_SHAKE128].blockSize
                        : g_hashFuncsSizesMapping[func + SHA3_224].blockSize;
-    uint64_t stackBuffer[5][5] = { {0}, {0}, {0}, {0}, {0} };
-    uint32_t* buffer = NULL;
-
-    if (state != Single_stage)
-        buffer = state;
-    else
-        buffer = stackBuffer;
-
-    if (state == First_stage)
-        memset(buffer, 0, SHA3_FULL_STATE_SIZE);
-
-    uint64_t blocksNum = inputSize / blockSize + (stageType == Single_stage || stageType == Final_stage ? 1 : 2);
+ 
+    uint64_t blocksNum = inputSize / blockSize + (finalize ? 1 : 2);
 
     while (--blocksNum) {
-        Sha3StateXor(input, func, (uint64_t*)buffer);
+        Sha3StateXor(input, func, (uint64_t*)state);
         (uint8_t*)input += blockSize;
-        Keccak_p_Rnds((uint64_t*)buffer);
+        Keccak_p_Rnds((uint64_t*)state);
     }
 
-    bool lastPart = state == Single_stage || state == Final_stage;
-
-    if (lastPart) {
+    if (finalize) {
         uint64_t tailBlocks[42] = { 0 };
         uint8_t tailBlocksNum = 0;
         AddSha3PaddingInternal(input, inputSize, func, tailBlocks, &tailBlocksNum);
 
         uint8_t* p = (uint8_t*)tailBlocks;
         while (tailBlocksNum--) {
-            Sha3StateXor((uint64_t*)p, func, (uint64_t*)buffer);
+            Sha3StateXor((uint64_t*)p, func, (uint64_t*)state);
             p += SHA2_BLOCK_SIZE;
-            Keccak_p_Rnds((uint64_t*)buffer);
+            Keccak_p_Rnds((uint64_t*)state);
         }
-    }
 
-    if (lastPart && (func == Sha3Func_SHAKE128 || func == Sha3Func_SHAKE256)) {
-        uint16_t digestBlockSize = g_XofSizesMapping[func - Sha3Func_SHAKE128].blockSize;
+        if (func == Sha3Func_SHAKE128 || func == Sha3Func_SHAKE256) {
+            uint16_t digestBlockSize = g_XofSizesMapping[func - Sha3Func_SHAKE128].blockSize;
 
-        while (digestBlockSize < outputSize) {
-            switch (func) {
-            case Sha3Func_SHAKE128:
-                output[20] = buffer[20];
-                output[19] = buffer[19];
-                output[18] = buffer[18];
-                output[17] = buffer[17];
-            case Sha3Func_SHAKE256:
-                output[16] = buffer[16];
-                output[15] = buffer[15];
-                output[14] = buffer[14];
-                output[13] = buffer[13];
-                output[12] = buffer[12];
-                output[11] = buffer[11];
-                output[10] = buffer[10];
-                output[9] = buffer[9];
-                output[8] = buffer[8];
-                output[7] = buffer[7];
-                output[6] = buffer[6];
-                output[5] = buffer[5];
-                output[4] = buffer[4];
-                output[3] = buffer[3];
-                output[2] = buffer[2];
-                output[1] = buffer[1];
-                output[0] = buffer[0];
-                break;
+            while (digestBlockSize < outputSize) {
+                switch (func) {
+                case Sha3Func_SHAKE128:
+                    output[20] = ((uint64_t*)state)[20];
+                    output[19] = ((uint64_t*)state)[19];
+                    output[18] = ((uint64_t*)state)[18];
+                    output[17] = ((uint64_t*)state)[17];
+                case Sha3Func_SHAKE256:
+                    output[16] = ((uint64_t*)state)[16];
+                    output[15] = ((uint64_t*)state)[15];
+                    output[14] = ((uint64_t*)state)[14];
+                    output[13] = ((uint64_t*)state)[13];
+                    output[12] = ((uint64_t*)state)[12];
+                    output[11] = ((uint64_t*)state)[11];
+                    output[10] = ((uint64_t*)state)[10];
+                    output[9] = ((uint64_t*)state)[9];
+                    output[8] = ((uint64_t*)state)[8];
+                    output[7] = ((uint64_t*)state)[7];
+                    output[6] = ((uint64_t*)state)[6];
+                    output[5] = ((uint64_t*)state)[5];
+                    output[4] = ((uint64_t*)state)[4];
+                    output[3] = ((uint64_t*)state)[3];
+                    output[2] = ((uint64_t*)state)[2];
+                    output[1] = ((uint64_t*)state)[1];
+                    output[0] = ((uint64_t*)state)[0];
+                    break;
+                }
+
+                output += func == Sha3Func_SHAKE128 ? 21 : 17;
+
+                Keccak_p_Rnds((uint64_t*)state);
+
+                outputSize -= digestBlockSize;
             }
 
-            output += func == Sha3Func_SHAKE128 ? 21 : 17;
-            
-            Keccak_p_Rnds((uint64_t*)state);
+            uint8_t* p = (uint8_t*)state;
 
-            outputSize -= digestBlockSize;
+            while (outputSize--)
+                *((uint8_t*)output)++ = *p++;
+
         }
+        else {
+            switch (func) {
+            case Sha3Func_SHA3_512:
+                output[7] = ((uint64_t*)state)[7];
+                output[6] = ((uint64_t*)state)[6];
+            case Sha3Func_SHA3_384:
+                output[5] = ((uint64_t*)state)[5];
+                output[4] = ((uint64_t*)state)[4];
+            default:
+                if (func == Sha3Func_SHA3_224)
+                    (uint32_t)output[3] = *((uint32_t*)&((uint64_t*)state)[3]);
+                else
+                    output[3] = ((uint64_t*)state)[3];
 
-        uint8_t* p = (uint8_t*)state;
-
-        while (outputSize--)
-            *((uint8_t*)output)++ = *p++;
-
-    }
-    else if (!lastPart || (func != Sha3Func_SHAKE128 && func != Sha3Func_SHAKE256)) {
-        switch (func) {
-        case Sha3Func_SHA3_512:
-            output[7] = buffer[7];
-            output[6] = buffer[6];
-        case Sha3Func_SHA3_384:
-            output[5] = buffer[5];
-            output[4] = buffer[4];
-        default:
-            if (func == Sha3Func_SHA3_224)
-                (uint32_t)output[3] = *((uint32_t*)&buffer[3]);
-            else
-                output[3] = buffer[3];
-
-            output[2] = buffer[2];
-            output[1] = buffer[1];
-            output[0] = buffer[0];
-            break;
+                output[2] = ((uint64_t*)state)[2];
+                output[1] = ((uint64_t*)state)[1];
+                output[0] = ((uint64_t*)state)[0];
+                break;
+            }
         }
     }
 }

@@ -37,13 +37,13 @@ int CheckBlockCipherPrimaryArguments(const void* input, uint64_t inputSize, Padd
     int status = NO_ERROR;
     if (status = CheckInputOutput(input, inputSize, output, outputSize))
         return status;
-    else if ((uint64_t)padding >= PaddingType_max)
+    else if ((unsigned)padding >= PaddingType_max)
         return ERROR_PADDING_NOT_SUPPORTED;
     else if (!key)
         return ERROR_WRONG_KEY;
-    else if ((uint64_t)cipherType >= BlockCipherType_max)
+    else if ((unsigned)cipherType >= BlockCipherType_max)
         return ERROR_CIPHER_FUNC_NOT_SUPPORTED;
-    else if ((uint64_t)mode >= BlockCipherOpMode_max)
+    else if ((unsigned)mode >= BlockCipherOpMode_max)
         return ERROR_UNSUPPROTED_ENCRYPTION_MODE;
     else if (mode != ECB_mode && !iv)
         return ERROR_WRONG_INIT_VECTOR;
@@ -51,16 +51,14 @@ int CheckBlockCipherPrimaryArguments(const void* input, uint64_t inputSize, Padd
         return NO_ERROR;
 }
 
-int CheckHashAndXofPrimaryArguments(const void* input, uint64_t inputSize, HashFunc func, void* output, StageType stageType, void* state)
+int CheckHashAndXofPrimaryArguments(const void* input, uint64_t inputSize, void* output, void* state)
 {
     if (!input && inputSize)
         return ERROR_WRONG_INPUT;
-    else if (stageType != Single_stage && !state)
+    else if (!state)
         return ERROR_WRONG_STATE;
     else if (!output)
         return ERROR_WRONG_OUTPUT;
-    else if (stageType != Single_stage && stageType != Final_stage && (inputSize % g_hashFuncsSizesMapping[func].blockSize))
-        return ERROR_WRONG_INPUT_SIZE;
     else
         return NO_ERROR;
 }
@@ -124,13 +122,16 @@ inline uint64_t Uint64LittleEndianToBigEndianBits(uint64_t input)
         |  (input & 0x0101010101010101) << 7;
 }
 
-inline void* AllocBuffer(size_t size)
+inline int AllocBuffer(size_t size, void** buffer)
 {
-    void* buffer = NULL;
+    *buffer = NULL;
 #ifndef KERNEL
     buffer = malloc(size);
 #endif
-    return buffer;
+    if (!*buffer)
+        return ERROR_NO_MEMORY;
+    else
+        return NO_ERROR;
 }
 
 inline void FreeBuffer(void* buffer)
