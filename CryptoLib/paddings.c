@@ -393,7 +393,7 @@ int CutISO7816PaddingInternal(__in uint64_t blockSize, __in const void* output, 
 */
 
 // output must be zeroed before its passed here
-int AddShaPaddingInternal(__in const void* input, __in uint64_t inputSize, __out void* output, __out uint8_t* outputBlocksNum)
+int AddShaPaddingInternal(__in const void* input, __in uint64_t inputSize, __out void* output, __out uint64_t* outputBlocksNum)
 {   
     uint16_t lastBlockSize = inputSize % SHA1_BLOCK_SIZE;
     uint64_t messageBitsSize = inputSize << 3; // inputSizeLowPart * BITS_PER_BYTE;
@@ -414,7 +414,7 @@ int AddShaPaddingInternal(__in const void* input, __in uint64_t inputSize, __out
     return NO_ERROR;
 }
 
-int AddSha2_64PaddingInternal(__in const void* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __out void* output, __out uint8_t* outputBlocksNum)
+int AddSha2_64PaddingInternal(__in const void* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __out void* output, __out uint64_t* outputBlocksNum)
 {
     uint16_t lastBlockSize = inputSizeLowPart % SHA2_BLOCK_SIZE;
     uint64_t messageBitsSizeLow = inputSizeLowPart << 3; // inputSizeLowPart * BITS_PER_BYTE;
@@ -438,7 +438,7 @@ int AddSha2_64PaddingInternal(__in const void* input, __in uint64_t inputSizeLow
     return NO_ERROR;
 }
 
-int AddSha3PaddingInternal(__in const void* input, __in uint64_t inputSize, __in Sha3Func func, __out void* output, __out uint8_t* outputBlocksNum)
+int AddSha3PaddingInternal(__in const void* input, __in uint64_t inputSize, __in Sha3Func func, __out void* output, __out uint64_t* outputBlocksNum)
 {
     uint16_t blockSize = func == Sha3Func_SHAKE128 || func == Sha3Func_SHAKE256
                        ? g_XofSizesMapping[func == Sha3Func_SHAKE128 ? SHAKE128 : SHAKE256].blockSize

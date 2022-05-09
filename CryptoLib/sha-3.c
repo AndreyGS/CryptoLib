@@ -140,7 +140,7 @@ void Sha3Get(__in const void* input, __in uint64_t inputSize, __in Sha3Func func
                        ? g_XofSizesMapping[func - Sha3Func_SHAKE128].blockSize
                        : g_hashFuncsSizesMapping[func + SHA3_224].blockSize;
  
-    uint64_t blocksNum = inputSize / blockSize + (finalize ? 1 : 2);
+    uint64_t blocksNum = inputSize / blockSize + 1;
 
     while (--blocksNum) {
         Sha3StateXor(input, func, (uint64_t*)state);
@@ -150,11 +150,10 @@ void Sha3Get(__in const void* input, __in uint64_t inputSize, __in Sha3Func func
 
     if (finalize) {
         uint64_t tailBlocks[42] = { 0 };
-        uint8_t tailBlocksNum = 0;
-        AddSha3PaddingInternal(input, inputSize, func, tailBlocks, &tailBlocksNum);
+        AddSha3PaddingInternal(input, inputSize, func, tailBlocks, &blocksNum);
 
         uint8_t* p = (uint8_t*)tailBlocks;
-        while (tailBlocksNum--) {
+        while (blocksNum--) {
             Sha3StateXor((uint64_t*)p, func, (uint64_t*)state);
             p += SHA2_BLOCK_SIZE;
             Keccak_p_Rnds((uint64_t*)state);

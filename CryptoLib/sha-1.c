@@ -78,7 +78,7 @@ void Sha1Get(__in const void* input, __in uint64_t inputSize, __out uint32_t* ou
 {
     int status = NO_ERROR;
    
-    uint64_t blocksNum = (inputSize >> 6 /* inputSize / SHA1_BLOCK_SIZE */) + (finalize ? 1 : 2);
+    uint64_t blocksNum = (inputSize >> 6 /* inputSize / SHA1_BLOCK_SIZE */) + 1;
 
     while (--blocksNum) {
         Sha1ProcessBlock(input, state);
@@ -90,12 +90,11 @@ void Sha1Get(__in const void* input, __in uint64_t inputSize, __out uint32_t* ou
 
     if (finalize) {
         uint64_t tailBlocks[16] = { 0 };
-        uint8_t tailBlocksNum = 0;
-        AddShaPaddingInternal(input, *totalSize, tailBlocks, &tailBlocksNum);
+        AddShaPaddingInternal(input, *totalSize, tailBlocks, &blocksNum);
 
         uint8_t* p = (uint8_t*)tailBlocks;
 
-        while (tailBlocksNum--) {
+        while (blocksNum--) {
             Sha1ProcessBlock((uint32_t*)p, state);
             p += SHA1_BLOCK_SIZE;
         }
