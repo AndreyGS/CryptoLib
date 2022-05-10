@@ -18,5 +18,13 @@
 #else
 errno_t memset_s(void* dest, rsize_t destsz, int ch, rsize_t count);
 #endif
-        
+
+#ifndef ANYSIZE_ARRAY
+#define ANYSIZE_ARRAY 1
+#endif
+
+#define ALIGN_TO_8_BYTES(x) (((x) + 7) & 7)
+
+//#define GET_FIELD_OFFSET(type, field) &((#type*)0)->#field
+
 #endif //PCH_H

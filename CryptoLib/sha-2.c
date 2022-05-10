@@ -4,7 +4,7 @@
 #include "pch.h"
 #include "sha-2.h"
 #include "paddings.h"
-#include "crypto_internal.h"
+
 
 const uint32_t H_224[8] = {
     0xc1059ed8,
@@ -155,7 +155,7 @@ void Sha2_32ProcessBlock(const uint32_t* input, uint32_t* output)
     output[7] += h;
 }
 
-void Sha2_32Get(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out uint32_t* output, __in bool finalize, __inout void* state)
+void Sha2_32Get(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out uint32_t* output, __in bool finalize, __inout Sha2_32State* state)
 {
     int status = NO_ERROR;
 
@@ -167,35 +167,34 @@ void Sha2_32Get(__in const void* input, __in uint64_t inputSize, __in HashFunc f
         pH = H_256;
 
     uint64_t blocksNum = (inputSize >> 6) + 1; // inputSize / SHA1_BLOCK_SIZE + 1
+    uint32_t* mainState = state->state;
 
     while (--blocksNum) {
-        Sha2_32ProcessBlock(input, state);
-        (uint8_t*)input += SHA1_BLOCK_SIZE;
+        Sha2_32ProcessBlock(input, mainState);
+        (uint8_t*)input += SHA2_32_BLOCK_SIZE;
     }
     
-    uint64_t* totalSize = (uint64_t*)((uint8_t*)state + SHA2_32_STATE_SIZE);
-    *totalSize += inputSize;
+    state->size += inputSize;
 
     if (finalize) {
-        uint64_t tailBlocks[16] = { 0 };
-        AddShaPaddingInternal(input, *totalSize, tailBlocks, &blocksNum);
+        uint8_t* tailBlocks = (uint8_t*)state->tailBlocks;
+        AddShaPaddingInternal(input, state->size, tailBlocks, &blocksNum);
 
-        uint8_t* p = (uint8_t*)tailBlocks;
         while (blocksNum--) {
-            Sha2_32ProcessBlock((uint32_t*)p, state);
-            p += SHA1_BLOCK_SIZE;
+            Sha2_32ProcessBlock((uint32_t*)tailBlocks, mainState);
+            tailBlocks += SHA2_32_BLOCK_SIZE;
         }
 
-        output[0] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[0]);
-        output[1] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[1]);
-        output[2] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[2]);
-        output[3] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[3]);
-        output[4] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[4]);
-        output[5] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[5]);
-        output[6] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[6]);
+        output[0] = Uint32LittleEndianToBigEndian(mainState[0]);
+        output[1] = Uint32LittleEndianToBigEndian(mainState[1]);
+        output[2] = Uint32LittleEndianToBigEndian(mainState[2]);
+        output[3] = Uint32LittleEndianToBigEndian(mainState[3]);
+        output[4] = Uint32LittleEndianToBigEndian(mainState[4]);
+        output[5] = Uint32LittleEndianToBigEndian(mainState[5]);
+        output[6] = Uint32LittleEndianToBigEndian(mainState[6]);
 
         if (func == SHA_256)
-            output[7] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[7]);
+            output[7] = Uint32LittleEndianToBigEndian(mainState[7]);
     }
 }
 
@@ -252,7 +251,7 @@ void Sha2_64ProcessBlock(const uint64_t* input, uint64_t* output)
     output[7] += h;
 }
 
-void Sha2_64Get(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out uint64_t* output, __in bool finalize, __inout void* state)
+void Sha2_64Get(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out uint64_t* output, __in bool finalize, __inout Sha2_64State* state)
 {
     int status = NO_ERROR;
 
@@ -274,44 +273,41 @@ void Sha2_64Get(__in const void* input, __in uint64_t inputSize, __in HashFunc f
     }
 
     uint64_t blocksNum = (inputSize >> 7) + 1;
+    uint64_t* mainState = state->state;
 
     while (--blocksNum) {
-        Sha2_64ProcessBlock(input, state);
-        (uint8_t*)input += SHA2_BLOCK_SIZE;
+        Sha2_64ProcessBlock(input, mainState);
+        (uint8_t*)input += SHA2_64_BLOCK_SIZE;
     }
 
-    uint64_t* totalSizeHighPart = (uint64_t*)((uint8_t*)state + SHA2_64_STATE_SIZE + sizeof(uint64_t));
-    *totalSizeHighPart += (inputSize + *(uint64_t*)((uint8_t*)state + SHA2_64_STATE_SIZE) < inputSize ? 1 : 0);
-
-    uint64_t* totalSizeLowPart = (uint64_t*)((uint8_t*)state + SHA2_64_STATE_SIZE);
-    *totalSizeLowPart += inputSize;
+    state->sizeHigh += (inputSize + state->sizeLow < inputSize ? 1 : 0);
+    state->sizeLow += inputSize;
 
     if (finalize) {
-        uint64_t tailBlocks[32] = { 0 };
-        AddSha2_64PaddingInternal(input, *totalSizeLowPart, *totalSizeHighPart, tailBlocks, &blocksNum);
+        uint8_t* tailBlocks = (uint8_t*)state->tailBlocks;
+        AddSha2_64PaddingInternal(input, state->sizeLow, state->sizeHigh, tailBlocks, &blocksNum);
 
-        uint8_t* p = (uint8_t*)tailBlocks;
         while (blocksNum--) {
-            Sha2_64ProcessBlock((uint64_t*)p, state);
-            p += SHA2_BLOCK_SIZE;
+            Sha2_64ProcessBlock((uint64_t*)tailBlocks, mainState);
+            tailBlocks += SHA2_64_BLOCK_SIZE;
         }
 
         switch (func) {
         case SHA_512:
-            output[7] = Uint64LittleEndianToBigEndian(((uint64_t*)state)[7]);
-            output[6] = Uint64LittleEndianToBigEndian(((uint64_t*)state)[6]);
+            output[7] = Uint64LittleEndianToBigEndian(mainState[7]);
+            output[6] = Uint64LittleEndianToBigEndian(mainState[6]);
         case SHA_384:
-            output[5] = Uint64LittleEndianToBigEndian(((uint64_t*)state)[5]);
-            output[4] = Uint64LittleEndianToBigEndian(((uint64_t*)state)[4]);
+            output[5] = Uint64LittleEndianToBigEndian(mainState[5]);
+            output[4] = Uint64LittleEndianToBigEndian(mainState[4]);
         default:
             if (func == SHA_512_224)
-                (uint32_t)output[3] = Uint32LittleEndianToBigEndian(*((((uint32_t*)&((uint64_t*)state)[3]) + 1)));
+                (uint32_t)output[3] = Uint32LittleEndianToBigEndian(*(((uint32_t*)&mainState[3]) + 1));
             else
-                output[3] = Uint64LittleEndianToBigEndian(((uint64_t*)state)[3]);
+                output[3] = Uint64LittleEndianToBigEndian(mainState[3]);
 
-            output[2] = Uint64LittleEndianToBigEndian(((uint64_t*)state)[2]);
-            output[1] = Uint64LittleEndianToBigEndian(((uint64_t*)state)[1]);
-            output[0] = Uint64LittleEndianToBigEndian(((uint64_t*)state)[0]);
+            output[2] = Uint64LittleEndianToBigEndian(mainState[2]);
+            output[1] = Uint64LittleEndianToBigEndian(mainState[1]);
+            output[0] = Uint64LittleEndianToBigEndian(mainState[0]);
             break;
         }
     }

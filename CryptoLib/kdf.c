@@ -59,7 +59,7 @@ int GetPbkdf2Internal(__in const void* salt, __in uint64_t saltSize, __in const 
 
     uint8_t* buffer1 = NULL;
     uint8_t* buffer2 = NULL;
-    PrfState state = NULL;
+    PrfState* state = NULL;
     EVAL(AllocBuffer(didgestSize, &buffer1));
     EVAL(AllocBuffer(didgestSize, &buffer2));
     EVAL(InitPrfState(func, &state));
@@ -75,7 +75,7 @@ int GetPbkdf2Internal(__in const void* salt, __in uint64_t saltSize, __in const 
 
     while (blocksNum--) {
         *(uint32_t*)((uint8_t*)salt + saltSize) = Uint32LittleEndianToBigEndian(++blocksCounter);
-        GetPrf(salt, saltFullSize, key, keySize, buffer1, didgestSize, true, state);
+        GetPrfInternal(salt, saltFullSize, key, keySize, buffer1, true, state);
 
         if (blocksNum) {
             buffer2 = output;
@@ -88,7 +88,7 @@ int GetPbkdf2Internal(__in const void* salt, __in uint64_t saltSize, __in const 
 
         uint64_t blockIterationsNum = iterationsNum;
         while (--blockIterationsNum) {
-            GetPrf(buffer1, didgestSize, key, keySize, buffer1, didgestSize, true, state);
+            GetPrfInternal(buffer1, didgestSize, key, keySize, buffer1, true, state);
             for (uint16_t i = 0; i < didgestSize; ++i)
                 buffer2[i] ^= buffer1[i];
         }
@@ -99,6 +99,7 @@ int GetPbkdf2Internal(__in const void* salt, __in uint64_t saltSize, __in const 
     }
 
 exit:
+    FreePrfState(state);
     FreeBuffer(buffer2);
     FreeBuffer(buffer1);
     

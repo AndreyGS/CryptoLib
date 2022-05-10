@@ -74,35 +74,34 @@ void Sha1ProcessBlock(const uint32_t* input, uint32_t* output)
     output[4] += e;
 }
 
-void Sha1Get(__in const void* input, __in uint64_t inputSize, __out uint32_t* output, __in bool finalize, __inout void* state)
+void Sha1Get(__in const void* input, __in uint64_t inputSize, __out uint32_t* output, __in bool finalize, __inout Sha1State* state)
 {
     int status = NO_ERROR;
    
     uint64_t blocksNum = (inputSize >> 6 /* inputSize / SHA1_BLOCK_SIZE */) + 1;
+    uint32_t* mainState = state->state;
 
     while (--blocksNum) {
-        Sha1ProcessBlock(input, state);
+        Sha1ProcessBlock(input, mainState);
         (uint8_t*)input += SHA1_BLOCK_SIZE;
     }
     
-    uint64_t* totalSize = (uint64_t*)((uint8_t*)state + SHA1_STATE_SIZE);
-    *totalSize += inputSize;
+    state->size += inputSize;
 
     if (finalize) {
-        uint64_t tailBlocks[16] = { 0 };
-        AddShaPaddingInternal(input, *totalSize, tailBlocks, &blocksNum);
+        uint8_t* tailBlocks = (uint8_t*)state->tailBlocks;
 
-        uint8_t* p = (uint8_t*)tailBlocks;
+        AddShaPaddingInternal(input, state->size, tailBlocks, &blocksNum);
 
         while (blocksNum--) {
-            Sha1ProcessBlock((uint32_t*)p, state);
-            p += SHA1_BLOCK_SIZE;
+            Sha1ProcessBlock((uint32_t*)tailBlocks, mainState);
+            tailBlocks += SHA1_BLOCK_SIZE;
         }
 
-        output[0] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[0]);
-        output[1] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[1]);
-        output[2] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[2]);
-        output[3] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[3]);
-        output[4] = Uint32LittleEndianToBigEndian(((uint32_t*)state)[4]);
+        output[0] = Uint32LittleEndianToBigEndian(mainState[0]);
+        output[1] = Uint32LittleEndianToBigEndian(mainState[1]);
+        output[2] = Uint32LittleEndianToBigEndian(mainState[2]);
+        output[3] = Uint32LittleEndianToBigEndian(mainState[3]);
+        output[4] = Uint32LittleEndianToBigEndian(mainState[4]);
     }
 }

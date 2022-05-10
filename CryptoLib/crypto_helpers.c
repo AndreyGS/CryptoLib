@@ -56,7 +56,7 @@ int CheckHashAndXofPrimaryArguments(const void* input, uint64_t inputSize, void*
     if (!input && inputSize)
         return ERROR_WRONG_INPUT;
     else if (!state)
-        return ERROR_WRONG_STATE;
+        return ERROR_WRONG_STATE_HANDLE;
     else if (!output)
         return ERROR_WRONG_OUTPUT;
     else

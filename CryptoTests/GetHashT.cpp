@@ -5,6 +5,11 @@
 
 #include "common.h"
 
+void GetHashMainTestFunc(__in const void* input, __in uint64_t inputSize, __in HashFunc, __in int expectedStatus, __in_opt const void* expectedRes)
+{
+
+}
+
 // Wrong arguments
 
 TEST(GetHashTest, WrongInput) {

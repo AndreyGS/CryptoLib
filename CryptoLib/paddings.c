@@ -416,13 +416,13 @@ int AddShaPaddingInternal(__in const void* input, __in uint64_t inputSize, __out
 
 int AddSha2_64PaddingInternal(__in const void* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __out void* output, __out uint64_t* outputBlocksNum)
 {
-    uint16_t lastBlockSize = inputSizeLowPart % SHA2_BLOCK_SIZE;
+    uint16_t lastBlockSize = inputSizeLowPart % SHA2_64_BLOCK_SIZE;
     uint64_t messageBitsSizeLow = inputSizeLowPart << 3; // inputSizeLowPart * BITS_PER_BYTE;
     uint64_t messageBitsSizeHigh = (inputSizeHighPart << 3) | (inputSizeLowPart & 0xe000000000000000) >> 61;
 
     if (lastBlockSize >= SHA2_START_LENGTH_OFFSET) {
-        uint64_t paddingFillSize = SHA2_BLOCK_SIZE;
-        AddPaddingInternal(input, lastBlockSize, ISO_7816_padding, SHA2_BLOCK_SIZE, output, &paddingFillSize, true);
+        uint64_t paddingFillSize = SHA2_64_BLOCK_SIZE;
+        AddPaddingInternal(input, lastBlockSize, ISO_7816_padding, SHA2_64_BLOCK_SIZE, output, &paddingFillSize, true);
         ((uint64_t*)output)[30] = Uint64LittleEndianToBigEndian(messageBitsSizeHigh);                                           // 30 == ((SHA2_BLOCK_SIZE * 2) / sizeof(uint64_t)) - 2
         ((uint64_t*)output)[31] = Uint64LittleEndianToBigEndian(messageBitsSizeLow);
         *outputBlocksNum = 2;
