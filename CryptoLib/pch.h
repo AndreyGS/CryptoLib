@@ -7,12 +7,14 @@
 #ifndef PCH_H
 #define PCH_H
 
+#ifndef KERNEL
 #include <stdint.h>
 #include <stdbool.h>
 #include <memory.h>
 #include <stdlib.h>
+#endif
 
-#ifdef __STDC_LIB_EXT1__
+#if defined(__STDC_LIB_EXT1__) && !defined(KERNEL)
 #define __STDC_WANT_LIB_EXT1__ 1
 #include <string.h>
 #else

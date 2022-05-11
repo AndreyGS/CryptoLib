@@ -38,7 +38,9 @@ void DecryptByBlockCipherMainTestFunc(__in const void* input, __in uint64_t inpu
     int status = DecryptByBlockCipher(input, inputSize, padding, key, cipherType, buffer, &outputSize, mode, iv);
 
     if (expectedRes) {
-        EXPECT_EQ(memcmp(buffer, expectedRes, expectedResLength), 0);
+        std::string result((const char*)buffer, outputSize);
+        std::string expRes((const char*)expectedRes);
+        EXPECT_EQ(result, expRes);
     }
 
     EXPECT_TRUE(status == expectedStatus);
@@ -99,8 +101,11 @@ void DecryptByBlockCipherMultipartTestFunc(__in const void* input_1, __in uint64
         status = DecryptByBlockCipher(input_2, inputSize_2, padding, key, cipherType, (uint8_t*)buffer + totalSize, &outputSize, mode, iv);
         totalSize += outputSize;
 
-        if (expectedRes)
-            EXPECT_EQ(memcmp(buffer, expectedRes, totalSize), 0);
+        if (expectedRes) {
+            std::string result((const char*)buffer, totalSize);
+            std::string expRes((const char*)expectedRes);
+            EXPECT_EQ(result, expRes);
+        }
     }
 
     EXPECT_TRUE(status == NO_ERROR);

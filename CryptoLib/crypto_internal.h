@@ -26,54 +26,50 @@ static const BlockCipherKeysSizes g_blockCipherKeysSizes[] = {
 #define BITS_PER_BYTE                   8
 #define DES_BLOCK_SIZE                  8
 #define MAX_PKCSN7_BLOCK_SIZE           255
-/*
-#define SHA1_FULL_STATE_SIZE            (sizeof(HashFunc) + SHA1_STATE_SIZE + 8 + 128)
-#define SHA2_32_FULL_STATE_SIZE         (sizeof(HashFunc) + SHA2_32_STATE_SIZE + 8 + 128)
-#define SHA2_64_FULL_STATE_SIZE         (sizeof(HashFunc) + SHA2_64_STATE_SIZE + 8 + 256)
-#define SHA3_224_FULL_STATE_SIZE        (sizeof(HashFunc) + SHA3_STATE_SIZE + 8 + 288)
-#define SHA3_256_FULL_STATE_SIZE        (sizeof(HashFunc) + SHA3_STATE_SIZE + 8 + 172)
-#define SHA3_384_FULL_STATE_SIZE        (sizeof(HashFunc) + SHA3_STATE_SIZE + 8 + 208)
-#define SHA3_512_FULL_STATE_SIZE        (sizeof(HashFunc) + SHA3_STATE_SIZE + 8 + 144)
-#define SHAKE128_FULL_STATE_SIZE        (sizeof(Xof)      + SHA3_STATE_SIZE + 8 + 336)
-#define SHAKE256_FULL_STATE_SIZE        (sizeof(Xof)      + SHA3_STATE_SIZE + 8 + 272)
-*/
+
 typedef struct _Sha1State {
-    uint32_t state[5];          // state field must be the first in the current structure
-    uint64_t tailBlocks[16];
     uint64_t size;
+    uint32_t state[5];
+    bool notFirst;
+    uint32_t words[80];
+    uint64_t tailBlocks[16];
 } Sha1State;
 
 typedef struct _Sha2_32State {
-    uint32_t state[8];          // state field must be the first in the current structure
-    uint64_t tailBlocks[16];
     uint64_t size;
+    uint32_t state[8];
+    bool notFirst;
+    uint32_t words[64];
+    uint64_t tailBlocks[16];
 } Sha2_32State;
 
 typedef struct _Sha2_64State {
-    uint64_t state[8];          // state field must be the first in the current structure
-    uint64_t tailBlocks[32];
     uint64_t sizeLow;
     uint64_t sizeHigh;
+    uint64_t state[8];
+    bool notFirst;
+    uint64_t words[80];
+    uint64_t tailBlocks[32];
 } Sha2_64State;
 
 typedef struct _Sha3_224State {
-    uint64_t state[25];         // state field must be the first in the current structure
-    uint64_t tailBlocks[36];
+    uint64_t state[25];
+    uint64_t tailBlocks[18];
 } Sha3_224State;
 
 typedef struct _Sha3_256State {
-    uint64_t state[25];         // state field must be the first in the current structure
-    uint64_t tailBlocks[34];
+    uint64_t state[25];
+    uint64_t tailBlocks[17];
 } Sha3_256State;
 
 typedef struct _Sha3_384State {
-    uint64_t state[25];         // state field must be the first in the current structure
-    uint64_t tailBlocks[26];
+    uint64_t state[25];
+    uint64_t tailBlocks[13];
 } Sha3_384State;
 
 typedef struct _Sha3_512State {
-    uint64_t state[25];         // state field must be the first in the current structure
-    uint64_t tailBlocks[18];
+    uint64_t state[25];
+    uint64_t tailBlocks[9];
 } Sha3_512State;
 
 typedef struct _HashState {
@@ -81,7 +77,7 @@ typedef struct _HashState {
     uint64_t state[ANYSIZE_ARRAY];
 } HashState;
 
-#define HASH_STATE_HEADER_SIZE      sizeof(HashState) - 8
+#define HASH_STATE_HEADER_SIZE           sizeof(HashState) - 8
 
 #define HASH_STATE_SHA1_SIZE             HASH_STATE_HEADER_SIZE + sizeof(Sha1State)
 #define HASH_STATE_SHA2_32_SIZE          HASH_STATE_HEADER_SIZE + sizeof(Sha2_32State)
@@ -198,29 +194,13 @@ typedef struct _Hmac_Sha3_512State {
     bool notFirst;
 } Hmac_Sha3_512State;
 
-/*
-typedef struct _HmacState {
-    bool notFirst;
-    HashState* hashState;
-    uint8_t* iKeyPad;
-    uint8_t* oKeyPad;
-} HmacState;*/
-
 typedef struct _PrfState {
     Prf func;
     uint64_t state[ANYSIZE_ARRAY];
 } PrfState;
 
 #define PRF_STATE_HEADER_SIZE                sizeof(PrfState) - 8
-/*
-#define HMAC_STATE_SHA1_SIZE                 sizeof(HmacState) + HASH_STATE_SHA1_SIZE + 2 * SHA1_BLOCK_SIZE
-#define HMAC_STATE_SHA2_32_SIZE              sizeof(HmacState) + HASH_STATE_SHA2_32_SIZE + 2 * SHA2_32_BLOCK_SIZE
-#define HMAC_STATE_SHA2_64_SIZE              sizeof(HmacState) + HASH_STATE_SHA2_64_SIZE + 2 * SHA2_64_BLOCK_SIZE
-#define HMAC_STATE_SHA3_224_SIZE             sizeof(HmacState) + HASH_STATE_SHA3_224_SIZE + 2 * SHA3_224_BLOCK_SIZE
-#define HMAC_STATE_SHA3_256_SIZE             sizeof(HmacState) + HASH_STATE_SHA3_256_SIZE + 2 * SHA3_256_BLOCK_SIZE
-#define HMAC_STATE_SHA3_384_SIZE             sizeof(HmacState) + HASH_STATE_SHA3_384_SIZE + 2 * SHA3_384_BLOCK_SIZE
-#define HMAC_STATE_SHA3_512_SIZE             sizeof(HmacState) + HASH_STATE_SHA3_512_SIZE + 2 * SHA3_512_BLOCK_SIZE
-*/
+
 #define PRF_STATE_HMAC_SHA1_SIZE             PRF_STATE_HEADER_SIZE + sizeof(Hmac_Sha1State)
 #define PRF_STATE_HMAC_SHA2_32_SIZE          PRF_STATE_HEADER_SIZE + sizeof(Hmac_Sha2_32State)
 #define PRF_STATE_HMAC_SHA2_64_SIZE          PRF_STATE_HEADER_SIZE + sizeof(Hmac_Sha2_64State)
@@ -250,32 +230,6 @@ static const PrfSizes g_PrfSizesMapping[] = {
     { HMAC_SHA3_512,    SHA3_512,    sizeof(Hmac_Sha3_512State),    PRF_STATE_HMAC_SHA3_512_SIZE }
 };
 
-/*
-    State structs
-
-    Hash States (HashFuncState<T>)
-    (T == SHA1)                         { HashFunc func, uint32_t[5] state,  uint64_t size, uint64_t[16] tailBlocks };
-    (T == SHA_224  || T == SHA_256)     { HashFunc func, uint32_t[8] state,  uint64_t size, uint64_t[16] tailBlocks };
-    (T >= SHA_384  && T <= SHA_512)     { HashFunc func, uint64_t[8] state,  uint64_t sizeLow, uint64_t sizeHigh, uint64_t[32] tailBlocks };
-    (T == SHA3_224)                     { HashFunc func, uint64_t[25] state, uint64_t[36] tailBlocks };
-    (T == SHA3_224)                     { HashFunc func, uint64_t[25] state, uint64_t[34] tailBlocks };
-    (T == SHA3_224)                     { HashFunc func, uint64_t[25] state, uint64_t[26] tailBlocks };
-    (T == SHA3_224)                     { HashFunc func, uint64_t[25] state, uint64_t[18] tailBlocks };
-
-    Xof States (XofFuncState<T>)
-    (T == SHAKE128)                     { Xof func, uint64_t[25] state, uint64_t[42] tailBlocks };
-    (T == SHAKE256)                     { Xof func, uint64_t[25] state, uint64_t[34] tailBlocks };
-
-    HMAC States
-    HMAC {
-        Prf func,
-        bool isStart,
-        uint8_t hashFuncState[g_hashFuncsSizesMapping[g_PrfSizesMapping[func].hashFunc].fullStateSize],
-        uint8_t iKeyPad[g_hashFuncsSizesMapping[g_PrfSizesMapping[func].hashFunc].blockSize],
-        uint8_t oKeyPad[g_hashFuncsSizesMapping[g_PrfSizesMapping[func].hashFunc].blockSize]
-    };
-*/
-
 int EncryptByBlockCipherInternal(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* roundsKeys, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
 int DecryptByBlockCipherInternal(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* roundsKeys, __in BlockCipherType cipherType
@@ -283,6 +237,6 @@ int DecryptByBlockCipherInternal(__in const void* input, __in uint64_t inputSize
 
 int GetBlockCipherRoundsKeysInternal(__in const void* key, __in BlockCipherType cipherType, __out void* output);
 
-void GetHashInternal(__in const void* input, __in uint64_t inputSize, __out void* output, __in bool finalize, __inout StateHandle state);
-void GetXofInternal(__in const void* input, __in uint64_t inputSize, __out void* output, __in uint64_t outputSize, __in bool finalize, __inout void* state);
-void GetPrfInternal(__in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __out void* output, __in bool finalize, __inout void* state);
+void GetHashInternal(__in const void* input, __in uint64_t inputSize, __out void* output, __in bool finalize, __inout HashState* state);
+void GetXofInternal(__in const void* input, __in uint64_t inputSize, __out void* output, __in uint64_t outputSize, __in bool finalize, __inout XofState* state);
+void GetPrfInternal(__in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __out void* output, __in bool finalize, __inout PrfState* state);

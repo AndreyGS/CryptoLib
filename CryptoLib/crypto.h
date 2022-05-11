@@ -3,7 +3,9 @@
 
 #pragma once
 
+#ifndef KERNEL
 #include <stdint.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

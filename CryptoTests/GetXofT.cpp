@@ -5,46 +5,136 @@
 
 #include "common.h"
 
+void GetXofMainTestFunc(__in const void* input, __in uint64_t inputSize, __in Xof func, __in uint64_t outputSize, __in int expectedStatus, __in_opt const void* expectedRes)
+{
+    int status = NO_ERROR;
+    uint8_t* buffer = new uint8_t[outputSize];
+    StateHandle state = NULL;
+    EVAL(InitXofState(func, &state));
+    EVAL(GetXof(input, inputSize, buffer, outputSize, true, state));
+
+exit:
+    FreeXofState(state);
+
+    if (expectedRes) {
+        std::string result = GetHexResult(buffer, outputSize);
+        std::string expRes((const char*)expectedRes);
+        EXPECT_EQ(result, expRes);
+    }
+
+    EXPECT_TRUE(status == expectedStatus);
+}
+
+void GetXofMultipleTestFunc(__in const void* input1, __in uint64_t inputSize1, __in const void* input2, __in uint64_t inputSize2, __in Xof func, __in uint64_t outputSize,
+    __in int expectedStatus, __in_opt const void* expectedRes)
+{
+    int status = NO_ERROR;
+    uint8_t* buffer = new uint8_t[outputSize];
+    StateHandle state = NULL;
+    EVAL(InitXofState(func, &state));
+    EVAL(GetXof(input1, inputSize1, nullptr, outputSize, false, state));
+    EVAL(GetXof(input2, inputSize2, buffer, outputSize, true, state));
+
+exit:
+    FreeXofState(state);
+
+    if (expectedRes) {
+        std::string result = GetHexResult(buffer, outputSize);
+        std::string expRes((const char*)expectedRes);
+        EXPECT_EQ(result, expRes);
+    }
+
+    EXPECT_TRUE(status == expectedStatus);
+}
+
 // Wrong arguments
 
 TEST(GetXofTest, WrongInput) {
-    uint16_t outputSize = 200;
-    uint8_t* buffer = new uint8_t[outputSize];
-    int status = GetXof(nullptr, 55, SHAKE128, buffer, outputSize);
-
-    EXPECT_TRUE(status == ERROR_WRONG_INPUT);
-    delete[] buffer;
+    GetXofMainTestFunc(nullptr, 55, SHAKE128, 1, ERROR_WRONG_INPUT, nullptr);
 }
 
-TEST(GetXofTest, WrongOuput) {
-    uint16_t outputSize = 200;
-    uint8_t* buffer = new uint8_t[outputSize];
-    int status = GetXof(TEST_STRING_55, 55, SHAKE128, nullptr, outputSize);
+TEST(GetXofTest, WrongState) {
+    int status = NO_ERROR;
+    uint8_t* buffer = new uint8_t[1];
+    status = GetXof("", 0, buffer, 1, true, nullptr);
+    EXPECT_TRUE(status == ERROR_WRONG_STATE_HANDLE);
+}
 
+TEST(GetXofTest, WrongOutput) {
+    int status = NO_ERROR;
+    uint8_t* state = new uint8_t[1];
+    status = GetXof("", 0, nullptr, 1, true, state);
     EXPECT_TRUE(status == ERROR_WRONG_OUTPUT);
-    delete[] buffer;
 }
 
-TEST(GetXofTest, WrongOuputSize) {
-    uint16_t outputSize = 200;
-    uint8_t* buffer = new uint8_t[outputSize];
-    int status = GetXof(TEST_STRING_55, 55, SHAKE128, buffer, 0);
-
-    EXPECT_TRUE(status == ERROR_WRONG_OUTPUT_SIZE);
-    delete[] buffer;
+TEST(GetXofTest, WrongOutputSize) {
+    GetXofMainTestFunc(nullptr, 0, SHAKE128, 0, ERROR_WRONG_OUTPUT_SIZE, nullptr);
 }
 
-TEST(GetXofTest, UnknownXofFunc) {
-    uint16_t outputSize = 200;
-    uint8_t* buffer = new uint8_t[outputSize];
-    int status = GetXof(TEST_STRING_55, 55, (Xof)-1, buffer, outputSize);
+TEST(GetXofTest, WrongInputSize) {
+    int status = NO_ERROR;
+    StateHandle state = nullptr;
 
-    EXPECT_TRUE(status == ERROR_XOF_NOT_SUPPORTED);
-    delete[] buffer;
+    InitXofState(SHAKE128, &state);
+    status = GetXof("", 55, state, 1, false, state);
+    EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
+    FreeXofState(state);
+
+    InitXofState(SHAKE256, &state);
+    status = GetXof("", 55, state, 1, false, state);
+    EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
+    FreeXofState(state);
 }
 
 // Main test
+// 1 - full one block (== input + padding) testing
+// 2 - full one block + one byte == two blocks testing
+// 3 - two blocks testing
+// 4 - empty string testing
+// 5 - one byte output
+// 6 - multiple test
 
+// SHAKE128
+
+TEST(GetXofTest, SHAKE128_oneblock) {
+    GetXofMainTestFunc(TEST_STRING_167, 167, SHAKE128, 200, NO_ERROR, "aee25eaf93c3830774532547d36b4c5328743c7b08785fd391fd419b2001ffdc8811b649cda3102c1846de2eb12b28ce29f5"
+                                                                      "b40edfe0b670f637eff6f2cbaf691ebe8dda395185006bb5c7509f909c352fc52abbc4f7c28157da7df7a8bb47ee239e037e"
+                                                                      "f8d06a4e5b2a3b1620078a31faf9a2ddb6d182966f8b4cc60cb634a51d253255397258a41611492cbf62863d2adb78914c4a"
+                                                                      "60de2e8d7df6a4df8fda8483ad148b6908a855a24efc1ca18bf67d022943ebc6674e128015f3fbec6f092eaaa1518a788824");
+}
+
+TEST(GetXofTest, SHAKE128_two_block_edge) {
+    GetXofMainTestFunc(TEST_STRING_168, 168, SHAKE128, 200, NO_ERROR, "fdb7712fe2ce5d0e37b2ae0ff1716ef9d6763d045d40be7388aa71e421a70eadd87af7a4166bb1ab07de88b9ca51eb0a0f1a"
+                                                                      "18210d2322dfbdd0e3858d9ea045f7097192b63c6e6e99e6176befa0e58c3ec9be50579768d3c3c1b80eee3f5ca541b2c39b"
+                                                                      "078ad8f6437cf136d3a23685c3e574240e956f3a0ee3755f48956d13aa366af8438a0410fda6996995bd65af732b6104621f"
+                                                                      "f5c7ee57e7b0cef27de6c539125ead6d8b41a0527faaeb8cfcb56d665d4c66ca2714f31ac41c152233c5f0c7ae18105e7d81");
+}
+
+TEST(GetXofTest, SHAKE128_two_block) {
+    GetXofMainTestFunc(TEST_STRING_169, 169, SHAKE128, 200, NO_ERROR, "01ab6286c733243b0cb9d49a1a1ab4d99dee5dcb6f8362c057912a83df9f58ef28edb5fdb5de0f33140a4751e20712b20266"
+                                                                      "853f48a5251c9f0f292214a5b7a4fbe66ca7a62274e47d0652c1ea141dfdecb8d5e80f8504ccd0b60539ad17bbba9123a7dc"
+                                                                      "c08470048376d6513f6bd1c58da9e22036b0c474879c1cb6064ae2c932b904c71f9df329865457dabf13dcbe627b7c7ce609"
+                                                                      "c29b4081c708557889eec8d1a44a06ff8f8e24fac9bbc4ef41478eaa8b2083b3559310656087b837f50cc651ba759b508b0f");
+}
+
+TEST(GetXofTest, SHAKE128_empty) {
+    GetXofMainTestFunc(nullptr, 0, SHAKE128, 200, NO_ERROR, "7f9c2ba4e88f827d616045507605853ed73b8093f6efbc88eb1a6eacfa66ef263cb1eea988004b93103cfb0aeefd2a686e01"
+                                                            "fa4a58e8a3639ca8a1e3f9ae57e235b8cc873c23dc62b8d260169afa2f75ab916a58d974918835d25e6a435085b2badfd6df"
+                                                            "aac359a5efbb7bcc4b59d538df9a04302e10c8bc1cbf1a0b3a5120ea17cda7cfad765f5623474d368ccca8af0007cd9f5e4c"
+                                                            "849f167a580b14aabdefaee7eef47cb0fca9767be1fda69419dfb927e9df07348b196691abaeb580b32def58538b8d23f877");
+}
+
+TEST(GetXofTest, SHAKE128_one_byte) {
+    GetXofMainTestFunc(nullptr, 0, SHAKE128, 1, NO_ERROR, "7f");
+}
+
+TEST(GetXofTest, SHAKE128_multiple) {
+    GetXofMultipleTestFunc(TEST_STRING_168, 168, TEST_STRING_7, 7, SHAKE128, 200, NO_ERROR, "af448d96e205c5b99094e5f7854b0fb69c76963c06e172d1f427ecac7d6eecf612298b8452f801ef2bcde0fab31b6b9e34a0"
+                                                                                            "7eaa0bf68d0465e990218b61e39a070c6e645deaf9e79978adac142a1c21e188f8f2f607ff3e842fa1ed0fac455d512059bc"
+                                                                                            "f3f06ed5bec77a372550926d4729066cc73d24bba690ae86675a2f0668cdc4b5c17763e5a5aa9c5610928172c919553bb6cf"
+                                                                                            "a54565d73afa00c16f905186629a133718649494b0f8a905fa4d376e2be69450d5a32e060e68378f024dbd271801e4606282");
+}
+/*
 TEST(GetXofTest, SHAKE128) {
     uint16_t outputSize = 200;
     uint8_t* buffer = new uint8_t[outputSize];
@@ -152,3 +242,4 @@ TEST(GetXofTest, SHAKE256_empty) {
     EXPECT_TRUE(status == NO_ERROR);
     delete[] buffer;
 }
+*/

@@ -202,7 +202,7 @@ int FreeHashState(__inout StateHandle state)
 int GetHash(__in const void* input, __in uint64_t inputSize, __out void* output, __in bool finalize, __inout StateHandle state)
 {
     int status = NO_ERROR;
-    if (status = CheckHashAndXofPrimaryArguments(input, inputSize, output, state))
+    if (status = CheckHashAndXofPrimaryArguments(input, inputSize, output, finalize, state))
         return status;
 
     HashFunc func = *(HashFunc*)state;
@@ -300,7 +300,7 @@ int FreeXofState(__inout StateHandle state)
 int GetXof(__in const void* input, __in uint64_t inputSize, __out void* output, __in uint64_t outputSize, __in bool finalize, __inout StateHandle state)
 {
     int status = NO_ERROR;
-    if (status = CheckHashAndXofPrimaryArguments(input, inputSize, output, state))
+    if (status = CheckHashAndXofPrimaryArguments(input, inputSize, output, finalize, state))
         return status;
     else if (!outputSize)
         return ERROR_WRONG_OUTPUT_SIZE;
@@ -389,7 +389,7 @@ int GetPrf(__in const void* input, __in uint64_t inputSize, __in const void* key
         return ERROR_WRONG_INPUT;
     else if (!key && keySize)
         return ERROR_WRONG_KEY;
-    else if (!output)
+    else if (finalize && !output)
         return ERROR_WRONG_OUTPUT;
 
     Prf func = *(Prf*)state;
