@@ -55,7 +55,7 @@ int GetPbkdf2Internal(__in const void* salt, __in uint64_t saltSize, __in const 
 {
     int status = NO_ERROR;
 
-    uint16_t didgestSize = g_hashFuncsSizesMapping[func].outputSize;
+    uint16_t didgestSize = g_hashFuncsSizesMapping[func].didgestSize;
 
     uint8_t* buffer1 = NULL;
     uint8_t* buffer2 = NULL;

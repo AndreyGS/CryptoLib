@@ -158,7 +158,7 @@ int InitHashState(__in HashFunc func, __inout StateHandle* state)
         return ERROR_WRONG_STATE_HANDLE;
 
     EVAL(AllocBuffer(g_hashFuncsSizesMapping[func].stateAndHeaderSize, state));
-    *(HashFunc*)state = func;
+    *(HashFunc*)(*state) = func;
     ResetHashState(*state);
 
 exit:
@@ -256,7 +256,7 @@ int InitXofState(__in Xof func, __inout StateHandle* state)
         return ERROR_WRONG_STATE_HANDLE;
 
     EVAL(AllocBuffer(g_XofSizesMapping[func].stateAndHeaderSize, state));
-    *(Xof*)state = func;
+    *(Xof*)(*state) = func;
     ResetHashState(*state);
 
 exit:
@@ -341,7 +341,7 @@ int InitPrfState(__in Prf func, __inout StateHandle* state)
         return ERROR_WRONG_STATE_HANDLE;
 
     EVAL(AllocBuffer(g_PrfSizesMapping[func].stateAndHeaderSize, state));
-    *(Prf*)state = func;
+    *(Prf*)(*state) = func;
     ResetHashState(*state);
 
 exit:

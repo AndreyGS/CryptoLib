@@ -60,14 +60,28 @@
     <ClCompile Include="common.cpp" />
     <ClCompile Include="DecryptByBlockCipherT.cpp" />
     <ClCompile Include="EncryptByBlockCipherT.cpp" />
-    <ClCompile Include="GetHashExT.cpp" />
-    <ClCompile Include="GetHashMultipleT.cpp" />
+    <ClCompile Include="GetHashExT.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GetHashMultipleT.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="GetHashT.cpp" />
-    <ClCompile Include="GetPbkdf2ExT.cpp" />
-    <ClCompile Include="GetPbkdf2T.cpp" />
-    <ClCompile Include="GetPrfT.cpp" />
-    <ClCompile Include="GetXofMultipleT.cpp" />
-    <ClCompile Include="GetXofT.cpp" />
+    <ClCompile Include="GetPbkdf2ExT.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GetPbkdf2T.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GetPrfT.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GetXofMultipleT.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GetXofT.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="test.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

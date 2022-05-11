@@ -1,6 +1,8 @@
 #pragma once
 
 #include "crypto.h"
+#include "crypto_internal.h"
+#include "crypto_helpers.h"
 
 const char TEST_STRING_7[] = "This is";
 const char TEST_STRING_8[] = "somekind";

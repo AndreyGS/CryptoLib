@@ -5,6 +5,10 @@
 
 #include "crypto_helpers.h"
 
+#ifndef ANYSIZE_ARRAY
+#define ANYSIZE_ARRAY 1
+#endif
+
 typedef struct _BlockCipherKeysSizes {
     BlockCipherType cipherType;
     uint16_t keySize;
@@ -90,7 +94,7 @@ typedef struct _HashState {
 typedef struct _HashFuncsSizes {
     HashFunc func;
     uint16_t blockSize;
-    uint16_t outputSize;
+    uint16_t didgestSize;
     uint16_t stateSize;
     uint16_t stateAndHeaderSize;
 } HashFuncsSizes;

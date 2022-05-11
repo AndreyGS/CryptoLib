@@ -126,7 +126,7 @@ inline int AllocBuffer(size_t size, void** buffer)
 {
     *buffer = NULL;
 #ifndef KERNEL
-    buffer = malloc(size);
+    *buffer = malloc(size);
 #endif
     if (!*buffer)
         return ERROR_NO_MEMORY;
