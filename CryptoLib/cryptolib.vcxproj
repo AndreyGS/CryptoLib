@@ -198,6 +198,9 @@
     <ClCompile Include="sha-2.c" />
     <ClCompile Include="sha-3.c" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include=".editorconfig" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
