@@ -4,7 +4,7 @@
 #include "crypto_internal.h"
 #include "paddings.h"
 
-void Sha3Get(__in const void* input, __in uint64_t inputSize, __in Sha3Func func, __out uint64_t* output, __in uint64_t outputSize, __in bool lastPart, __inout void* state);
+void Sha3Get(__inout StateHandle state, __out_opt uint64_t* output, __in_opt uint64_t outputSize, __in const void* input, __in uint64_t inputSize, __in Sha3Func func, __in bool finalize);
 
 const uint64_t RC[] =
 {
@@ -123,17 +123,17 @@ inline void Sha3StateXor(__in const uint64_t* input, __in Sha3Func func, __inout
     }  
 }
 
-void Sha3GetHash(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __out uint64_t* output, __in bool finalize, __inout void* state)
+void Sha3GetHash(__inout void* state, __out_opt uint64_t* output, __in const void* input, __in uint64_t inputSize, __in HashFunc func, __in bool finalize)
 {
-    Sha3Get(input, inputSize, func - SHA3_224, output, 0, finalize, state);
+    Sha3Get(state, output, 0, input, inputSize, func - SHA3_224, finalize);
 }
 
-void Sha3GetXof(__in const void* input, __in uint64_t inputSize, __in Xof func, __out uint64_t* output, __in uint64_t outputSize, __in bool finalize, __inout void* state)
+void Sha3GetXof(__inout void* state, __out_opt uint64_t* output, __in uint64_t outputSize, __in const void* input, __in uint64_t inputSize, __in Xof func, __in bool finalize)
 {
-    Sha3Get(input, inputSize, func + Sha3Func_SHA3_512 + 1, output, outputSize, finalize, state);
+    Sha3Get(state, output, outputSize, input, inputSize, func + Sha3Func_SHA3_512 + 1, finalize);
 }
 
-void Sha3Get(__in const void* input, __in uint64_t inputSize, __in Sha3Func func, __out uint64_t* output, __in uint64_t outputSize, __in bool finalize, __inout void* state)
+void Sha3Get(__inout StateHandle state, __out_opt uint64_t* output, __in_opt uint64_t outputSize, __in const void* input, __in uint64_t inputSize, __in Sha3Func func, __in bool finalize)
 {
     uint16_t blockSize = func == Sha3Func_SHAKE128 || func == Sha3Func_SHAKE256
                        ? g_XofSizesMapping[func - Sha3Func_SHAKE128].blockSize

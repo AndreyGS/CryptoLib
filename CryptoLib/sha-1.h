@@ -3,7 +3,14 @@
 
 #pragma once
 
-#include "crypto_helpers.h"
-#include "crypto_internal.h"
+#include "crypto.h"
 
-void Sha1Get(__in const void* input, __in uint64_t inputSize, __out uint32_t* output, __in bool finalize, __inout Sha1State* state);
+typedef struct _Sha1State {
+    uint32_t state[5];
+    uint64_t size;
+    uint32_t words[80];
+    uint64_t tailBlocks[16];
+} Sha1State;
+
+void Sha1InitState(__out uint32_t* state);
+void Sha1Get(__inout Sha1State* state, __out_opt uint32_t* output, __in const void* input, __in uint64_t inputSize, __in bool finalize);

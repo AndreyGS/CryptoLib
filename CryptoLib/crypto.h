@@ -7,6 +7,15 @@
 #include <stdint.h>
 #endif
 
+#ifndef __in
+    #define __in 
+    #define __out 
+    #define __inout 
+    #define __in_opt 
+    #define __out_opt 
+    #define __inout_opt 
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,18 +31,23 @@ extern "C" {
 #define ERROR_INAPPLICABLE_PADDING_TYPE     0x80000006
 #define ERROR_PADDING_CORRUPTED             0x80000007
 #define ERROR_WRONG_INIT_VECTOR             0x80000008
-#define ERROR_HASHING_FUNC_NOT_SUPPORTED    0x80000009
-#define ERROR_CIPHER_FUNC_NOT_SUPPORTED     0x8000000a
+#define ERROR_UNSUPPORTED_HASHING_FUNC      0x80000009
+#define ERROR_UNSUPPORTED_CIPHER_FUNC       0x8000000a
 #define ERROR_WRONG_ITERATIONS_NUMBER       0x8000000b
 #define ERROR_NO_MEMORY                     0x8000000c
-#define ERROR_XOF_NOT_SUPPORTED             0x8000000d
-#define ERROR_PRF_FUNC_NOT_SUPPORTED        0x8000000e
+#define ERROR_UNSUPPORTED_XOF               0x8000000d
+#define ERROR_UNSUPPORTED_PRF_FUNC          0x8000000e
 #define ERROR_OUTPUT_SIZE_IS_NULL           0x8000000f
-#define ERROR_PADDING_NOT_SUPPORTED         0x80000010
+#define ERROR_UNSUPPORTED_PADDING_TYPE      0x80000010
 #define ERROR_UNSUPPROTED_ENCRYPTION_MODE   0x80000011
 #define ERROR_WRONG_STATE_HANDLE            0x80000012
+#define ERROR_UNSUPPROTED_OPERATION_MODE    0x80000013
 
 typedef void* StateHandle;
+typedef StateHandle BlockCipherHandle;
+typedef StateHandle HashHandle;
+typedef StateHandle XofHandle;
+typedef StateHandle PrfHandle;
 
 typedef enum _BlockCipherType {
     DES_cipher_type,
@@ -53,6 +67,12 @@ typedef enum _BlockCipherOpMode {
     CTR_mode,
     BlockCipherOpMode_max
 } BlockCipherOpMode;
+
+typedef enum _CryptoMode {
+    Encryption_mode,
+    Decryption_mode,
+    Decryption_mode_max
+} CryptoMode;
 
 typedef enum _PaddingType {
     No_padding,
@@ -142,25 +162,31 @@ int DecryptByBlockCipherEx(__in const void* input, __in uint64_t inputSize, __in
 // Check g_blockCipherKeysSizes for key sizes that you should supply with your ouput buffer for get respective rounds keys
 int GetBlockCipherRoundsKeys(__in const void* key, __in BlockCipherType cipherType, __out void* output);
 
-// Before using GetHash and GetHashEx you should allocate output buffer according to output digest size of respective hashing function
-// You may check the numbers with g_hashFuncsSizesMapping array (see "func" and corresponding "blockSize" fields)
-int InitHashState(__in HashFunc func, __inout StateHandle* state);
-int GetHash(__in const void* input, __in uint64_t inputSize, __out void* output, __in bool finalize, __inout StateHandle state);
-int ResetHashState(__inout StateHandle state);
-int FreeHashState(__inout StateHandle state);
+int InitBlockCiperState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv);
+int ReInitBlockCiperCryptoMode(__inout BlockCipherHandle handle, __in CryptoMode cryptoMode);
+int ReInitBlockCiperOpMode(__inout BlockCipherHandle handle, __in BlockCipherOpMode opMode);
+int ReInitBlockCiperPaddingType(__inout BlockCipherHandle handle, __in PaddingType padding);
+int ReInitBlockCiperIv(__inout BlockCipherHandle handle, __in void* iv);
 
-int InitXofState(__in Xof func, __inout StateHandle* state);
-int GetXof(__in const void* input, __in uint64_t inputSize, __out void* output, __in uint64_t outputSize, __in bool finalize, __inout StateHandle state);
-int ResetXofState(__inout StateHandle state);
-int FreeXofState(__inout StateHandle state);
+// Before using GetHash with finalize flag you should allocate output buffer according to the output digest size of respective hashing function
+// You may check the numbers with g_hashFuncsSizesMapping array (see "func" and corresponding "blockSize" fields)
+int InitHashState(__inout HashHandle* handle, __in HashFunc func);
+int GetHash(__inout HashHandle handle, __out_opt void* output, __in const void* input, __in uint64_t inputSize, __in bool finalize);
+int ResetHashState(__inout HashHandle handle);
+int FreeHashState(__inout HashHandle handle);
+
+int InitXofState(__inout XofHandle* handle, __in Xof func);
+int GetXof(__inout XofHandle handle, __out_opt void* output, __in uint64_t outputSize, __in const void* input, __in uint64_t inputSize, __in bool finalize);
+int ResetXofState(__inout XofHandle handle);
+int FreeXofState(__inout XofHandle handle);
 
 // Get pseudorandom function result (currently only HMAC supported - see PRF enum)
 // outputSize parameter is only filled on variable size output XOF funcs - SHAKE128 and SHAKE256 - but KMAC functions are not supported yet,
 // For all the rest you may check the numbers with g_hashFuncsSizesMapping array (see respective hash function in "func" and corresponding "blockSize" fields)
-int InitPrfState(__in Prf func, __inout StateHandle* state);
-int GetPrf(__in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __out void* output, __in_opt uint64_t outputSize, __in bool finalize, __inout StateHandle state);
-int ResetPrfState(__inout StateHandle state);
-int FreePrfState(__inout StateHandle state);
+int InitPrfState(__inout PrfHandle* handle, __in Prf func);
+int GetPrf(__inout PrfHandle handle, __out_opt void* output, __in_opt uint64_t outputSize, __in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in bool finalize);
+int ResetPrfState(__inout PrfHandle handle);
+int FreePrfState(__inout PrfHandle handle);
 
 // Maximum saltSize you should pass here is 512 bytes
 int GetPbkdf2(__in const void* salt, __in uint64_t saltSize, __in const void* key, __in uint64_t keySize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize);

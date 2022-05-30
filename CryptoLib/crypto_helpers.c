@@ -38,11 +38,11 @@ int CheckBlockCipherPrimaryArguments(const void* input, uint64_t inputSize, Padd
     if (status = CheckInputOutput(input, inputSize, output, outputSize))
         return status;
     else if ((unsigned)padding >= PaddingType_max)
-        return ERROR_PADDING_NOT_SUPPORTED;
+        return ERROR_UNSUPPORTED_PADDING_TYPE;
     else if (!key)
         return ERROR_WRONG_KEY;
     else if ((unsigned)cipherType >= BlockCipherType_max)
-        return ERROR_CIPHER_FUNC_NOT_SUPPORTED;
+        return ERROR_UNSUPPORTED_CIPHER_FUNC;
     else if ((unsigned)mode >= BlockCipherOpMode_max)
         return ERROR_UNSUPPROTED_ENCRYPTION_MODE;
     else if (mode != ECB_mode && !iv)
@@ -51,14 +51,14 @@ int CheckBlockCipherPrimaryArguments(const void* input, uint64_t inputSize, Padd
         return NO_ERROR;
 }
 
-int CheckHashAndXofPrimaryArguments(const void* input, uint64_t inputSize, void* output, bool finalize, void* state)
+int CheckHashAndXofPrimaryArguments(const StateHandle state, const void* output, const void* input, uint64_t inputSize, bool finalize)
 {
-    if (!input && inputSize)
-        return ERROR_WRONG_INPUT;
-    else if (!state)
+    if (!state)
         return ERROR_WRONG_STATE_HANDLE;
     else if (finalize && !output)
         return ERROR_WRONG_OUTPUT;
+    else if (!input && inputSize)
+        return ERROR_WRONG_INPUT;
     else
         return NO_ERROR;
 }

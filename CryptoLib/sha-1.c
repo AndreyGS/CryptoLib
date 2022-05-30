@@ -19,6 +19,11 @@ const uint32_t K2 = 0x6ed9eba1;
 const uint32_t K3 = 0x8f1bbcdc;
 const uint32_t K4 = 0xca62c1d6;
 
+void Sha1InitState(__out uint32_t* state)
+{
+    state[0] = H[0], state[1] = H[1], state[2] = H[2], state[3] = H[3], state[4] = H[4];
+}
+
 void Sha1ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* output)
 {
     for (int i = 0; i < 16; ++i)
@@ -72,15 +77,10 @@ void Sha1ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* output)
     output[4] += e;
 }
 
-void Sha1Get(__in const void* input, __in uint64_t inputSize, __out uint32_t* output, __in bool finalize, __inout Sha1State* state)
+void Sha1Get(__inout Sha1State* state, __out_opt uint32_t* output, __in const void* input, __in uint64_t inputSize, __in bool finalize)
 {
     uint64_t blocksNum = (inputSize >> 6 /* inputSize / SHA1_BLOCK_SIZE */) + 1;
     uint32_t* mainState = state->state;
-
-    if (!state->notFirst) {
-        state->notFirst = true;
-        mainState[0] = H[0], mainState[1] = H[1], mainState[2] = H[2], mainState[3] = H[3], mainState[4] = H[4];
-    }
 
     while (--blocksNum) {
         Sha1ProcessBlock(input, state->words, mainState);

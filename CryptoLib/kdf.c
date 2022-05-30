@@ -15,7 +15,7 @@ int CheckPbkdf2Arguments(__in const void* salt, __in uint64_t saltSize, __in con
     else if (!output)
         return ERROR_WRONG_OUTPUT;
     else if ((unsigned)func >= Prf_max)
-        return ERROR_PRF_FUNC_NOT_SUPPORTED;
+        return ERROR_UNSUPPORTED_PRF_FUNC;
     else if (!iterationsNum)
         return ERROR_WRONG_ITERATIONS_NUMBER;
     else
@@ -62,7 +62,7 @@ int GetPbkdf2Internal(__in const void* salt, __in uint64_t saltSize, __in const 
     PrfState* state = NULL;
     EVAL(AllocBuffer(didgestSize, &buffer1));
     EVAL(AllocBuffer(didgestSize, &buffer2));
-    EVAL(InitPrfState(func, &state));
+    EVAL(InitPrfState(&state, func));
 
     uint8_t* reserveBuffer2 = buffer2;
 
@@ -75,7 +75,7 @@ int GetPbkdf2Internal(__in const void* salt, __in uint64_t saltSize, __in const 
 
     while (blocksNum--) {
         *(uint32_t*)((uint8_t*)salt + saltSize) = Uint32LittleEndianToBigEndian(++blocksCounter);
-        GetPrfInternal(salt, saltFullSize, key, keySize, buffer1, true, state);
+        GetPrfInternal(state, buffer1, 0, salt, saltFullSize, key, keySize, true);
 
         if (blocksNum) {
             buffer2 = output;
@@ -88,7 +88,7 @@ int GetPbkdf2Internal(__in const void* salt, __in uint64_t saltSize, __in const 
 
         uint64_t blockIterationsNum = iterationsNum;
         while (--blockIterationsNum) {
-            GetPrfInternal(buffer1, didgestSize, key, keySize, buffer1, true, state);
+            GetPrfInternal(state, buffer1, 0, buffer1, didgestSize, key, keySize, true);
             for (uint16_t i = 0; i < didgestSize; ++i)
                 buffer2[i] ^= buffer1[i];
         }

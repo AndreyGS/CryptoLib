@@ -124,7 +124,7 @@ TEST(EncryptByBlockCipherTest, WrongInputSize) {
 
 TEST(EncryptByBlockCipherTest, WrongPadding) {
     EncryptByBlockCipherTestFunc(TEST_STRING_8, 8, (PaddingType)-1, "81cav5AS", DES_cipher_type, sizeof(TEST_STRING_8) + DES_BLOCK_SIZE, ECB_mode, nullptr
-        , ERROR_PADDING_NOT_SUPPORTED, nullptr, 0);
+        , ERROR_UNSUPPORTED_PADDING_TYPE, nullptr, 0);
 }
 
 TEST(EncryptByBlockCipherTest, WrongKey) {
@@ -134,7 +134,7 @@ TEST(EncryptByBlockCipherTest, WrongKey) {
 
 TEST(EncryptByBlockCipherTest, WrongCipherFunc) {
     EncryptByBlockCipherTestFunc(TEST_STRING_8, 8, PKCSN7_padding, "81cav5AS", (BlockCipherType)-1, sizeof(TEST_STRING_8) + DES_BLOCK_SIZE, ECB_mode, nullptr
-        , ERROR_CIPHER_FUNC_NOT_SUPPORTED, nullptr, 0);
+        , ERROR_UNSUPPORTED_CIPHER_FUNC, nullptr, 0);
 }
 
 TEST(EncryptByBlockCipherTest, WrongOutput) {

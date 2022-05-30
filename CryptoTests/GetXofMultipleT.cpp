@@ -62,7 +62,7 @@ TEST(GetXofMultipleTest, UnknownXofFunc) {
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_64, 64 }, { (void*)TEST_STRING_55, 55 } };
     int status = GetXofMultiple(chunks, 2, (Xof)-1, buffer, outputSize);
 
-    EXPECT_TRUE(status == ERROR_XOF_NOT_SUPPORTED);
+    EXPECT_TRUE(status == ERROR_UNSUPPORTED_XOF);
     delete[] buffer;
 }
 

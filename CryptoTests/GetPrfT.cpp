@@ -39,7 +39,7 @@ TEST(GetPrfTest, UnknownPrfFunc) {
     uint8_t* buffer = new uint8_t[outputSize];
     int status = GetPrf(TEST_STRING_8, 8, TEST_STRING_8, 8, (PRF)-1, buffer, outputSize);
 
-    EXPECT_TRUE(status == ERROR_PRF_FUNC_NOT_SUPPORTED);
+    EXPECT_TRUE(status == ERROR_UNSUPPORTED_PRF_FUNC);
     delete[] buffer;
 }
 
