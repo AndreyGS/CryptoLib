@@ -21,14 +21,12 @@
 
 typedef struct _DesState {
     uint64_t roundsKeys[16];
-    uint64_t iv_start;
-    uint64_t iv_current;
+    uint64_t iv;
 } DesState;
 
 typedef struct _TdesState {
     uint64_t roundsKeys[48];
-    uint64_t iv_start[3];
-    uint64_t iv_current[3];
+    uint64_t iv;
 } TdesState;
 
 typedef struct _BlockCipherState {
@@ -39,7 +37,7 @@ typedef struct _BlockCipherState {
     uint64_t state[ANYSIZE_ARRAY];
 } BlockCipherState;
 
-#define BLOCK_CIPHER_STATE_HEADER_SIZE  sizeof(BlockCipherState) - 8
+#define BLOCK_CIPHER_STATE_HEADER_SIZE  sizeof(BlockCipherState) - sizeof(uint64_t)
 
 #define BLOCK_CIPHER_STATE_DES_SIZE     BLOCK_CIPHER_STATE_HEADER_SIZE + sizeof(DesState)
 #define BLOCK_CIPHER_STATE_TDES_SIZE    BLOCK_CIPHER_STATE_HEADER_SIZE + sizeof(TdesState)
@@ -62,7 +60,7 @@ typedef struct _HashState {
     uint64_t state[ANYSIZE_ARRAY];
 } HashState;
 
-#define HASH_STATE_HEADER_SIZE           sizeof(HashState) - 8
+#define HASH_STATE_HEADER_SIZE           sizeof(HashState) - sizeof(uint64_t)
 
 #define HASH_STATE_SHA1_SIZE             HASH_STATE_HEADER_SIZE + sizeof(Sha1State)
 #define HASH_STATE_SHA2_32_SIZE          HASH_STATE_HEADER_SIZE + sizeof(Sha2_32State)
@@ -111,7 +109,7 @@ typedef struct _XofState {
     uint64_t state[ANYSIZE_ARRAY];
 } XofState;
 
-#define XOF_STATE_HEADER_SIZE       sizeof(XofState) - 8
+#define XOF_STATE_HEADER_SIZE       sizeof(XofState) - sizeof(uint64_t)
 
 #define XOF_STATE_SHAKE128_SIZE          XOF_STATE_HEADER_SIZE + sizeof(Shake128State)
 #define XOF_STATE_SHAKE256_SIZE          XOF_STATE_HEADER_SIZE + sizeof(Shake256State)
@@ -186,7 +184,7 @@ typedef struct _PrfState {
     uint64_t state[ANYSIZE_ARRAY];
 } PrfState;
 
-#define PRF_STATE_HEADER_SIZE                sizeof(PrfState) - 8
+#define PRF_STATE_HEADER_SIZE                sizeof(PrfState) - sizeof(uint64_t)
 
 #define PRF_STATE_HMAC_SHA1_SIZE             PRF_STATE_HEADER_SIZE + sizeof(Hmac_Sha1State)
 #define PRF_STATE_HMAC_SHA2_32_SIZE          PRF_STATE_HEADER_SIZE + sizeof(Hmac_Sha2_32State)
@@ -218,11 +216,16 @@ static const PrfSizes g_PrfSizesMapping[] = {
 };
 
 int EncryptByBlockCipherInternal(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* roundsKeys, __in BlockCipherType cipherType
-    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
+    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt const void* iv);
 int DecryptByBlockCipherInternal(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* roundsKeys, __in BlockCipherType cipherType
-    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv);
+    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt const void* iv);
 
-int GetBlockCipherRoundsKeysInternal(__in const void* key, __in BlockCipherType cipherType, __out void* output);
+void GetBlockCipherRoundsKeysInternal(__out void* roundsKeys, __in const void* key, __in BlockCipherType cipherType);
+
+extern inline void ReInitBlockCiperCryptoModeInternal(__inout BlockCipherHandle handle, __in CryptoMode cryptoMode);
+extern inline void ReInitBlockCiperOpModeInternal(__inout BlockCipherHandle handle, __in BlockCipherOpMode opMode);
+extern inline void ReInitBlockCiperPaddingTypeInternal(__inout BlockCipherHandle handle, __in PaddingType padding);
+void ReInitBlockCiperIvInternal(__inout BlockCipherHandle handle, __in void* iv);
 
 int InitHashStateInternal(__inout HashHandle* handle, __in HashFunc func);
 void ResetHashStateInternal(__inout HashHandle handle);
@@ -230,11 +233,11 @@ void GetHashInternal(__inout HashState* state, __out_opt void* output, __in cons
 void FreeHashStateInternal(__inout HashHandle handle);
 
 int InitXofStateInternal(__inout XofHandle* handle, __in Xof func);
-void ResetXofStateInternal(__inout XofHandle handle);
+inline void ResetXofStateInternal(__inout XofHandle handle);
 void GetXofInternal(__inout XofState* state, __out_opt void* output, __in uint64_t outputSize, __in const void* input, __in uint64_t inputSize, __in bool finalize);
 void FreeXofStateInternal(__inout XofHandle handle);
 
 int InitPrfStateInternal(__inout PrfHandle* handle, __in Prf func);
-void ResetPrfStateInternal(__inout PrfHandle handle);
+inline void ResetPrfStateInternal(__inout PrfHandle handle);
 void GetPrfInternal(__inout PrfState* state, __out_opt void* output, __in uint64_t outputSize, __in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in bool finalize);
 void FreePrfStateInternal(__inout PrfHandle handle);

@@ -19,7 +19,7 @@ int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in P
     
     if (*outputSize) {
         EVAL(AllocBuffer(g_blockCiphersSizes[cipherType].roundsKeysSize, &roundsKeys));
-        GetBlockCipherRoundsKeysInternal(key, cipherType, roundsKeys);
+        GetBlockCipherRoundsKeysInternal(roundsKeys, key, cipherType);
     }
 
     status = EncryptByBlockCipherInternal(input, inputSize, padding, roundsKeys, cipherType, output, outputSize, mode, iv);
@@ -68,7 +68,7 @@ int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in P
     void* roundsKeys = NULL;
     EVAL(AllocBuffer(g_blockCiphersSizes[cipherType].roundsKeysSize, &roundsKeys));
 
-    GetBlockCipherRoundsKeysInternal(key, cipherType, roundsKeys);
+    GetBlockCipherRoundsKeysInternal(roundsKeys, key, cipherType);
 
     status = DecryptByBlockCipherInternal(input, inputSize, padding, roundsKeys, cipherType, output, outputSize, mode, iv);
 
@@ -115,27 +115,10 @@ int GetBlockCipherRoundsKeys(__in const void* key, __in BlockCipherType cipherTy
         return ERROR_UNSUPPORTED_CIPHER_FUNC;
     else if (!output)
         return ERROR_WRONG_OUTPUT;
-    else
-        return GetBlockCipherRoundsKeysInternal(key, cipherType, output);
-}
+                
+    GetBlockCipherRoundsKeysInternal(output, key, cipherType);
 
-int GetBlockCipherRoundsKeysInternal(__in const void* key, __in BlockCipherType cipherType, __out void* output)
-{
-    int status = NO_ERROR;
-
-    switch (cipherType) {
-    case DES_cipher_type:
-        SingleDesGetRoundsKeys(*(uint64_t*)key, output);
-        break;
-    case TDES_cipher_type:
-        TripleDesGetRoundsKeys(key, output);
-        break;
-    default:
-        status = ERROR_UNSUPPORTED_CIPHER_FUNC;
-        break;
-    }
-
-    return status;
+    return NO_ERROR;
 }
 
 int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
@@ -146,7 +129,7 @@ int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType
     
     return AddPaddingInternal(input, inputSize, padding, blockSize, output, outputSize, fillAllBlock);
 }
-/*
+
 int InitBlockCiperState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv)
 {
     int status = NO_ERROR;
@@ -156,7 +139,7 @@ int InitBlockCiperState(__inout BlockCipherHandle* handle, __in BlockCipherType 
         return ERROR_UNSUPPORTED_CIPHER_FUNC;
     else if ((unsigned)opMode >= BlockCipherOpMode_max)
         return ERROR_UNSUPPROTED_OPERATION_MODE;
-    else if ((unsigned)cryptoMode >= Decryption_mode_max)
+    else if ((unsigned)cryptoMode >= CryptoMode_mode_max)
         return ERROR_UNSUPPROTED_ENCRYPTION_MODE;
     else if ((unsigned)padding >= PaddingType_max)
         return ERROR_UNSUPPORTED_PADDING_TYPE;
@@ -165,14 +148,30 @@ int InitBlockCiperState(__inout BlockCipherHandle* handle, __in BlockCipherType 
     else if (!iv && opMode != ECB_mode)
         return ERROR_WRONG_INIT_VECTOR;
     
+    void* roundsKeys = NULL;
+
     EVAL(AllocBuffer(g_blockCiphersSizes[cipher].stateAndHeaderSize, handle));
 
-    ((BlockCipherState*)(*handle))->cipher = cipher;
-    ((BlockCipherState*)(*handle))->enMode = cryptoMode;
-    ((BlockCipherState*)(*handle))->opMode = opMode;
-    ((BlockCipherState*)(*handle))->padding = padding;
+    ((BlockCipherState*)*handle)->cipher = cipher;
 
-    ResetHashState(*handle);
+    switch (cipher) {
+    case DES_cipher_type:
+        roundsKeys = ((DesState*)&((BlockCipherState*)handle)->state)->roundsKeys;
+        break;
+    case TDES_cipher_type:
+        roundsKeys = ((TdesState*)&((BlockCipherState*)handle)->state)->roundsKeys;
+        break;
+    }
+
+    GetBlockCipherRoundsKeysInternal(roundsKeys, key, cipher); // need to change function signature
+
+    ReInitBlockCiperCryptoModeInternal(*handle, cryptoMode);
+    ReInitBlockCiperOpModeInternal(*handle, opMode);
+    ReInitBlockCiperPaddingTypeInternal(*handle, padding);
+    
+    if (iv)
+        ReInitBlockCiperIvInternal(*handle, iv);
+
 
 exit:
     return status;
@@ -180,23 +179,51 @@ exit:
 
 int ReInitBlockCiperCryptoMode(__inout BlockCipherHandle handle, __in CryptoMode cryptoMode)
 {
+    if (!handle)
+        return ERROR_WRONG_STATE_HANDLE;
+    else if ((unsigned)cryptoMode >= CryptoMode_mode_max)
+        return ERROR_UNSUPPROTED_ENCRYPTION_MODE;
+    
+    ReInitBlockCiperCryptoModeInternal(handle, cryptoMode);
 
+    return NO_ERROR;
 }
 
 int ReInitBlockCiperOpMode(__inout BlockCipherHandle handle, __in BlockCipherOpMode opMode)
 {
+    if (!handle)
+        return ERROR_WRONG_STATE_HANDLE;
+    else if ((unsigned)opMode >= BlockCipherOpMode_max)
+        return ERROR_UNSUPPROTED_ENCRYPTION_MODE;
 
+    ReInitBlockCiperOpModeInternal(handle, opMode);
+
+    return NO_ERROR;
 }
 
 int ReInitBlockCiperPaddingType(__inout BlockCipherHandle handle, __in PaddingType padding)
 {
+    if (!handle)
+        return ERROR_WRONG_STATE_HANDLE;
+    else if ((unsigned)padding >= PaddingType_max)
+        return ERROR_UNSUPPROTED_ENCRYPTION_MODE;
 
+    ReInitBlockCiperPaddingTypeInternal(handle, padding);
+
+    return NO_ERROR;
 }
 
 int ReInitBlockCiperIv(__inout BlockCipherHandle handle, __in void* iv)
 {
+    if (!handle)
+        return ERROR_WRONG_STATE_HANDLE;
+    else if (!iv)
+        return ERROR_WRONG_INIT_VECTOR;
 
-}*/
+    ReInitBlockCiperIvInternal(handle, iv);
+
+    return NO_ERROR;
+}
 
 int InitHashState(__inout HashHandle* handle, __in HashFunc func)
 {

@@ -56,8 +56,13 @@ typedef enum _BlockCipherType {
 } BlockCipherType;
 
 #define DES_KEY_SIZE                    8
-#define DES_BLOCK_SIZE                  8
 #define TDES_KEY_SIZE                   24
+
+#define DES_BLOCK_SIZE                  8
+#define TDES_BLOCK_SIZE                 8
+
+#define DES_IV_SIZE                     8
+#define TDES_IV_SIZE                    8
 
 typedef enum _BlockCipherOpMode {
     ECB_mode,
@@ -71,7 +76,7 @@ typedef enum _BlockCipherOpMode {
 typedef enum _CryptoMode {
     Encryption_mode,
     Decryption_mode,
-    Decryption_mode_max
+    CryptoMode_mode_max
 } CryptoMode;
 
 typedef enum _PaddingType {

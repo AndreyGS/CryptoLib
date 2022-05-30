@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include <memory.h>
 #include <stdlib.h>
+#include <assert.h>
 #endif
 
 #if defined(__STDC_LIB_EXT1__) && !defined(KERNEL)

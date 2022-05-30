@@ -2,13 +2,63 @@
 
 #include "crypto_internal.h"
 #include "paddings.h"
+#include "des.h"
 #include "sha-1.h"
 #include "sha-2.h"
 #include "sha-3.h"
 #include "hmac.h"
 
+void GetBlockCipherRoundsKeysInternal(__out void* roundsKeys, __in const void* key, __in BlockCipherType cipherType)
+{
+    switch (cipherType) {
+    case DES_cipher_type:
+        SingleDesGetRoundsKeys(*(uint64_t*)key, roundsKeys);
+        break;
+    case TDES_cipher_type:
+        TripleDesGetRoundsKeys(key, roundsKeys);
+        break;
+    }
+}
+
+inline void ReInitBlockCiperCryptoModeInternal(__inout BlockCipherHandle handle, __in CryptoMode cryptoMode)
+{
+    assert(handle);
+
+    ((BlockCipherState*)handle)->enMode = cryptoMode;
+}
+
+inline void ReInitBlockCiperOpModeInternal(__inout BlockCipherHandle handle, __in BlockCipherOpMode opMode)
+{
+    assert(handle);
+
+    ((BlockCipherState*)handle)->opMode = opMode;
+}
+
+inline void ReInitBlockCiperPaddingTypeInternal(__inout BlockCipherHandle handle, __in PaddingType padding)
+{
+    assert(handle);
+
+    ((BlockCipherState*)handle)->padding = padding;
+}
+
+void ReInitBlockCiperIvInternal(__inout BlockCipherHandle handle, __in void* iv)
+{
+    assert(handle);
+
+    switch (((BlockCipherState*)handle)->cipher) {
+    case DES_cipher_type:
+        ((DesState*)&((BlockCipherState*)handle)->state)->iv = *(uint64_t*)iv;
+        break;
+    case TDES_cipher_type:
+        ((TdesState*)&((BlockCipherState*)handle)->state)->iv = *(uint64_t*)iv;
+        break;
+    }
+}
+
 int InitHashStateInternal(__inout HashHandle* handle, __in HashFunc func)
 {
+    assert(handle);
+
     int status = NO_ERROR;
 
     EVAL(AllocBuffer(g_hashFuncsSizesMapping[func].stateAndHeaderSize, handle));
@@ -21,6 +71,8 @@ exit:
 
 void ResetHashStateInternal(__inout HashHandle handle)
 {
+    assert(handle);
+
     HashFunc func = *(HashFunc*)handle;
 
     uint8_t* startZeroing = (uint8_t*)((HashState*)handle)->state;
@@ -46,8 +98,6 @@ void ResetHashStateInternal(__inout HashHandle handle)
         startZeroing += sizeof(((Sha2_64State*)0)->state);
         sizeZeroing -= sizeof(((Sha2_64State*)0)->state);
         break;
-    default:
-        break;
     }
 
     memset(startZeroing, 0, sizeZeroing);
@@ -55,6 +105,8 @@ void ResetHashStateInternal(__inout HashHandle handle)
 
 void GetHashInternal(__inout HashState* state, __out_opt void* output, __in const void* input, __in uint64_t inputSize, __in bool finalize)
 {
+    assert(state && (output || (!finalize && !output)) && (input || (!input && !inputSize)));
+
     HashFunc func = state->func;
 
     switch (func) {
@@ -77,8 +129,6 @@ void GetHashInternal(__inout HashState* state, __out_opt void* output, __in cons
     case SHA3_512:
         Sha3GetHash(state->state, output, input, inputSize, func, finalize);
         break;
-    default:
-        break;
     }
 
     if (finalize)
@@ -87,6 +137,8 @@ void GetHashInternal(__inout HashState* state, __out_opt void* output, __in cons
 
 void FreeHashStateInternal(__inout HashHandle handle)
 {
+    assert(handle);
+
     HashFunc func = *(HashFunc*)handle;
 
     memset_s(handle, g_hashFuncsSizesMapping[func].stateAndHeaderSize, 0, g_hashFuncsSizesMapping[func].stateAndHeaderSize);
@@ -96,6 +148,8 @@ void FreeHashStateInternal(__inout HashHandle handle)
 
 int InitXofStateInternal(__inout XofHandle* handle, __in Xof func)
 {
+    assert(handle);
+
     int status = NO_ERROR;
 
     EVAL(AllocBuffer(g_XofSizesMapping[func].stateAndHeaderSize, handle));
@@ -106,21 +160,23 @@ exit:
     return status;
 }
 
-void ResetXofStateInternal(__inout XofHandle handle)
+inline void ResetXofStateInternal(__inout XofHandle handle)
 {
+    assert(handle);
+
     memset(((XofState*)handle)->state, 0, g_XofSizesMapping[*(Xof*)handle].stateSize);
 }
 
 void GetXofInternal(__inout XofState* state, __out_opt void* output, __in uint64_t outputSize, __in const void* input, __in uint64_t inputSize, __in bool finalize)
 {
+    assert(state && (output || (!finalize && !output)) && outputSize && (input || (!input && !inputSize)));
+
     Xof func = state->func;
 
     switch (func) {
     case SHAKE128:
     case SHAKE256:
         Sha3GetXof(state->state, output, outputSize, input, inputSize, func, finalize);
-        break;
-    default:
         break;
     }
 
@@ -130,6 +186,8 @@ void GetXofInternal(__inout XofState* state, __out_opt void* output, __in uint64
 
 void FreeXofStateInternal(__inout XofHandle handle)
 {
+    assert(handle);
+
     Xof func = *(Xof*)handle;
 
     memset_s(handle, g_XofSizesMapping[func].stateAndHeaderSize, 0, g_XofSizesMapping[func].stateAndHeaderSize);
@@ -139,6 +197,8 @@ void FreeXofStateInternal(__inout XofHandle handle)
 
 int InitPrfStateInternal(__inout PrfHandle* handle, __in Prf func)
 {
+    assert(handle);
+
     int status = NO_ERROR;
 
     EVAL(AllocBuffer(g_PrfSizesMapping[func].stateAndHeaderSize, handle));
@@ -149,13 +209,17 @@ exit:
     return status;
 }
 
-void ResetPrfStateInternal(__inout PrfHandle handle)
+inline void ResetPrfStateInternal(__inout PrfHandle handle)
 {
+    assert(handle);
+
     memset(((PrfState*)handle)->state, 0, g_PrfSizesMapping[*(Prf*)handle].stateSize);
 }
 
 void GetPrfInternal(__inout PrfState* state, __out_opt void* output, __out_opt uint64_t outputSize, __in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in bool finalize)
 {
+    assert(state && (output || (!finalize && !output)) && (input || (!input && !inputSize)) && (key || (!key && !keySize)));
+
     Prf func = state->func;
 
     switch (func) {
@@ -173,8 +237,6 @@ void GetPrfInternal(__inout PrfState* state, __out_opt void* output, __out_opt u
         GetHmac(state->state, output, input, inputSize, key, keySize, func, finalize);
         break;
     }
-    default:
-        break;
     }
 
     if (finalize)
@@ -183,6 +245,8 @@ void GetPrfInternal(__inout PrfState* state, __out_opt void* output, __out_opt u
 
 void FreePrfStateInternal(__inout PrfHandle handle)
 {
+    assert(handle);
+
     Prf func = *(Prf*)handle;
 
     memset_s(handle, g_PrfSizesMapping[func].stateAndHeaderSize, 0, g_PrfSizesMapping[func].stateAndHeaderSize);
