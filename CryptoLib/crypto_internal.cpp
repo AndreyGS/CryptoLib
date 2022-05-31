@@ -8,7 +8,7 @@
 #include "sha-3.h"
 #include "hmac.h"
 
-void GetBlockCipherRoundsKeysInternal(__out void* roundsKeys, __in const void* key, __in BlockCipherType cipherType)
+void GetBlockCipherRoundsKeysInternal(__in BlockCipherType cipherType, __in const void* key, __out void* roundsKeys)
 {
     switch (cipherType) {
     case DES_cipher_type:
@@ -103,7 +103,7 @@ void ResetHashStateInternal(__inout HashHandle handle)
     memset(startZeroing, 0, sizeZeroing);
 }
 
-void GetHashInternal(__inout HashState* state, __out_opt void* output, __in const void* input, __in uint64_t inputSize, __in bool finalize)
+void GetHashInternal(__inout HashState* state, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output)
 {
     assert(state && (output || (!finalize && !output)) && (input || (!input && !inputSize)));
 
@@ -111,23 +111,23 @@ void GetHashInternal(__inout HashState* state, __out_opt void* output, __in cons
 
     switch (func) {
     case SHA1:
-        Sha1Get((Sha1State*)state->state, output, input, inputSize, finalize);
+        Sha1Get((Sha1State*)state->state, input, inputSize, finalize, output);
         break;
     case SHA_224:
     case SHA_256:
-        Sha2_32Get((Sha2_32State*)state->state, output, input, inputSize, func, finalize);
+        Sha2_32Get((Sha2_32State*)state->state, input, inputSize, func, finalize, output);
         break;
     case SHA_384:
     case SHA_512_224:
     case SHA_512_256:
     case SHA_512:
-        Sha2_64Get((Sha2_64State*)state->state, output, input, inputSize, func, finalize);
+        Sha2_64Get((Sha2_64State*)state->state, input, inputSize, func, finalize, output);
         break;
     case SHA3_224:
     case SHA3_256:
     case SHA3_384:
     case SHA3_512:
-        Sha3GetHash(state->state, output, input, inputSize, func, finalize);
+        Sha3GetHash(state->state, input, inputSize, func, finalize, output);
         break;
     }
 
@@ -167,7 +167,7 @@ inline void ResetXofStateInternal(__inout XofHandle handle)
     memset(((XofState*)handle)->state, 0, g_XofSizesMapping[*(Xof*)handle].stateSize);
 }
 
-void GetXofInternal(__inout XofState* state, __out_opt void* output, __in uint64_t outputSize, __in const void* input, __in uint64_t inputSize, __in bool finalize)
+void GetXofInternal(__inout XofState* state, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __in uint64_t outputSize)
 {
     assert(state && (output || (!finalize && !output)) && outputSize && (input || (!input && !inputSize)));
 
@@ -176,7 +176,7 @@ void GetXofInternal(__inout XofState* state, __out_opt void* output, __in uint64
     switch (func) {
     case SHAKE128:
     case SHAKE256:
-        Sha3GetXof(state->state, output, outputSize, input, inputSize, func, finalize);
+        Sha3GetXof(state->state, input, inputSize, func, finalize, output, outputSize);
         break;
     }
 
@@ -216,7 +216,7 @@ inline void ResetPrfStateInternal(__inout PrfHandle handle)
     memset(((PrfState*)handle)->state, 0, g_PrfSizesMapping[*(Prf*)handle].stateSize);
 }
 
-void GetPrfInternal(__inout PrfState* state, __out_opt void* output, __out_opt uint64_t outputSize, __in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in bool finalize)
+void GetPrfInternal(__inout PrfState* state, __in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in bool finalize, __out_opt void* output, __in_opt uint64_t outputSize)
 {
     assert(state && (output || (!finalize && !output)) && (input || (!input && !inputSize)) && (key || (!key && !keySize)));
 
@@ -234,7 +234,7 @@ void GetPrfInternal(__inout PrfState* state, __out_opt void* output, __out_opt u
     case HMAC_SHA3_256:
     case HMAC_SHA3_384:
     case HMAC_SHA3_512: {
-        GetHmac(state->state, output, input, inputSize, key, keySize, func, finalize);
+        GetHmac(state->state, input, inputSize, key, keySize, func, finalize, output);
         break;
     }
     }

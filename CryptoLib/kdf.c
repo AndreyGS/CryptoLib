@@ -75,7 +75,7 @@ int GetPbkdf2Internal(__in const void* salt, __in uint64_t saltSize, __in const 
 
     while (blocksNum--) {
         *(uint32_t*)((uint8_t*)salt + saltSize) = Uint32LittleEndianToBigEndian(++blocksCounter);
-        GetPrfInternal(state, buffer1, 0, salt, saltFullSize, key, keySize, true);
+        GetPrfInternal(state, salt, saltFullSize, key, keySize, true, buffer1, 0);
 
         if (blocksNum) {
             buffer2 = output;
@@ -88,7 +88,7 @@ int GetPbkdf2Internal(__in const void* salt, __in uint64_t saltSize, __in const 
 
         uint64_t blockIterationsNum = iterationsNum;
         while (--blockIterationsNum) {
-            GetPrfInternal(state, buffer1, 0, buffer1, didgestSize, key, keySize, true);
+            GetPrfInternal(state, buffer1, didgestSize, key, keySize, true, buffer1, 0);
             for (uint16_t i = 0; i < didgestSize; ++i)
                 buffer2[i] ^= buffer1[i];
         }

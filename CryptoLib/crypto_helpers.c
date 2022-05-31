@@ -51,7 +51,7 @@ int CheckBlockCipherPrimaryArguments(const void* input, uint64_t inputSize, Padd
         return NO_ERROR;
 }
 
-int CheckHashAndXofPrimaryArguments(const StateHandle state, const void* output, const void* input, uint64_t inputSize, bool finalize)
+int CheckHashAndXofPrimaryArguments(const StateHandle state, const void* input, uint64_t inputSize, bool finalize, const void* output)
 {
     if (!state)
         return ERROR_WRONG_STATE_HANDLE;

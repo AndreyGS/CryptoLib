@@ -19,7 +19,7 @@ int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in P
     
     if (*outputSize) {
         EVAL(AllocBuffer(g_blockCiphersSizes[cipherType].roundsKeysSize, &roundsKeys));
-        GetBlockCipherRoundsKeysInternal(roundsKeys, key, cipherType);
+        GetBlockCipherRoundsKeysInternal(cipherType, key, roundsKeys);
     }
 
     status = EncryptByBlockCipherInternal(input, inputSize, padding, roundsKeys, cipherType, output, outputSize, mode, iv);
@@ -68,7 +68,7 @@ int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in P
     void* roundsKeys = NULL;
     EVAL(AllocBuffer(g_blockCiphersSizes[cipherType].roundsKeysSize, &roundsKeys));
 
-    GetBlockCipherRoundsKeysInternal(roundsKeys, key, cipherType);
+    GetBlockCipherRoundsKeysInternal(cipherType, key, roundsKeys);
 
     status = DecryptByBlockCipherInternal(input, inputSize, padding, roundsKeys, cipherType, output, outputSize, mode, iv);
 
@@ -116,7 +116,7 @@ int GetBlockCipherRoundsKeys(__in const void* key, __in BlockCipherType cipherTy
     else if (!output)
         return ERROR_WRONG_OUTPUT;
                 
-    GetBlockCipherRoundsKeysInternal(output, key, cipherType);
+    GetBlockCipherRoundsKeysInternal(cipherType, key, output);
 
     return NO_ERROR;
 }
@@ -163,7 +163,7 @@ int InitBlockCiperState(__inout BlockCipherHandle* handle, __in BlockCipherType 
         break;
     }
 
-    GetBlockCipherRoundsKeysInternal(roundsKeys, key, cipher); // need to change function signature
+    GetBlockCipherRoundsKeysInternal(cipher, key, roundsKeys);
 
     ReInitBlockCiperCryptoModeInternal(*handle, cryptoMode);
     ReInitBlockCiperOpModeInternal(*handle, opMode);
@@ -245,10 +245,10 @@ int ResetHashState(__inout HashHandle handle)
     return NO_ERROR;
 }
 
-int GetHash(__inout HashHandle handle, __out_opt void* output, __in const void* input, __in uint64_t inputSize, __in bool finalize)
+int GetHash(__inout HashHandle handle, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output)
 {
     int status = NO_ERROR;
-    if (status = CheckHashAndXofPrimaryArguments(handle, output, input, inputSize, finalize))
+    if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output))
         return status;
 
     HashFunc func = *(HashFunc*)handle;
@@ -257,7 +257,7 @@ int GetHash(__inout HashHandle handle, __out_opt void* output, __in const void* 
     else if (!finalize && (inputSize % g_hashFuncsSizesMapping[func].blockSize))
         return ERROR_WRONG_INPUT_SIZE;
 
-    GetHashInternal(handle, output, input, inputSize, finalize);
+    GetHashInternal(handle, input, inputSize, finalize, output);
     return NO_ERROR;
 }
 
@@ -291,10 +291,10 @@ int ResetXofState(__inout XofHandle handle)
     return NO_ERROR;
 }
 
-int GetXof(__inout XofHandle handle, __out_opt void* output, __in uint64_t outputSize, __in const void* input, __in uint64_t inputSize, __in bool finalize)
+int GetXof(__inout XofHandle handle, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __in uint64_t outputSize)
 {
     int status = NO_ERROR;
-    if (status = CheckHashAndXofPrimaryArguments(handle, output, input, inputSize, finalize))
+    if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output))
         return status;
     else if (!outputSize)
         return ERROR_WRONG_OUTPUT_SIZE;
@@ -305,7 +305,7 @@ int GetXof(__inout XofHandle handle, __out_opt void* output, __in uint64_t outpu
     else if (!finalize && (inputSize % g_XofSizesMapping[*(Xof*)handle].blockSize))
         return ERROR_WRONG_INPUT_SIZE;
 
-    GetXofInternal(handle, output, outputSize, input, inputSize, finalize);
+    GetXofInternal(handle, input, inputSize, finalize, output, outputSize);
     return NO_ERROR;
 }
 
@@ -349,7 +349,7 @@ int FreePrfState(__inout PrfHandle handle)
     return NO_ERROR;
 }
 
-int GetPrf(__inout PrfHandle handle, __out_opt void* output, __in_opt uint64_t outputSize, __in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in bool finalize)
+int GetPrf(__inout PrfHandle handle, __in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in bool finalize, __out_opt void* output, __in_opt uint64_t outputSize)
 {
     int status = NO_ERROR;
     if (!handle)
@@ -368,6 +368,7 @@ int GetPrf(__inout PrfHandle handle, __out_opt void* output, __in_opt uint64_t o
     else if (!finalize && (inputSize % g_hashFuncsSizesMapping[g_PrfSizesMapping[func].hashFunc].blockSize))
         return ERROR_WRONG_INPUT_SIZE;
     
-    GetPrfInternal(handle, output, outputSize, input, inputSize, key, keySize, finalize);
+    GetPrfInternal(handle, input, inputSize, key, keySize, finalize, output, outputSize);
+
     return NO_ERROR;
 }

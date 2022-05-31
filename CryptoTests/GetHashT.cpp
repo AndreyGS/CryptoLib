@@ -12,7 +12,7 @@ void GetHashMainTestFunc(__in const void* input, __in uint64_t inputSize, __in H
     std::unique_ptr<uint8_t> buffer(new uint8_t[outputSize]);
     HashHandle handle = NULL;
     EVAL(InitHashState(&handle, func));
-    EVAL(GetHash(handle, buffer.get(), input, inputSize, true));
+    EVAL(GetHash(handle, input, inputSize, true, buffer.get()));
 
 exit:
     FreeHashState(handle);
@@ -34,8 +34,8 @@ void GetHashMultipleTestFunc(__in const void* input1, __in uint64_t inputSize1, 
     std::unique_ptr<uint8_t> buffer(new uint8_t[outputSize]);
     HashHandle handle = NULL;
     EVAL(InitHashState(&handle, func));
-    EVAL(GetHash(handle, nullptr, input1, inputSize1, false));
-    EVAL(GetHash(handle, buffer.get(), input2, inputSize2, true));
+    EVAL(GetHash(handle, input1, inputSize1, false, nullptr));
+    EVAL(GetHash(handle, input2, inputSize2, true, buffer.get()));
 
 exit:
     FreeHashState(handle);
@@ -55,7 +55,7 @@ exit:
 TEST(GetHashTest, WrongState) {
     int status = NO_ERROR;
     std::unique_ptr<uint8_t> buffer(nullptr);
-    status = GetHash(nullptr, buffer.get(), "", 0, true);
+    status = GetHash(nullptr, "", 0, true, buffer.get());
     EXPECT_TRUE(status == ERROR_WRONG_STATE_HANDLE);
 }
 
@@ -63,7 +63,7 @@ TEST(GetHashTest, WrongOutput) {
     int status = NO_ERROR;
     HashHandle handle = nullptr;
     InitHashState(&handle, SHA_224);
-    status = GetHash(handle, nullptr, "", 0, true);
+    status = GetHash(handle, "", 0, true, nullptr);
     FreeHashState(handle);
     EXPECT_TRUE(status == ERROR_WRONG_OUTPUT);
 }
@@ -78,57 +78,57 @@ TEST(GetHashTest, WrongInputSize) {
     std::unique_ptr<uint8_t> buffer(new uint8_t[1]);
 
     InitHashState(&handle, SHA1);
-    status = GetHash(handle, buffer.get(), "", 55, false);
+    status = GetHash(handle, "", 55, false, buffer.get());
     FreeHashState(handle);
     EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
 
     InitHashState(&handle, SHA_224);
-    status = GetHash(handle, buffer.get(), "", 55, false);
+    status = GetHash(handle, "", 55, false, buffer.get());
     FreeHashState(handle);
     EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
 
     InitHashState(&handle, SHA_256);
-    status = GetHash(handle, buffer.get(), "", 55, false);
+    status = GetHash(handle, "", 55, false, buffer.get());
     FreeHashState(handle);
     EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
 
     InitHashState(&handle, SHA_384);
-    status = GetHash(handle, buffer.get(), "", 55, false);
+    status = GetHash(handle, "", 55, false, buffer.get());
     FreeHashState(handle);
     EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
 
     InitHashState(&handle, SHA_512_224);
-    status = GetHash(handle, buffer.get(), "", 55, false);
+    status = GetHash(handle, "", 55, false, buffer.get());
     FreeHashState(handle);
     EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
 
     InitHashState(&handle, SHA_512_256);
-    status = GetHash(handle, buffer.get(), "", 55, false);
+    status = GetHash(handle, "", 55, false, buffer.get());
     FreeHashState(handle);
     EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
 
     InitHashState(&handle, SHA_512);
-    status = GetHash(handle, buffer.get(), "", 55, false);
+    status = GetHash(handle, "", 55, false, buffer.get());
     FreeHashState(handle);
     EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
 
     InitHashState(&handle, SHA3_224);
-    status = GetHash(handle, buffer.get(), "", 55, false);
+    status = GetHash(handle, "", 55, false, buffer.get());
     EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
     FreeHashState(handle);
 
     InitHashState(&handle, SHA3_256);
-    status = GetHash(handle, buffer.get(), "", 55, false);
+    status = GetHash(handle, "", 55, false, buffer.get());
     FreeHashState(handle);
     EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
 
     InitHashState(&handle, SHA3_384);
-    status = GetHash(handle, buffer.get(), "", 55, false);
+    status = GetHash(handle, "", 55, false, buffer.get());
     FreeHashState(handle);
     EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
 
     InitHashState(&handle, SHA3_512);
-    status = GetHash(handle, buffer.get(), "", 55, false);
+    status = GetHash(handle, "", 55, false, buffer.get());
     FreeHashState(handle);
     EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
 }

@@ -220,7 +220,7 @@ int EncryptByBlockCipherInternal(__in const void* input, __in uint64_t inputSize
 int DecryptByBlockCipherInternal(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* roundsKeys, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt const void* iv);
 
-void GetBlockCipherRoundsKeysInternal(__out void* roundsKeys, __in const void* key, __in BlockCipherType cipherType);
+extern inline void GetBlockCipherRoundsKeysInternal(__in BlockCipherType cipherType, __in const void* key, __out void* roundsKeys);
 
 extern inline void ReInitBlockCiperCryptoModeInternal(__inout BlockCipherHandle handle, __in CryptoMode cryptoMode);
 extern inline void ReInitBlockCiperOpModeInternal(__inout BlockCipherHandle handle, __in BlockCipherOpMode opMode);
@@ -229,15 +229,15 @@ void ReInitBlockCiperIvInternal(__inout BlockCipherHandle handle, __in void* iv)
 
 int InitHashStateInternal(__inout HashHandle* handle, __in HashFunc func);
 void ResetHashStateInternal(__inout HashHandle handle);
-void GetHashInternal(__inout HashState* state, __out_opt void* output, __in const void* input, __in uint64_t inputSize, __in bool finalize);
+void GetHashInternal(__inout HashState* state, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output);
 void FreeHashStateInternal(__inout HashHandle handle);
 
 int InitXofStateInternal(__inout XofHandle* handle, __in Xof func);
 inline void ResetXofStateInternal(__inout XofHandle handle);
-void GetXofInternal(__inout XofState* state, __out_opt void* output, __in uint64_t outputSize, __in const void* input, __in uint64_t inputSize, __in bool finalize);
+void GetXofInternal(__inout XofState* state, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __in uint64_t outputSize);
 void FreeXofStateInternal(__inout XofHandle handle);
 
 int InitPrfStateInternal(__inout PrfHandle* handle, __in Prf func);
 inline void ResetPrfStateInternal(__inout PrfHandle handle);
-void GetPrfInternal(__inout PrfState* state, __out_opt void* output, __in uint64_t outputSize, __in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in bool finalize);
+void GetPrfInternal(__inout PrfState* state, __in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in bool finalize, __out_opt void* output, __in_opt uint64_t outputSize);
 void FreePrfStateInternal(__inout PrfHandle handle);

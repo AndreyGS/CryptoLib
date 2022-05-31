@@ -4,7 +4,7 @@
 #include "pch.h"
 #include "hmac.h"
 
-void GetHmac(__inout HmacStateHandle state, __out void* output, __in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in Prf func, __in bool finalize)
+void GetHmac(__inout HmacStateHandle state, __in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in Prf func, __in bool finalize, __out_opt void* output)
 {
     int status = NO_ERROR;
 
@@ -127,7 +127,7 @@ void GetHmac(__inout HmacStateHandle state, __out void* output, __in const void*
 
     if (isStart) {
         if (keySize > blockSize) {
-            GetHashInternal(hashState, iKeyPad, key, keySize, true);
+            GetHashInternal(hashState, key, keySize, true, iKeyPad);
             keySize = didgestSize;
         }
         else
@@ -144,13 +144,13 @@ void GetHmac(__inout HmacStateHandle state, __out void* output, __in const void*
         for (uint8_t i = 0; i < blockSize; ++i)
             *p++ ^= '\x5c';
 
-        GetHashInternal(hashState, output, iKeyPad, blockSize, false);
+        GetHashInternal(hashState, iKeyPad, blockSize, false, iKeyPad);
     }
     
-    GetHashInternal(hashState, iKeyPad, input, inputSize, finalize);
+    GetHashInternal(hashState, input, inputSize, finalize, iKeyPad);
 
     if (finalize) {
-        GetHashInternal(hashState, output, oKeyPad, blockSize, false);
-        GetHashInternal(hashState, output, iKeyPad, didgestSize, true);
+        GetHashInternal(hashState, oKeyPad, blockSize, false, NULL);
+        GetHashInternal(hashState, iKeyPad, didgestSize, true, output);
     }
 }
