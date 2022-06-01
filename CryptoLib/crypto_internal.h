@@ -220,12 +220,15 @@ int EncryptByBlockCipherInternal(__in const void* input, __in uint64_t inputSize
 int DecryptByBlockCipherInternal(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* roundsKeys, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt const void* iv);
 
-extern inline void GetBlockCipherRoundsKeysInternal(__in BlockCipherType cipherType, __in const void* key, __out void* roundsKeys);
+int InitBlockCiperStateInternal(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv);
 
+extern inline void GetBlockCipherRoundsKeysInternal(__in BlockCipherType cipherType, __in const void* key, __out void* roundsKeys);
 extern inline void ReInitBlockCiperCryptoModeInternal(__inout BlockCipherHandle handle, __in CryptoMode cryptoMode);
 extern inline void ReInitBlockCiperOpModeInternal(__inout BlockCipherHandle handle, __in BlockCipherOpMode opMode);
 extern inline void ReInitBlockCiperPaddingTypeInternal(__inout BlockCipherHandle handle, __in PaddingType padding);
 void ReInitBlockCiperIvInternal(__inout BlockCipherHandle handle, __in void* iv);
+
+int ProcessingByBlockCipherInternal(__inout BlockCipherHandle handle, __in const void* input, __in uint64_t inputSize, __out void* output, __inout uint64_t* outputSize);
 
 int InitHashStateInternal(__inout HashHandle* handle, __in HashFunc func);
 void ResetHashStateInternal(__inout HashHandle handle);

@@ -8,6 +8,39 @@
 #include "sha-3.h"
 #include "hmac.h"
 
+typedef void* (*BlockCipherProcessingFunction)(const void*, void*);
+
+int InitBlockCiperStateInternal(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv)
+{
+    int status = NO_ERROR;
+    void* roundsKeys = NULL;
+
+    EVAL(AllocBuffer(g_blockCiphersSizes[cipher].stateAndHeaderSize, handle));
+
+    ((BlockCipherState*)*handle)->cipher = cipher;
+
+    switch (cipher) {
+    case DES_cipher_type:
+        roundsKeys = ((DesState*)&((BlockCipherState*)handle)->state)->roundsKeys;
+        break;
+    case TDES_cipher_type:
+        roundsKeys = ((TdesState*)&((BlockCipherState*)handle)->state)->roundsKeys;
+        break;
+    }
+
+    GetBlockCipherRoundsKeysInternal(cipher, key, roundsKeys);
+
+    ReInitBlockCiperCryptoModeInternal(*handle, cryptoMode);
+    ReInitBlockCiperOpModeInternal(*handle, opMode);
+    ReInitBlockCiperPaddingTypeInternal(*handle, padding);
+
+    if (iv)
+        ReInitBlockCiperIvInternal(*handle, iv);
+
+exit:
+    return status
+}
+
 void GetBlockCipherRoundsKeysInternal(__in BlockCipherType cipherType, __in const void* key, __out void* roundsKeys)
 {
     switch (cipherType) {
@@ -52,6 +85,25 @@ void ReInitBlockCiperIvInternal(__inout BlockCipherHandle handle, __in void* iv)
     case TDES_cipher_type:
         ((TdesState*)&((BlockCipherState*)handle)->state)->iv = *(uint64_t*)iv;
         break;
+    }
+}
+
+int ProcessingByBlockCipherInternal(__inout BlockCipherHandle handle, __in const void* input, __in uint64_t inputSize, __out void* output, __inout uint64_t* outputSize)
+{
+    BlockCipherType cipher = ((BlockCipherState*)handle)->cipher;
+    CryptoMode enMode = ((BlockCipherState*)handle)->enMode;
+    BlockCipherOpMode opMode = ((BlockCipherState*)handle)->opMode;
+    PaddingType padding = ((BlockCipherState*)handle)->padding;
+    
+    BlockCipherProcessingFunction func = NULL;
+
+    switch (enMode) {
+    case Encryption_mode:
+        switch (cipher) {
+        case DES_cipher_type:
+            func = DesEncryptBlock;
+
+        }
     }
 }
 

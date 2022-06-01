@@ -484,9 +484,9 @@ inline uint64_t DesFinalPermutation(uint64_t encryptedBlock)
 
 // Main algo block
 
-inline uint64_t DesEncryptBlock(uint64_t input, const uint64_t* roundsKeys)
+uint64_t DesEncryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
 {
-    uint64_t permInput = DesInitialPermutation(input);
+    uint64_t permInput = DesInitialPermutation(*input);
 
     for (int i = 0; i < 16; ++i)
         permInput = (permInput >> 32) | ((DesFeistelFunc(permInput >> 32, roundsKeys[i]) ^ permInput) << 32);
@@ -496,9 +496,9 @@ inline uint64_t DesEncryptBlock(uint64_t input, const uint64_t* roundsKeys)
     return DesFinalPermutation(permInput);
 }
 
-uint64_t DesDecryptBlock(uint64_t input, const uint64_t* roundsKeys)
+uint64_t DesDecryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
 {
-    uint64_t permInput = DesInitialPermutation(input);
+    uint64_t permInput = DesInitialPermutation(*input);
 
     permInput = permInput >> 32 | permInput << 32;
 

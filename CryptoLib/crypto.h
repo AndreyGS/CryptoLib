@@ -37,7 +37,7 @@ extern "C" {
 #define ERROR_NO_MEMORY                     0x8000000c
 #define ERROR_UNSUPPORTED_XOF               0x8000000d
 #define ERROR_UNSUPPORTED_PRF_FUNC          0x8000000e
-#define ERROR_OUTPUT_SIZE_IS_NULL           0x8000000f
+#define ERROR_OUTPUT_SIZE_TOO_SMALL         0x8000000f
 #define ERROR_UNSUPPORTED_PADDING_TYPE      0x80000010
 #define ERROR_UNSUPPROTED_ENCRYPTION_MODE   0x80000011
 #define ERROR_WRONG_STATE_HANDLE            0x80000012
@@ -172,6 +172,7 @@ int ReInitBlockCiperCryptoMode(__inout BlockCipherHandle handle, __in CryptoMode
 int ReInitBlockCiperOpMode(__inout BlockCipherHandle handle, __in BlockCipherOpMode opMode);
 int ReInitBlockCiperPaddingType(__inout BlockCipherHandle handle, __in PaddingType padding);
 int ReInitBlockCiperIv(__inout BlockCipherHandle handle, __in void* iv);
+int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* input, __in uint64_t inputSize, __out void* output, __inout uint64_t* outputSize);
 
 // Before using GetHash with finalize flag you should allocate output buffer according to the output digest size of respective hashing function
 // You may check the numbers with g_hashFuncsSizesMapping array (see "func" and corresponding "blockSize" fields)

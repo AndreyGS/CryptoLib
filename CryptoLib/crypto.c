@@ -132,7 +132,6 @@ int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType
 
 int InitBlockCiperState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv)
 {
-    int status = NO_ERROR;
     if (!*handle)
         return ERROR_WRONG_STATE_HANDLE;
     else if ((unsigned)cipher >= BlockCipherType_max)
@@ -147,34 +146,8 @@ int InitBlockCiperState(__inout BlockCipherHandle* handle, __in BlockCipherType 
         return ERROR_WRONG_KEY;
     else if (!iv && opMode != ECB_mode)
         return ERROR_WRONG_INIT_VECTOR;
-    
-    void* roundsKeys = NULL;
-
-    EVAL(AllocBuffer(g_blockCiphersSizes[cipher].stateAndHeaderSize, handle));
-
-    ((BlockCipherState*)*handle)->cipher = cipher;
-
-    switch (cipher) {
-    case DES_cipher_type:
-        roundsKeys = ((DesState*)&((BlockCipherState*)handle)->state)->roundsKeys;
-        break;
-    case TDES_cipher_type:
-        roundsKeys = ((TdesState*)&((BlockCipherState*)handle)->state)->roundsKeys;
-        break;
-    }
-
-    GetBlockCipherRoundsKeysInternal(cipher, key, roundsKeys);
-
-    ReInitBlockCiperCryptoModeInternal(*handle, cryptoMode);
-    ReInitBlockCiperOpModeInternal(*handle, opMode);
-    ReInitBlockCiperPaddingTypeInternal(*handle, padding);
-    
-    if (iv)
-        ReInitBlockCiperIvInternal(*handle, iv);
-
-
-exit:
-    return status;
+    else
+        return InitBlockCiperStateInternal(handle, cipher, cryptoMode, opMode, padding, key, iv);
 }
 
 int ReInitBlockCiperCryptoMode(__inout BlockCipherHandle handle, __in CryptoMode cryptoMode)
@@ -225,6 +198,22 @@ int ReInitBlockCiperIv(__inout BlockCipherHandle handle, __in void* iv)
     return NO_ERROR;
 }
 
+int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* input, __in uint64_t inputSize, __out void* output, __inout uint64_t* outputSize)
+{
+    if (!handle)
+        return ERROR_WRONG_STATE_HANDLE;
+    else if (!input)
+        return ERROR_WRONG_INPUT;
+    else if (!inputSize)
+        return ERROR_WRONG_INPUT_SIZE;
+    else if (!output && outputSize && *outputSize)
+        return ERROR_WRONG_OUTPUT;
+    else if (!outputSize)
+        return ERROR_WRONG_OUTPUT_SIZE;
+
+    return ProcessingByBlockCipherInternal(handle, input, inputSize, output, outputSize);
+}
+
 int InitHashState(__inout HashHandle* handle, __in HashFunc func)
 {
     if (!handle)
@@ -251,10 +240,7 @@ int GetHash(__inout HashHandle handle, __in const void* input, __in uint64_t inp
     if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output))
         return status;
 
-    HashFunc func = *(HashFunc*)handle;
-    if (func >= HashFunc_max)
-        return ERROR_WRONG_STATE_HANDLE;
-    else if (!finalize && (inputSize % g_hashFuncsSizesMapping[func].blockSize))
+    if (!finalize && (inputSize % g_hashFuncsSizesMapping[*(HashFunc*)handle].blockSize))
         return ERROR_WRONG_INPUT_SIZE;
 
     GetHashInternal(handle, input, inputSize, finalize, output);
@@ -299,10 +285,7 @@ int GetXof(__inout XofHandle handle, __in const void* input, __in uint64_t input
     else if (!outputSize)
         return ERROR_WRONG_OUTPUT_SIZE;
 
-    HashFunc func = *(HashFunc*)handle;
-    if (func >= Xof_max)
-        return ERROR_WRONG_STATE_HANDLE;
-    else if (!finalize && (inputSize % g_XofSizesMapping[*(Xof*)handle].blockSize))
+    if (!finalize && (inputSize % g_XofSizesMapping[*(Xof*)handle].blockSize))
         return ERROR_WRONG_INPUT_SIZE;
 
     GetXofInternal(handle, input, inputSize, finalize, output, outputSize);
@@ -361,11 +344,7 @@ int GetPrf(__inout PrfHandle handle, __in const void* input, __in uint64_t input
     else if (!key && keySize)
         return ERROR_WRONG_KEY;
 
-    Prf func = *(Prf*)handle;
-
-    if ((unsigned)func >= Prf_max)
-        return ERROR_WRONG_STATE_HANDLE;
-    else if (!finalize && (inputSize % g_hashFuncsSizesMapping[g_PrfSizesMapping[func].hashFunc].blockSize))
+    if (!finalize && (inputSize % g_hashFuncsSizesMapping[g_PrfSizesMapping[*(Prf*)handle].hashFunc].blockSize))
         return ERROR_WRONG_INPUT_SIZE;
     
     GetPrfInternal(handle, input, inputSize, key, keySize, finalize, output, outputSize);
