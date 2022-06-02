@@ -7,7 +7,7 @@
 #include "crypto_internal.h"
 #include "des.h"
 #include "paddings.h"
-
+/*
 int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv)
 {
@@ -31,7 +31,7 @@ exit:
     }
 
     return status;
-}
+}*/
 
 int EncryptByBlockCipherEx(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* roundsKeys, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv)
@@ -57,7 +57,7 @@ int EncryptByBlockCipherInternal(__in const void* input, __in uint64_t inputSize
         return ERROR_UNSUPPORTED_CIPHER_FUNC;
     }
 }
-
+/*
 int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv)
 {
@@ -79,7 +79,7 @@ exit:
     }
 
     return status;
-}
+}*/
 
 int DecryptByBlockCipherEx(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* roundsKeys, __in BlockCipherType cipherType
     , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv)
@@ -198,7 +198,7 @@ int ReInitBlockCiperIv(__inout BlockCipherHandle handle, __in void* iv)
     return NO_ERROR;
 }
 
-int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* input, __in uint64_t inputSize, __out void* output, __inout uint64_t* outputSize)
+int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize)
 {
     if (!handle)
         return ERROR_WRONG_STATE_HANDLE;
@@ -211,7 +211,7 @@ int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* i
     else if (!outputSize)
         return ERROR_WRONG_OUTPUT_SIZE;
 
-    return ProcessingByBlockCipherInternal(handle, input, inputSize, output, outputSize);
+    return ProcessingByBlockCipherInternal(handle, input, inputSize, finalize, output, outputSize);
 }
 
 int InitHashState(__inout HashHandle* handle, __in HashFunc func)

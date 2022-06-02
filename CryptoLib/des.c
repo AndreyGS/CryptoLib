@@ -496,6 +496,11 @@ uint64_t DesEncryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
     return DesFinalPermutation(permInput);
 }
 
+uint64_t TdesEncryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
+{
+    return DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(input, roundsKeys), roundsKeys + 16), roundsKeys + 32);
+}
+
 uint64_t DesDecryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
 {
     uint64_t permInput = DesInitialPermutation(*input);
@@ -506,6 +511,11 @@ uint64_t DesDecryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
         permInput = (permInput << 32) | (DesFeistelFunc((uint32_t)permInput, roundsKeys[i]) ^ (permInput >> 32));
 
     return DesFinalPermutation(permInput);
+}
+
+uint64_t TdesEncryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
+{
+    return DesDecryptBlock(DesEncryptBlock(DesDecryptBlock(input, roundsKeys + 32), roundsKeys + 16), roundsKeys);
 }
 
 int SingleDesEncrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const uint64_t* roundsKeys, __out void* output, __inout uint64_t* outputSize,

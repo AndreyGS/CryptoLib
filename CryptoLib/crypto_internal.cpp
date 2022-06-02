@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "crypto_internal.h"
+#include "block_ciphers_main.h"
 #include "paddings.h"
 #include "des.h"
 #include "sha-1.h"
@@ -8,34 +9,32 @@
 #include "sha-3.h"
 #include "hmac.h"
 
-typedef void* (*BlockCipherProcessingFunction)(const void*, void*);
-
-int InitBlockCiperStateInternal(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv)
+int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv)
 {
     int status = NO_ERROR;
     void* roundsKeys = NULL;
 
-    EVAL(AllocBuffer(g_blockCiphersSizes[cipher].stateAndHeaderSize, handle));
+    EVAL(AllocBuffer(g_blockCiphersSizes[cipher].stateAndHeaderSize, state));
 
-    ((BlockCipherState*)*handle)->cipher = cipher;
+    (*state)->cipher = cipher;
 
     switch (cipher) {
     case DES_cipher_type:
-        roundsKeys = ((DesState*)&((BlockCipherState*)handle)->state)->roundsKeys;
+        roundsKeys = ((DesState*)&((*state)->state))->roundsKeys;
         break;
     case TDES_cipher_type:
-        roundsKeys = ((TdesState*)&((BlockCipherState*)handle)->state)->roundsKeys;
+        roundsKeys = ((TdesState*)&((*state)->state))->roundsKeys;
         break;
     }
 
     GetBlockCipherRoundsKeysInternal(cipher, key, roundsKeys);
 
-    ReInitBlockCiperCryptoModeInternal(*handle, cryptoMode);
-    ReInitBlockCiperOpModeInternal(*handle, opMode);
-    ReInitBlockCiperPaddingTypeInternal(*handle, padding);
+    ReInitBlockCiperCryptoModeInternal(*state, cryptoMode);
+    ReInitBlockCiperOpModeInternal(*state, opMode);
+    ReInitBlockCiperPaddingTypeInternal(*state, padding);
 
     if (iv)
-        ReInitBlockCiperIvInternal(*handle, iv);
+        ReInitBlockCiperIvInternal(*state, iv);
 
 exit:
     return status
@@ -53,57 +52,50 @@ void GetBlockCipherRoundsKeysInternal(__in BlockCipherType cipherType, __in cons
     }
 }
 
-inline void ReInitBlockCiperCryptoModeInternal(__inout BlockCipherHandle handle, __in CryptoMode cryptoMode)
+inline void ReInitBlockCiperCryptoModeInternal(__inout BlockCipherState* state, __in CryptoMode cryptoMode)
 {
-    assert(handle);
+    assert(state);
 
-    ((BlockCipherState*)handle)->enMode = cryptoMode;
+    state->enMode = cryptoMode;
 }
 
-inline void ReInitBlockCiperOpModeInternal(__inout BlockCipherHandle handle, __in BlockCipherOpMode opMode)
+inline void ReInitBlockCiperOpModeInternal(__inout BlockCipherState* state, __in BlockCipherOpMode opMode)
 {
-    assert(handle);
+    assert(state);
 
-    ((BlockCipherState*)handle)->opMode = opMode;
+    state->opMode = opMode;
 }
 
-inline void ReInitBlockCiperPaddingTypeInternal(__inout BlockCipherHandle handle, __in PaddingType padding)
+inline void ReInitBlockCiperPaddingTypeInternal(__inout BlockCipherState* state, __in PaddingType padding)
 {
-    assert(handle);
+    assert(state);
 
-    ((BlockCipherState*)handle)->padding = padding;
+    state->padding = padding;
 }
 
-void ReInitBlockCiperIvInternal(__inout BlockCipherHandle handle, __in void* iv)
+void ReInitBlockCiperIvInternal(__inout BlockCipherState* state, __in void* iv)
 {
-    assert(handle);
+    assert(state);
 
-    switch (((BlockCipherState*)handle)->cipher) {
+    switch (state->cipher) {
     case DES_cipher_type:
-        ((DesState*)&((BlockCipherState*)handle)->state)->iv = *(uint64_t*)iv;
+        ((DesState*)&(state->state))->iv = *(uint64_t*)iv;
         break;
     case TDES_cipher_type:
-        ((TdesState*)&((BlockCipherState*)handle)->state)->iv = *(uint64_t*)iv;
+        ((TdesState*)&(state->state)))->iv = *(uint64_t*)iv;
         break;
     }
 }
 
-int ProcessingByBlockCipherInternal(__inout BlockCipherHandle handle, __in const void* input, __in uint64_t inputSize, __out void* output, __inout uint64_t* outputSize)
+int ProcessingByBlockCipherInternal(__inout BlockCipherState* state, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize)
 {
-    BlockCipherType cipher = ((BlockCipherState*)handle)->cipher;
-    CryptoMode enMode = ((BlockCipherState*)handle)->enMode;
-    BlockCipherOpMode opMode = ((BlockCipherState*)handle)->opMode;
-    PaddingType padding = ((BlockCipherState*)handle)->padding;
-    
-    BlockCipherProcessingFunction func = NULL;
-
-    switch (enMode) {
+    switch (state->enMode) {
     case Encryption_mode:
-        switch (cipher) {
-        case DES_cipher_type:
-            func = DesEncryptBlock;
-
-        }
+        return EncryptByBlockCipher(state->state, state->cipher, state->opMode, state->padding, finalize, output, outputSize);
+    case Decryption_mode:
+        return DecryptByBlockCipher(state->state, state->cipher, state->opMode, state->padding, finalize, output, outputSize);
+    default:
+        return ERROR_WRONG_STATE_HANDLE;
     }
 }
 

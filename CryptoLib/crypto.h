@@ -153,10 +153,10 @@ int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType
 // For all cipher modes outputSize in DecryptByBlockCipher will return exact bytes length.
 // but with OFB if you pass there outputSize < inputSize you will get an error and outputSize returned will be equal inputSize.
 // And if there is no error outputSize will always contain exact bytes length.
-int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
-    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv);
-int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
-    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv);
+//int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
+    //, __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv);
+//int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
+   // , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv);
 
 // Ex version has the roundsKeys input instead of key in main version
 int EncryptByBlockCipherEx(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* roundsKeys, __in BlockCipherType cipherType
@@ -172,7 +172,7 @@ int ReInitBlockCiperCryptoMode(__inout BlockCipherHandle handle, __in CryptoMode
 int ReInitBlockCiperOpMode(__inout BlockCipherHandle handle, __in BlockCipherOpMode opMode);
 int ReInitBlockCiperPaddingType(__inout BlockCipherHandle handle, __in PaddingType padding);
 int ReInitBlockCiperIv(__inout BlockCipherHandle handle, __in void* iv);
-int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* input, __in uint64_t inputSize, __out void* output, __inout uint64_t* outputSize);
+int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize);
 
 // Before using GetHash with finalize flag you should allocate output buffer according to the output digest size of respective hashing function
 // You may check the numbers with g_hashFuncsSizesMapping array (see "func" and corresponding "blockSize" fields)
