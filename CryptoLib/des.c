@@ -18,22 +18,22 @@ inline uint64_t DesGetExtendedKeyPermutation(uint64_t extendedKey)
 {
     /*
         57	49	41	33	25	17	9	1	58	50	42	34	26	18	C0
-        10	2	59	51	43	35	27	19	11	3	60	52	44	36	
+        10	2	59	51	43	35	27	19	11	3	60	52	44	36
         63	55	47	39	31	23	15	7	62	54	46	38	30	22	D0
-        14	6	61	53	45	37	29	21	13	5	28	20	12	4	
+        14	6	61	53	45	37	29	21	13	5	28	20	12	4
     */
 
     return
         // C0
         // bits 0-7
-          (extendedKey & 0x8000000000000000 /* 2^63 */) >> 56
+        (extendedKey & 0x8000000000000000 /* 2^63 */) >> 56
         | (extendedKey & 0x0080000000000000 /* 2^55 */) >> 49
         | (extendedKey & 0x0000800000000000 /* 2^47 */) >> 42
         | (extendedKey & 0x0000008000000000 /* 2^39 */) >> 35
         | (extendedKey & 0x0000000080000000 /* 2^31 */) >> 28
         | (extendedKey & 0x0000000000800000 /* 2^23 */) >> 21
         | (extendedKey & 0x0000000000008000 /* 2^15 */) >> 14
-        | (extendedKey & 0x0000000000000080 /* 2^ 7 */) >>  7
+        | (extendedKey & 0x0000000000000080 /* 2^ 7 */) >> 7
 
         // bits 8-15
         | (extendedKey & 0x4000000000000000 /* 2^62 */) >> 47
@@ -42,8 +42,8 @@ inline uint64_t DesGetExtendedKeyPermutation(uint64_t extendedKey)
         | (extendedKey & 0x0000004000000000 /* 2^38 */) >> 26
         | (extendedKey & 0x0000000040000000 /* 2^30 */) >> 19
         | (extendedKey & 0x0000000000400000 /* 2^22 */) >> 12
-        | (extendedKey & 0x0000000000004000 /* 2^14 */) >>  5
-        | (extendedKey & 0x0000000000000040 /* 2^ 6 */) <<  2
+        | (extendedKey & 0x0000000000004000 /* 2^14 */) >> 5
+        | (extendedKey & 0x0000000000000040 /* 2^ 6 */) << 2
 
         // bits 16-23
         | (extendedKey & 0x2000000000000000 /* 2^61 */) >> 38
@@ -51,30 +51,30 @@ inline uint64_t DesGetExtendedKeyPermutation(uint64_t extendedKey)
         | (extendedKey & 0x0000200000000000 /* 2^45 */) >> 24
         | (extendedKey & 0x0000002000000000 /* 2^37 */) >> 17
         | (extendedKey & 0x0000000020000000 /* 2^29 */) >> 10
-        | (extendedKey & 0x0000000000200000 /* 2^21 */) >>  3
-        | (extendedKey & 0x0000000000002000 /* 2^13 */) <<  4
+        | (extendedKey & 0x0000000000200000 /* 2^21 */) >> 3
+        | (extendedKey & 0x0000000000002000 /* 2^13 */) << 4
         | (extendedKey & 0x0000000000000020 /* 2^ 5 */) << 11
 
         // bits 24-27
         | (extendedKey & 0x1000000000000000 /* 2^60 */) >> 29
         | (extendedKey & 0x0010000000000000 /* 2^52 */) >> 22
         | (extendedKey & 0x0000100000000000 /* 2^44 */) >> 15
-        | (extendedKey & 0x0000001000000000 /* 2^36 */) >>  8
+        | (extendedKey & 0x0000001000000000 /* 2^36 */) >> 8
 
         // D0
-        | (extendedKey & 0x0200000000000000 /* 2^57 */) >> 30 
+        | (extendedKey & 0x0200000000000000 /* 2^57 */) >> 30
         | (extendedKey & 0x0402000000000000 /* 2^58 | 2^49 */) >> 23
         | (extendedKey & 0x0804020000000000 /* 2^59 | 2^50 | 2^41 */) >> 16
-        | (extendedKey & 0x0008040200000000 /* 2^51 | 2^42 | 2^33 */) >>  9
+        | (extendedKey & 0x0008040200000000 /* 2^51 | 2^42 | 2^33 */) >> 9
 
         | (extendedKey & 0x0000000002000000 /* 2^25 */) << 14
         | (extendedKey & 0x0000000004020000 /* 2^26 | 2^17 */) << 21
         | (extendedKey & 0x0000000008040200 /* 2^27 | 2^18 | 2^ 9 */) << 28
         | (extendedKey & 0x0000000000080402 /* 2^19 | 2^10 | 2^ 1 */) << 35
 
-        | (extendedKey & 0x0000080400000000 /* 2^43 | 2^34 */) >>  2
+        | (extendedKey & 0x0000080400000000 /* 2^43 | 2^34 */) >> 2
         | (extendedKey & 0x0000000000000804 /* 2^11 | 2^ 2 */) << 42
-        | (extendedKey & 0x0000000800000000 /* 2^35 */) <<  5
+        | (extendedKey & 0x0000000800000000 /* 2^35 */) << 5
         | (extendedKey & 0x0000000000000008 /* 2^ 3 */) << 49
 
         | (extendedKey & 0x0000000010000000 /* 2^28 */) << 23
@@ -121,26 +121,26 @@ inline uint64_t DesGetRoundKey(CDBlocks cdBlocks)
 
     return
         // bits 0-3
-          (cdBlocks.cBlock & 0x0000000000001400 /* 2^12 | 2^10 */) >>  3
+        (cdBlocks.cBlock & 0x0000000000001400 /* 2^12 | 2^10 */) >> 3
         | (cdBlocks.cBlock & 0x0000000000800000 /* 2^23 */) >> 17
-        | (cdBlocks.cBlock & 0x0000000000002000 /* 2^13 */) >>  8
+        | (cdBlocks.cBlock & 0x0000000000002000 /* 2^13 */) >> 8
         | (cdBlocks.cBlock & 0x0000000000010000 /* 2^16 */) >> 12
 
-        | (cdBlocks.cBlock & 0x00000000000000a0 /* 2^ 7 | 2^ 5 */) >>  4
-        | (cdBlocks.cBlock & 0x0000000000000008 /* 2^ 3 */) >>  1
+        | (cdBlocks.cBlock & 0x00000000000000a0 /* 2^ 7 | 2^ 5 */) >> 4
+        | (cdBlocks.cBlock & 0x0000000000000008 /* 2^ 3 */) >> 1
         | (cdBlocks.cBlock & 0x0000000010000000 /* 2^28 */) >> 28
-        | (cdBlocks.cBlock & 0x0000000000000a00 /* 2^11 | 2^ 9 */) <<  6
-        
+        | (cdBlocks.cBlock & 0x0000000000000a00 /* 2^11 | 2^ 9 */) << 6
+
         | (cdBlocks.cBlock & 0x0000000000000004 /* 2^ 2 */) << 12
-        | (cdBlocks.cBlock & 0x00000000000a0000 /* 2^19 | 2^17 */) >>  6
-        | (cdBlocks.cBlock & 0x0000000000104000 /* 2^20 | 2^14 */) >>  2
+        | (cdBlocks.cBlock & 0x00000000000a0000 /* 2^19 | 2^17 */) >> 6
+        | (cdBlocks.cBlock & 0x0000000000104000 /* 2^20 | 2^14 */) >> 2
         | (cdBlocks.cBlock & 0x0000000000200000 /* 2^21 */) >> 11
 
-        | (cdBlocks.cBlock & 0x0000000000000010 /* 2^ 4 */) <<  4
-        | (cdBlocks.cBlock & 0x0000000040000000 /* 2^30 */) >>  7
+        | (cdBlocks.cBlock & 0x0000000000000010 /* 2^ 4 */) << 4
+        | (cdBlocks.cBlock & 0x0000000040000000 /* 2^30 */) >> 7
         | (cdBlocks.cBlock & 0x0000000000000001 /* 2^ 0 */) << 22
         | (cdBlocks.cBlock & 0x0000000000000100 /* 2^ 8 */) << 13
-        
+
         | (cdBlocks.cBlock & 0x0000000000000002 /* 2^ 1 */) << 19
         | (cdBlocks.cBlock & 0x0000000020000000 /* 2^29 */) >> 10
         | (cdBlocks.cBlock & 0x0000000000000040 /* 2^ 6 */) << 10
@@ -149,9 +149,9 @@ inline uint64_t DesGetRoundKey(CDBlocks cdBlocks)
         | (cdBlocks.dBlock & 0x0000000000010000 /* 2^16 */) << 14
         | (cdBlocks.dBlock & 0x0000000000000020 /* 2^ 5 */) << 24
         | (cdBlocks.dBlock & 0x0000000000008000 /* 2^15 */) << 13
-        | (cdBlocks.dBlock & 0x0000000000200000 /* 2^21 */) <<  6
-        
-        | (cdBlocks.dBlock & 0x0000000020000000 /* 2^29 */) >>  3
+        | (cdBlocks.dBlock & 0x0000000000200000 /* 2^21 */) << 6
+
+        | (cdBlocks.dBlock & 0x0000000020000000 /* 2^29 */) >> 3
         | (cdBlocks.dBlock & 0x0000000000000040 /* 2^ 6 */) << 19
         | (cdBlocks.dBlock & 0x0000000000001000 /* 2^12 */) << 12
 
@@ -162,7 +162,7 @@ inline uint64_t DesGetRoundKey(CDBlocks cdBlocks)
 
         | ((uint64_t)cdBlocks.dBlock & 0x0000000000000100 /* 2^ 8 */) << 27
         | ((uint64_t)cdBlocks.dBlock & 0x0000000000002800 /* 2^13 | 2^11 */) << 20
-        | ((uint64_t)cdBlocks.dBlock & 0x0000000010000000 /* 2^28 */) <<  4
+        | ((uint64_t)cdBlocks.dBlock & 0x0000000010000000 /* 2^28 */) << 4
         | ((uint64_t)cdBlocks.dBlock & 0x0000000000000004 /* 2^ 2 */) << 45
 
         | ((uint64_t)cdBlocks.dBlock & 0x0000000000400000 /* 2^22 */) << 23
@@ -208,14 +208,14 @@ inline uint64_t DesFeistelExtention(uint32_t r)
     */
 
     return
-          ((uint64_t)r & 0x0000000000000080) << 33 | ((uint64_t)r & 0x000000001f000000) << 17
-        | ((uint64_t)r & 0x0000000018010000) << 19 | ((uint64_t)r & 0x00000000e0000000) <<  3
-        | ((uint64_t)r & 0x0000000080180000) <<  5 | ((uint64_t)r & 0x0000000000070000) << 21
-        | ((uint64_t)r & 0x0000000000f80000) <<  7 | ((uint64_t)r & 0x0000000000000100) << 23
-        | ((uint64_t)r & 0x0000000000800000) >>  7 | ((uint64_t)r & 0x0000000000001f00) <<  9
-        | ((uint64_t)r & 0x0000000000001801) << 11 | ((uint64_t)r & 0x000000000000e000) >>  5
-        | ((uint64_t)r & 0x0000000000008018) >>  3 | ((uint64_t)r & 0x0000000000000007) << 13
-        | ((uint64_t)r & 0x00000000000000f8) >>  1 | ((uint64_t)r & 0x0000000001000000) >> 17;
+        ((uint64_t)r & 0x0000000000000080) << 33 | ((uint64_t)r & 0x000000001f000000) << 17
+        | ((uint64_t)r & 0x0000000018010000) << 19 | ((uint64_t)r & 0x00000000e0000000) << 3
+        | ((uint64_t)r & 0x0000000080180000) << 5 | ((uint64_t)r & 0x0000000000070000) << 21
+        | ((uint64_t)r & 0x0000000000f80000) << 7 | ((uint64_t)r & 0x0000000000000100) << 23
+        | ((uint64_t)r & 0x0000000000800000) >> 7 | ((uint64_t)r & 0x0000000000001f00) << 9
+        | ((uint64_t)r & 0x0000000000001801) << 11 | ((uint64_t)r & 0x000000000000e000) >> 5
+        | ((uint64_t)r & 0x0000000000008018) >> 3 | ((uint64_t)r & 0x0000000000000007) << 13
+        | ((uint64_t)r & 0x00000000000000f8) >> 1 | ((uint64_t)r & 0x0000000001000000) >> 17;
 }
 
 const uint8_t DES_S_TRANSFORM_OPTIMIZED[8][64] =
@@ -280,15 +280,15 @@ const uint8_t DES_S_TRANSFORM_OPTIMIZED[8][64] =
 inline uint32_t DesSTransform(uint64_t allB)
 {
     return
-          (DES_S_TRANSFORM_OPTIMIZED[0][(allB & 0x00000000000000fc) >>  2                                    ] <<  4)
-        |  DES_S_TRANSFORM_OPTIMIZED[1][(allB & 0x0000000000000003) <<  4 | (allB & 0x000000000000f000) >> 12]
-        | (DES_S_TRANSFORM_OPTIMIZED[2][(allB & 0x0000000000000f00) >>  6 | (allB & 0x0000000000c00000) >> 22] << 12)
-        | (DES_S_TRANSFORM_OPTIMIZED[3][(allB & 0x00000000003f0000) >> 16                                    ] <<  8)
+        (DES_S_TRANSFORM_OPTIMIZED[0][(allB & 0x00000000000000fc) >> 2] << 4)
+        | DES_S_TRANSFORM_OPTIMIZED[1][(allB & 0x0000000000000003) << 4 | (allB & 0x000000000000f000) >> 12]
+        | (DES_S_TRANSFORM_OPTIMIZED[2][(allB & 0x0000000000000f00) >> 6 | (allB & 0x0000000000c00000) >> 22] << 12)
+        | (DES_S_TRANSFORM_OPTIMIZED[3][(allB & 0x00000000003f0000) >> 16] << 8)
 
-        | (DES_S_TRANSFORM_OPTIMIZED[4][(allB & 0x00000000fc000000) >> 26                                    ] << 20)
+        | (DES_S_TRANSFORM_OPTIMIZED[4][(allB & 0x00000000fc000000) >> 26] << 20)
         | (DES_S_TRANSFORM_OPTIMIZED[5][(allB & 0x0000000003000000) >> 20 | (allB & 0x000000f000000000) >> 36] << 16)
         | (DES_S_TRANSFORM_OPTIMIZED[6][(allB & 0x0000000f00000000) >> 30 | (allB & 0x0000c00000000000) >> 46] << 28)
-        | (DES_S_TRANSFORM_OPTIMIZED[7][(allB & 0x00003f0000000000) >> 40                                    ] << 24);
+        | (DES_S_TRANSFORM_OPTIMIZED[7][(allB & 0x00003f0000000000) >> 40] << 24);
 }
 
 inline uint32_t DesFeistelPermutation(uint32_t transformed) // correct
@@ -301,39 +301,39 @@ inline uint32_t DesFeistelPermutation(uint32_t transformed) // correct
     */
 
     return
-          (transformed & 0x0000000000000100 /* 2^ 8 */) >>  1
-        | (transformed & 0x0000000000010202 /* 2^16 | 2^ 9 | 2^ 1 */) <<  5
+        (transformed & 0x0000000000000100 /* 2^ 8 */) >> 1
+        | (transformed & 0x0000000000010202 /* 2^16 | 2^ 9 | 2^ 1 */) << 5
         | (transformed & 0x0000000000180000 /* 2^20 | 2^19 */) >> 15
         | (transformed & 0x0000000008000000 /* 2^27 */) >> 24
-        
+
         | (transformed & 0x0000000000001000 /* 2^12 */) >> 10
         | (transformed & 0x0000000010000000 /* 2^28 */) >> 27
         | (transformed & 0x0000000000800000 /* 2^23 */) >> 23
-        | (transformed & 0x0000000000000088 /* 2^ 7 | 2^ 3 */) <<  8
+        | (transformed & 0x0000000000000088 /* 2^ 7 | 2^ 3 */) << 8
 
-        | (transformed & 0x0000000000020000 /* 2^17 */) >>  4
+        | (transformed & 0x0000000000020000 /* 2^17 */) >> 4
         | (transformed & 0x0000000040000000 /* 2^30 */) >> 18
         | (transformed & 0x0000000000400000 /* 2^22 */) >> 12
         | (transformed & 0x0000000002000000 /* 2^25 */) >> 16
-        
-        | (transformed & 0x0000000000004000 /* 2^14 */) >>  6
+
+        | (transformed & 0x0000000000004000 /* 2^14 */) >> 6
         | (transformed & 0x0000000000000040 /* 2^ 6 */) << 17
         | (transformed & 0x0000000000000001 /* 2^ 0 */) << 22
         | (transformed & 0x0000000000200400 /* 2^21 | 2^10 */) << 10
 
-        | (transformed & 0x0000000001000000 /* 2^24 */) >>  5
+        | (transformed & 0x0000000001000000 /* 2^24 */) >> 5
         | (transformed & 0x0000000020000000 /* 2^29 */) >> 11
         | (transformed & 0x0000000000000020 /* 2^ 5 */) << 12
-        | (transformed & 0x0000000000008000 /* 2^15 */) <<  1
+        | (transformed & 0x0000000000008000 /* 2^15 */) << 1
 
         | (transformed & 0x0000000000000800 /* 2^11 */) << 19
-        | (transformed & 0x0000000004000000 /* 2^26 */) <<  3
+        | (transformed & 0x0000000004000000 /* 2^26 */) << 3
         | (transformed & 0x0000000000000004 /* 2^ 2 */) << 26
-        | (transformed & 0x0000000000040000 /* 2^18 */) <<  9
-        
+        | (transformed & 0x0000000000040000 /* 2^18 */) << 9
+
         | (transformed & 0x0000000000002000 /* 2^13 */) << 13
         | (transformed & 0x0000000000000010 /* 2^ 4 */) << 21
-        | (transformed & 0x0000000080000000 /* 2^31 */) >>  7;
+        | (transformed & 0x0000000080000000 /* 2^31 */) >> 7;
 }
 
 inline uint32_t DesFeistelFunc(uint32_t r, uint64_t roundKey)
@@ -353,14 +353,14 @@ inline uint64_t DesInitialPermutation(uint64_t input)
     */
 
     return
-          (input & 0x4000000000000000 /* 2^62 */) >> 55
+        (input & 0x4000000000000000 /* 2^62 */) >> 55
         | (input & 0x0040000000000000 /* 2^54 */) >> 48
         | (input & 0x0000400000000000 /* 2^46 */) >> 41
         | (input & 0x0000004000000000 /* 2^38 */) >> 34
         | (input & 0x0000000040000000 /* 2^30 */) >> 27
         | (input & 0x0000000000400000 /* 2^22 */) >> 20
         | (input & 0x0000000000004000 /* 2^14 */) >> 13
-        | (input & 0x0000000000000040 /* 2^ 6 */) >>  6
+        | (input & 0x0000000000000040 /* 2^ 6 */) >> 6
 
         | (input & 0x1000000000000000 /* 2^60 */) >> 45
         | (input & 0x0010000000000000 /* 2^52 */) >> 38
@@ -368,28 +368,28 @@ inline uint64_t DesInitialPermutation(uint64_t input)
         | (input & 0x8000001000000000 /* 2^63 | 2^36 */) >> 24
         | (input & 0x0080000010000000 /* 2^55 | 2^28 */) >> 17
         | (input & 0x0000800000100000 /* 2^47 | 2^20 */) >> 10
-        | (input & 0x0000008000001000 /* 2^39 | 2^12 */) >>  3
-        | (input & 0x0000000000000010 /* 2^ 4 */) <<  4
+        | (input & 0x0000008000001000 /* 2^39 | 2^12 */) >> 3
+        | (input & 0x0000000000000010 /* 2^ 4 */) << 4
 
         | (input & 0x0400000000000000 /* 2^58 */) >> 35
         | (input & 0x0004000000000000 /* 2^50 */) >> 28
         | (input & 0x0000040000000000 /* 2^42 */) >> 21
         | (input & 0x2000000400000000 /* 2^61 | 2^34 */) >> 14
-        | (input & 0x0020000004000000 /* 2^53 | 2^26 */) >>  7
-        | (input & 0x0000200000040000 /* 2^45 | 2^18 */)      
-        | (input & 0x0000002000000400 /* 2^37 | 2^10 */) <<  7
+        | (input & 0x0020000004000000 /* 2^53 | 2^26 */) >> 7
+        | (input & 0x0000200000040000 /* 2^45 | 2^18 */)
+        | (input & 0x0000002000000400 /* 2^37 | 2^10 */) << 7
         | (input & 0x0000000020000004 /* 2^29 | 2^ 2 */) << 14
 
         | (input & 0x0100000000000000 /* 2^56 */) >> 25
         | (input & 0x0001000000000000 /* 2^48 */) >> 18
         | (input & 0x0000010000000000 /* 2^40 */) >> 11
-        | (input & 0x0800000100000000 /* 2^59 | 2^32 */) >>  4
-        | (input & 0x0008000001000000 /* 2^51 | 2^24 */) <<  3
+        | (input & 0x0800000100000000 /* 2^59 | 2^32 */) >> 4
+        | (input & 0x0008000001000000 /* 2^51 | 2^24 */) << 3
         | (input & 0x0000080000010000 /* 2^43 | 2^16 */) << 10
         | (input & 0x0000000800000100 /* 2^35 | 2^ 8 */) << 17
         | (input & 0x0000000008000001 /* 2^27 | 2^ 0 */) << 24
 
-        | (input & 0x0000000080000000 /* 2^31 */) <<  4
+        | (input & 0x0000000080000000 /* 2^31 */) << 4
         | (input & 0x0000000000800000 /* 2^23 */) << 11
         | (input & 0x0000000000008000 /* 2^15 */) << 18
         | (input & 0x0000000000000080 /* 2^7  */) << 25
@@ -402,7 +402,7 @@ inline uint64_t DesInitialPermutation(uint64_t input)
         | (input & 0x0000000000000800 /* 2^11 */) << 38
         | (input & 0x0000000000000008 /* 2^3  */) << 45
 
-        | (input & 0x0200000000000000 /* 2^57 */) <<  6
+        | (input & 0x0200000000000000 /* 2^57 */) << 6
         | (input & 0x0002000000000000 /* 2^49 */) << 13
         | (input & 0x0000020000000000 /* 2^41 */) << 20
         | (input & 0x0000000200000000 /* 2^33 */) << 27
@@ -422,10 +422,10 @@ inline uint64_t DesFinalPermutation(uint64_t encryptedBlock)
     */
 
     return
-          (encryptedBlock & 0x0000000100000000 /* 2^32 */) >> 25
-        | (encryptedBlock & 0x0000000000000001 /* 2^ 0 */) <<  6
+        (encryptedBlock & 0x0000000100000000 /* 2^32 */) >> 25
+        | (encryptedBlock & 0x0000000000000001 /* 2^ 0 */) << 6
         | (encryptedBlock & 0x0000010000000000 /* 2^40 */) >> 35
-        | (encryptedBlock & 0x0000000800000100 /* 2^35 | 2^ 8 */) >>  4
+        | (encryptedBlock & 0x0000000800000100 /* 2^35 | 2^ 8 */) >> 4
         | (encryptedBlock & 0x0001000000000000 /* 2^48 */) >> 45
         | (encryptedBlock & 0x0000080000010000 /* 2^43 | 2^16 */) >> 14
         | (encryptedBlock & 0x0100000000000000 /* 2^56 */) >> 55
@@ -434,10 +434,10 @@ inline uint64_t DesFinalPermutation(uint64_t encryptedBlock)
         | (encryptedBlock & 0x0000000200000000 /* 2^33 */) >> 18
         | (encryptedBlock & 0x0000000000000002 /* 2^ 1 */) << 13
         | (encryptedBlock & 0x0000020000000000 /* 2^41 */) >> 28
-        | (encryptedBlock & 0x0000001000000200 /* 2^36 | 2^ 9 */) <<  3
+        | (encryptedBlock & 0x0000001000000200 /* 2^36 | 2^ 9 */) << 3
 
         | (encryptedBlock & 0x0002000000000000 /* 2^49 */) >> 38
-        | (encryptedBlock & 0x0000100000020000 /* 2^44 | 2^17 */) >>  7
+        | (encryptedBlock & 0x0000100000020000 /* 2^44 | 2^17 */) >> 7
         | (encryptedBlock & 0x0200000000000000 /* 2^57 */) >> 48
         | (encryptedBlock & 0x0010000002000000 /* 2^52 | 2^25 */) >> 17
 
@@ -446,21 +446,21 @@ inline uint64_t DesFinalPermutation(uint64_t encryptedBlock)
         | (encryptedBlock & 0x0000040000000000 /* 2^42 */) >> 21
         | (encryptedBlock & 0x0000002000000400 /* 2^37 | 2^10 */) << 10
         | (encryptedBlock & 0x0004000000000000 /* 2^50 */) >> 31
-        | (encryptedBlock & 0x0000200000040000 /* 2^45 | 2^18 */)      
+        | (encryptedBlock & 0x0000200000040000 /* 2^45 | 2^18 */)
         | (encryptedBlock & 0x0400000000000000 /* 2^58 */) >> 41
         | (encryptedBlock & 0x0020000004000000 /* 2^53 | 2^26 */) >> 10
 
         | (encryptedBlock & 0x0000000000000008 /* 2^ 3 */) << 27
         | (encryptedBlock & 0x0000004000000800 /* 2^38 | 2^11 */) << 17
-        | (encryptedBlock & 0x0000400000080000 /* 2^46 | 2^19 */) <<  7
+        | (encryptedBlock & 0x0000400000080000 /* 2^46 | 2^19 */) << 7
         | (encryptedBlock & 0x0800000000000000 /* 2^59 */) >> 34
-        | (encryptedBlock & 0x0040000008000000 /* 2^54 | 2^27 */) >>  3
+        | (encryptedBlock & 0x0040000008000000 /* 2^54 | 2^27 */) >> 3
 
         | (encryptedBlock & 0x0000000000000010 /* 2^ 4 */) << 34
         | (encryptedBlock & 0x0000008000001000 /* 2^39 | 2^12 */) << 24
         | (encryptedBlock & 0x0000800000100000 /* 2^47 | 2^20 */) << 14
         | (encryptedBlock & 0x1000000000000000 /* 2^60 */) >> 27
-        | (encryptedBlock & 0x0080000010000000 /* 2^55 | 2^28 */) <<  4
+        | (encryptedBlock & 0x0080000010000000 /* 2^55 | 2^28 */) << 4
 
         | (encryptedBlock & 0x0000000000000020 /* 2^ 5 */) << 41
         | (encryptedBlock & 0x0000000000002000 /* 2^13 */) << 31
@@ -478,44 +478,48 @@ inline uint64_t DesFinalPermutation(uint64_t encryptedBlock)
         | (encryptedBlock & 0x0000000000000080 /* 2^ 7 */) << 55
         | (encryptedBlock & 0x0000000000008000 /* 2^15 */) << 45
         | (encryptedBlock & 0x0000000000800000 /* 2^23 */) << 35
-        | (encryptedBlock & 0x8000000000000000 /* 2^63 */) >>  6
+        | (encryptedBlock & 0x8000000000000000 /* 2^63 */) >> 6
         | (encryptedBlock & 0x0000000080000000 /* 2^31 */) << 25;
 }
 
 // Main algo block
 
-uint64_t DesEncryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
+void DesEncryptBlock(__in const uint64_t* roundsKeys, __in const uint64_t* input, __out uint64_t* output)
 {
-    uint64_t permInput = DesInitialPermutation(*input);
+    uint64_t workingInput = DesInitialPermutation(*input);
 
     for (int i = 0; i < 16; ++i)
-        permInput = (permInput >> 32) | ((DesFeistelFunc(permInput >> 32, roundsKeys[i]) ^ permInput) << 32);
+        workingInput = (workingInput >> 32) | ((DesFeistelFunc(workingInput >> 32, roundsKeys[i]) ^ workingInput) << 32);
 
-    permInput = permInput >> 32 | permInput << 32;
+    workingInput = workingInput >> 32 | workingInput << 32;
 
-    return DesFinalPermutation(permInput);
+    *output = DesFinalPermutation(workingInput);
 }
 
-uint64_t TdesEncryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
+void TdesEncryptBlock(__in const uint64_t* roundsKeys, __in const uint64_t* input, __out uint64_t* output)
 {
-    return DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(input, roundsKeys), roundsKeys + 16), roundsKeys + 32);
+    DesEncryptBlock(roundsKeys, input, output);
+    DesDecryptBlock(roundsKeys + 16, input, output);
+    DesEncryptBlock(roundsKeys + 32, input, output);
 }
 
-uint64_t DesDecryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
+void DesDecryptBlock(__in const uint64_t* roundsKeys, __in const uint64_t* input, __out uint64_t* output)
 {
-    uint64_t permInput = DesInitialPermutation(*input);
+    uint64_t workingInput = DesInitialPermutation(*input);
 
-    permInput = permInput >> 32 | permInput << 32;
+    workingInput = workingInput >> 32 | workingInput << 32;
 
     for (int i = 15; i >= 0; --i)
-        permInput = (permInput << 32) | (DesFeistelFunc((uint32_t)permInput, roundsKeys[i]) ^ (permInput >> 32));
+        workingInput = (workingInput << 32) | (DesFeistelFunc((uint32_t)workingInput, roundsKeys[i]) ^ (workingInput >> 32));
 
-    return DesFinalPermutation(permInput);
+    *output = DesFinalPermutation(workingInput);
 }
 
-uint64_t TdesEncryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
+void TdesDecryptBlock(__in const uint64_t* roundsKeys, __in const uint64_t* input, __out uint64_t* output)
 {
-    return DesDecryptBlock(DesEncryptBlock(DesDecryptBlock(input, roundsKeys + 32), roundsKeys + 16), roundsKeys);
+    DesDecryptBlock(roundsKeys + 32, input, output);
+    DesEncryptBlock(roundsKeys + 16, input, output);
+    DesDecryptBlock(roundsKeys, input, output);
 }
 
 int SingleDesEncrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const uint64_t* roundsKeys, __out void* output, __inout uint64_t* outputSize,
@@ -575,7 +579,7 @@ int SingleDesEncrypt(__in const void* input, __in uint64_t inputSize, __in Paddi
         while (--blocksNumber) {
             *((uint64_t*)output)++ = DesEncryptBlock(ivBlock, roundsKeys) ^ *((uint64_t*)input)++;
             ivBlock = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(ivBlock) + 1); // I'm not sure that approach with Big Endian counter is necessary
-                                                                                                 // but the other working examplse of des with ctr with which I can compare the result
+                                                                                                 // but the other working example of des with ctr with which I can compare the result
                                                                                                  // has that (based on my calculations).
         }
 
@@ -716,9 +720,9 @@ int SingleDesDecrypt(__in const void* input, __in uint64_t inputSize, __in Paddi
 
 void TripleDesGetRoundsKeys(__in const uint64_t* extendedKeys, __out uint64_t* roundsKeys)
 {
-    SingleDesGetRoundsKeys(*extendedKeys++, roundsKeys     );
+    SingleDesGetRoundsKeys(*extendedKeys++, roundsKeys);
     SingleDesGetRoundsKeys(*extendedKeys++, roundsKeys + 16);
-    SingleDesGetRoundsKeys(*extendedKeys,   roundsKeys + 32);
+    SingleDesGetRoundsKeys(*extendedKeys, roundsKeys + 32);
 }
 
 int TripleDesEncrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const uint64_t* roundsKeys, __out void* output, __inout uint64_t* outputSize,
@@ -730,7 +734,7 @@ int TripleDesEncrypt(__in const void* input, __in uint64_t inputSize, __in Paddi
 
     uint64_t blocksNumber = *outputSize >> 3; // (*outputSize / DES_BLOCK_SIZE) *outputSize must be divisible by DES_BLOCK_SIZE without remainder
     uint64_t ivBlock = iv ? *iv : 0;
-    
+
     switch (mode) {
     case ECB_mode: {
         while (--blocksNumber)
@@ -766,7 +770,7 @@ int TripleDesEncrypt(__in const void* input, __in uint64_t inputSize, __in Paddi
     case OFB_mode: {
         while (--blocksNumber)
             *((uint64_t*)output)++ = (ivBlock = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(ivBlock, roundsKeys), roundsKeys + 16), roundsKeys + 32)) ^ *((uint64_t*)input)++;
-        
+
         *(uint64_t*)output = (ivBlock = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(ivBlock, roundsKeys), roundsKeys + 16), roundsKeys + 32)) ^ *(uint64_t*)output;
 
         break;
@@ -852,10 +856,10 @@ int TripleDesDecrypt(__in const void* input, __in uint64_t inputSize, __in Paddi
         }
         else
             return ERROR_WRONG_OUTPUT_SIZE;
-        
+
         break;
     }
- 
+
     case CTR_mode: {
         lastOutputBlock = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(ivBlock) + blocksNumber - 1), roundsKeys), roundsKeys + 16), roundsKeys + 32)
             ^ *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE);
@@ -864,7 +868,7 @@ int TripleDesDecrypt(__in const void* input, __in uint64_t inputSize, __in Paddi
     }
 
     }
-    
+
     if ((status = FillLastDecryptedBlockInternal(padding, DES_BLOCK_SIZE, &lastOutputBlock, inputSize, output, outputSize)) || mode == OFB_mode)
         return status;
 

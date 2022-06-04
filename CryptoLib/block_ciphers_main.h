@@ -1,15 +1,17 @@
 #pragma once
 
-#include "crypto_internal.h"
+#include "crypto_helpers.h"
 
 typedef struct _DesState {
     uint64_t roundsKeys[16];
     uint64_t iv;
+    uint64_t outputBuffer;      // Using only in CFB, OFB and CTR operation modes
 } DesState;
 
 typedef struct _TdesState {
     uint64_t roundsKeys[48];
     uint64_t iv;
+    uint64_t outputBuffer;      // Using only in CFB, OFB and CTR operation modes
 } TdesState;
 
 typedef struct _BlockCipherState {
@@ -42,6 +44,6 @@ static const BlockCiphersSizes g_blockCiphersSizes[] = {
 };
 
 int EncryptByBlockCipher(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding
-    , __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize);
+    , __in const uint8_t* input, __in uint64_t inputSize, __in bool finalize, __out_opt uint8_t* output, __inout uint64_t* outputSize);
 int DecryptByBlockCipher(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding
-    , __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize);
+    , __in const uint8_t* input, __in uint64_t inputSize, __in bool finalize, __out_opt uint8_t* output, __inout uint64_t* outputSize);

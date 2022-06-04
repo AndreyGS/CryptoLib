@@ -7,6 +7,10 @@
 
 #define EVAL(expr) { status = expr; if (status < 0) goto exit; }
 
+#ifndef ANYSIZE_ARRAY
+#define ANYSIZE_ARRAY 1
+#endif
+
 int CheckInput(__in const void* input, __in uint64_t inputSize);
 int CheckOutput(__in const void* output, __in const uint64_t* outputSize);
 int CheckInputOutput(__in const void* input, __in uint64_t inputSize, __in const void* output, __in const uint64_t* outputSize);

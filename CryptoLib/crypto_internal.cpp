@@ -37,7 +37,7 @@ int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCiph
         ReInitBlockCiperIvInternal(*state, iv);
 
 exit:
-    return status
+    return status;
 }
 
 void GetBlockCipherRoundsKeysInternal(__in BlockCipherType cipherType, __in const void* key, __out void* roundsKeys)
@@ -82,7 +82,7 @@ void ReInitBlockCiperIvInternal(__inout BlockCipherState* state, __in void* iv)
         ((DesState*)&(state->state))->iv = *(uint64_t*)iv;
         break;
     case TDES_cipher_type:
-        ((TdesState*)&(state->state)))->iv = *(uint64_t*)iv;
+        ((TdesState*)&(state->state))->iv = *(uint64_t*)iv;
         break;
     }
 }
@@ -91,9 +91,9 @@ int ProcessingByBlockCipherInternal(__inout BlockCipherState* state, __in const 
 {
     switch (state->enMode) {
     case Encryption_mode:
-        return EncryptByBlockCipher(state->state, state->cipher, state->opMode, state->padding, finalize, output, outputSize);
+        return EncryptByBlockCipher(state->state, state->cipher, state->opMode, state->padding, input, inputSize, finalize, output, outputSize);
     case Decryption_mode:
-        return DecryptByBlockCipher(state->state, state->cipher, state->opMode, state->padding, finalize, output, outputSize);
+        return DecryptByBlockCipher(state->state, state->cipher, state->opMode, state->padding, input, inputSize, finalize, output, outputSize);
     default:
         return ERROR_WRONG_STATE_HANDLE;
     }

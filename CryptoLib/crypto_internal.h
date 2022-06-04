@@ -4,13 +4,10 @@
 #pragma once
 
 #include "crypto_helpers.h"
+#include "block_ciphers_main.h"
 #include "sha-1.h"
 #include "sha-2.h"
 #include "sha-3.h"
-
-#ifndef ANYSIZE_ARRAY
-#define ANYSIZE_ARRAY 1
-#endif
 
 #define BITS_PER_BYTE                   8
 #define DES_BLOCK_SIZE                  8
