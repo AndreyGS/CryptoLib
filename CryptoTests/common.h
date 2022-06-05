@@ -38,22 +38,6 @@ const char TEST_STRING_513[] = "In early 2013 NIST announced they would select d
 const char TEST_STRING_8_7[] = "somekindThis is";
 const char TEST_STRING_64_7[] = "here I don't really now. Maybe it should be something clever or This is";
 
-#define STR_ERROR_WRONG_INPUT                   "ERROR_WRONG_INPUT"
-#define STR_ERROR_WRONG_OUTPUT                  "ERROR_WRONG_OUTPUT"
-#define STR_ERROR_WRONG_KEY                     "ERROR_WRONG_KEY"
-#define STR_ERROR_WRONG_INPUT_SIZE              "ERROR_WRONG_INPUT_SIZE"
-#define STR_ERROR_WRONG_OUTPUT_SIZE             "ERROR_WRONG_OUTPUT_SIZE"
-#define STR_ERROR_WRONG_BLOCK_SIZE              "ERROR_WRONG_BLOCK_SIZE"
-#define STR_ERROR_INAPPLICABLE_PADDING_TYPE     "ERROR_INAPPLICABLE_PADDING_TYPE"
-#define STR_ERROR_PADDING_CORRUPTED             "ERROR_PADDING_CORRUPTED"
-#define STR_ERROR_WRONG_INIT_VECTOR             "ERROR_WRONG_INIT_VECTOR"
-#define STR_ERROR_UNSUPPORTED_HASHING_FUNC    "ERROR_UNSUPPORTED_HASHING_FUNC"
-#define STR_ERROR_UNSUPPORTED_CIPHER_FUNC     "ERROR_UNSUPPORTED_CIPHER_FUNC"
-#define STR_ERROR_WRONG_ITERATIONS_NUMBER       "ERROR_WRONG_ITERATIONS_NUMBER"
-#define STR_ERROR_NO_MEMORY                     "ERROR_NO_MEMORY"
-
-#define GET_ERROR_TXT(error) #error
-
 char GetHexSymbol(uint8_t input);
 
 std::string GetHexResult(const uint8_t* input, uint64_t inputSize);

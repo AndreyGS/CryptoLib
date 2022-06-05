@@ -27,7 +27,7 @@ int CheckPaddingInputOutput(__in const void* input, __in uint64_t inputSize, __i
     if (status = CheckInputOutput(input, inputSize, output, outputSize))
         return status;
     else if (!blockSize)
-        return ERROR_WRONG_BLOCK_SIZE;
+        return ERROR_TOO_SMALL_BLOCK_SIZE;
     else
         return NO_ERROR;
 }
@@ -38,11 +38,13 @@ int CheckPaddingOutput(__in uint64_t blockSize, __in const void* paddedOutput, _
     if (status = CheckOutput(paddedOutput, outputSize))
         return status;
     else if (!blockSize)
-        return ERROR_WRONG_BLOCK_SIZE;
+        return ERROR_TOO_SMALL_BLOCK_SIZE;
     else
         return NO_ERROR;
 }
 
+// AddPaddingInternal function adds padding and fills last block by padding directly to output with respective offset 
+// and when fillAllBlock is set and (inputSize % blockSize != 0) it also copying the begining of the last input block to output with respective offset
 int AddPaddingInternal(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
 {
     int status = NO_ERROR;
@@ -54,7 +56,7 @@ int AddPaddingInternal(__in const void* input, __in uint64_t inputSize, __in Pad
             status = ERROR_INAPPLICABLE_PADDING_TYPE;
         else {
             if (!*outputSize)
-                status = ERROR_WRONG_OUTPUT_SIZE;
+                status = ERROR_NULL_OUTPUT_SIZE;
 
             *outputSize = inputSize;
 
@@ -88,8 +90,8 @@ int PullPaddingSize(__in PaddingType padding, __in void* input, __in uint64_t bl
 {
     int status = NO_ERROR;
     if (status = CheckPaddingOutput(blockSize, input, paddingSize)) {
-        if (status == ERROR_WRONG_OUTPUT)
-            status = ERROR_WRONG_INPUT;
+        if (status == ERROR_NULL_OUTPUT)
+            status = ERROR_NULL_INPUT;
         return status;
     }
 
@@ -196,7 +198,7 @@ int GetPaddingSize(__in uint64_t inputSize, __in uint64_t blockSize, __inout uin
 
     if (*outputSize < requiringSize) {
         *outputSize = requiringSize;
-        return ERROR_WRONG_OUTPUT_SIZE;
+        return ERROR_TOO_SMALL_OUTPUT_SIZE;
     }
     else {
         *paddingSize = requiringSize - inputSize;
@@ -274,7 +276,7 @@ int AddPKCSN7Padding(__in const void* input, __in uint64_t inputSize, __in uint6
     if (status = CheckPaddingInputOutput(input, inputSize, blockSize, output, outputSize))
         return status;
     else if (blockSize > MAX_PKCSN7_BLOCK_SIZE)
-        return ERROR_WRONG_BLOCK_SIZE;
+        return ERROR_TOO_BIG_BLOCK_SIZE;
 
     return AddPKCSN7PaddingInternal(input, inputSize, blockSize, output, outputSize, fillAllBlock);
 }

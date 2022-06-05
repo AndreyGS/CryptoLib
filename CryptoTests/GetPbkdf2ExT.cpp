@@ -12,7 +12,7 @@ TEST(GetPbkdf2ExTest, WrongInput) {
     uint8_t* buffer = new uint8_t[outputSize];
     int status = GetPbkdf2Ex(nullptr, 55, TEST_STRING_8, 8, HMAC_SHA1, 100, buffer, outputSize);
 
-    EXPECT_TRUE(status == ERROR_WRONG_INPUT);
+    EXPECT_TRUE(status == ERROR_NULL_INPUT);
     delete[] buffer;
 }
 
@@ -21,7 +21,7 @@ TEST(GetPbkdf2ExTest, WrongKey) {
     uint8_t* buffer = new uint8_t[outputSize];
     int status = GetPbkdf2Ex(TEST_STRING_8, 8, nullptr, 55, HMAC_SHA1, 100, buffer, outputSize);
 
-    EXPECT_TRUE(status == ERROR_WRONG_KEY);
+    EXPECT_TRUE(status == ERROR_NULL_KEY);
     delete[] buffer;
 }
 
@@ -30,7 +30,7 @@ TEST(GetPbkdf2ExTest, WrongOuput) {
     uint8_t* buffer = new uint8_t[outputSize];
     int status = GetPbkdf2Ex(TEST_STRING_8, 8, TEST_STRING_8, 8, HMAC_SHA1, 100, nullptr, outputSize);
 
-    EXPECT_TRUE(status == ERROR_WRONG_OUTPUT);
+    EXPECT_TRUE(status == ERROR_NULL_OUTPUT);
     delete[] buffer;
 }
 

@@ -9,15 +9,15 @@ int CheckPbkdf2Arguments(__in const void* salt, __in uint64_t saltSize, __in con
 {
     int status = NO_ERROR;
     if (!salt && saltSize)
-        return ERROR_WRONG_INPUT;
+        return ERROR_NULL_INPUT;
     else if (!key && keySize)
-        return ERROR_WRONG_KEY;
+        return ERROR_NULL_KEY;
     else if (!output)
-        return ERROR_WRONG_OUTPUT;
+        return ERROR_NULL_OUTPUT;
     else if ((unsigned)func >= Prf_max)
         return ERROR_UNSUPPORTED_PRF_FUNC;
     else if (!iterationsNum)
-        return ERROR_WRONG_ITERATIONS_NUMBER;
+        return ERROR_TOO_SMALL_ITERATIONS_NUMBER;
     else
         return NO_ERROR;
 }
@@ -67,7 +67,7 @@ int GetPbkdf2Internal(__in const void* salt, __in uint64_t saltSize, __in const 
     uint8_t* reserveBuffer2 = buffer2;
 
     if (outputSize > 0xffffffff * (uint64_t)didgestSize)
-        EVAL(ERROR_WRONG_OUTPUT_SIZE);
+        EVAL(ERROR_NULL_OUTPUT_SIZE);
 
     uint32_t blocksNum = (uint32_t)((outputSize + (didgestSize - 1)) / didgestSize);
     uint32_t blocksCounter = 0;

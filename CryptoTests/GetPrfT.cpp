@@ -12,7 +12,7 @@ TEST(GetPrfTest, WrongInput) {
     uint8_t* buffer = new uint8_t[outputSize];
     int status = GetPrf(nullptr, 55, TEST_STRING_8, 8, HMAC_SHA1, buffer, outputSize);
 
-    EXPECT_TRUE(status == ERROR_WRONG_INPUT);
+    EXPECT_TRUE(status == ERROR_NULL_INPUT);
     delete[] buffer;
 }
 
@@ -21,7 +21,7 @@ TEST(GetPrfTest, WrongKey) {
     uint8_t* buffer = new uint8_t[outputSize];
     int status = GetPrf(TEST_STRING_8, 8, nullptr, 55, HMAC_SHA1, buffer, outputSize);
 
-    EXPECT_TRUE(status == ERROR_WRONG_KEY);
+    EXPECT_TRUE(status == ERROR_NULL_KEY);
     delete[] buffer;
 }
 
@@ -30,7 +30,7 @@ TEST(GetPrfTest, WrongOuput) {
     uint8_t* buffer = new uint8_t[outputSize];
     int status = GetPrf(TEST_STRING_8, 8, TEST_STRING_8, 8, HMAC_SHA1, nullptr, outputSize);
 
-    EXPECT_TRUE(status == ERROR_WRONG_OUTPUT);
+    EXPECT_TRUE(status == ERROR_NULL_OUTPUT);
     delete[] buffer;
 }
 

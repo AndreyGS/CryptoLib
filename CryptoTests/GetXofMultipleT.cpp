@@ -12,7 +12,7 @@ TEST(GetXofMultipleTest, WrongInput_VoidAndSizeNode) {
     uint8_t* buffer = new uint8_t[outputSize];
     int status = GetXofMultiple(nullptr, 1, SHAKE128, buffer, outputSize);
 
-    EXPECT_TRUE(status == ERROR_WRONG_INPUT);
+    EXPECT_TRUE(status == ERROR_NULL_INPUT);
     delete[] buffer;
 }
 
@@ -32,7 +32,7 @@ TEST(GetXofMultipleTest, WrongInput_VoidInputSize) {
     VoidAndSizeNode chunks[2] = { { nullptr, 64 }, { (void*)TEST_STRING_55, 55 } };
     int status = GetXofMultiple(chunks, 2, SHAKE128, chunks, outputSize);
 
-    EXPECT_TRUE(status == ERROR_WRONG_INPUT);
+    EXPECT_TRUE(status == ERROR_NULL_INPUT);
     delete[] buffer;
 }
 
@@ -42,7 +42,7 @@ TEST(GetXofMultipleTest, WrongOuput) {
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_64, 64 }, { (void*)TEST_STRING_55, 55 } };
     int status = GetXofMultiple(chunks, 2, SHAKE128, nullptr, outputSize);
 
-    EXPECT_TRUE(status == ERROR_WRONG_OUTPUT);
+    EXPECT_TRUE(status == ERROR_NULL_OUTPUT);
     delete[] buffer;
 }
 
@@ -52,7 +52,7 @@ TEST(GetXofMultipleTest, WrongOuputSize) {
     VoidAndSizeNode chunks[2] = { { (void*)TEST_STRING_64, 64 }, { (void*)TEST_STRING_55, 55 } };
     int status = GetXofMultiple(chunks, 2, SHAKE128, chunks, 0);
 
-    EXPECT_TRUE(status == ERROR_WRONG_OUTPUT_SIZE);
+    EXPECT_TRUE(status == ERROR_NULL_OUTPUT_SIZE);
     delete[] buffer;
 }
 

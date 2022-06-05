@@ -168,7 +168,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="block_ciphers_main.h" />
     <ClInclude Include="crypto.h" />
     <ClInclude Include="crypto_helpers.h" />
     <ClInclude Include="crypto_internal.h" />
@@ -182,7 +181,6 @@
     <ClInclude Include="sha-3.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="block_ciphers_main.c" />
     <ClCompile Include="consts.c" />
     <ClCompile Include="crypto.c" />
     <ClCompile Include="crypto_helpers.c" />

@@ -53,7 +53,7 @@ TEST(GetXofTest, WrongState) {
     int status = NO_ERROR;
     std::unique_ptr<uint8_t> buffer(nullptr);
     status = GetXof(nullptr, "", 0, true, buffer.get(), 0);
-    EXPECT_TRUE(status == ERROR_WRONG_STATE_HANDLE);
+    EXPECT_TRUE(status == ERROR_NULL_STATE_HANDLE);
 }
 
 TEST(GetXofTest, WrongOutput) {
@@ -62,15 +62,15 @@ TEST(GetXofTest, WrongOutput) {
     InitXofState(&handle, SHAKE128);
     status = GetXof(handle, "", 0, true, nullptr, 0);
     FreeXofState(handle);
-    EXPECT_TRUE(status == ERROR_WRONG_OUTPUT);
+    EXPECT_TRUE(status == ERROR_NULL_OUTPUT);
 }
 
 TEST(GetXofTest, WrongOutputSize) {
-    GetXofMainTestFunc(nullptr, 0, SHAKE128, 0, ERROR_WRONG_OUTPUT_SIZE, nullptr);
+    GetXofMainTestFunc(nullptr, 0, SHAKE128, 0, ERROR_NULL_OUTPUT_SIZE, nullptr);
 }
 
 TEST(GetXofTest, WrongInput) {
-    GetXofMainTestFunc(nullptr, 55, SHAKE128, 1, ERROR_WRONG_INPUT, nullptr);
+    GetXofMainTestFunc(nullptr, 55, SHAKE128, 1, ERROR_NULL_INPUT, nullptr);
 }
 
 TEST(GetXofTest, WrongInputSize) {

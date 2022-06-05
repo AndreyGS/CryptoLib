@@ -22,26 +22,31 @@ extern "C" {
 
 #define NO_ERROR                            0x00000000
 
-#define ERROR_WRONG_INPUT                   0x80000000
-#define ERROR_WRONG_OUTPUT                  0x80000001
-#define ERROR_WRONG_KEY                     0x80000002
-#define ERROR_WRONG_INPUT_SIZE              0x80000003
-#define ERROR_WRONG_OUTPUT_SIZE             0x80000004
-#define ERROR_WRONG_BLOCK_SIZE              0x80000005
-#define ERROR_INAPPLICABLE_PADDING_TYPE     0x80000006
-#define ERROR_PADDING_CORRUPTED             0x80000007
-#define ERROR_WRONG_INIT_VECTOR             0x80000008
-#define ERROR_UNSUPPORTED_HASHING_FUNC      0x80000009
-#define ERROR_UNSUPPORTED_CIPHER_FUNC       0x8000000a
-#define ERROR_WRONG_ITERATIONS_NUMBER       0x8000000b
-#define ERROR_NO_MEMORY                     0x8000000c
-#define ERROR_UNSUPPORTED_XOF               0x8000000d
-#define ERROR_UNSUPPORTED_PRF_FUNC          0x8000000e
-#define ERROR_OUTPUT_SIZE_TOO_SMALL         0x8000000f
-#define ERROR_UNSUPPORTED_PADDING_TYPE      0x80000010
-#define ERROR_UNSUPPROTED_ENCRYPTION_MODE   0x80000011
-#define ERROR_WRONG_STATE_HANDLE            0x80000012
-#define ERROR_UNSUPPROTED_OPERATION_MODE    0x80000013
+#define ERROR_NULL_STATE_HANDLE             0x80000001
+#define ERROR_NULL_INPUT                    0x80000002
+#define ERROR_NULL_OUTPUT                   0x80000003
+#define ERROR_NULL_KEY                      0x80000004
+#define ERROR_NULL_OUTPUT_SIZE              0x80000005
+#define ERROR_NULL_INIT_VECTOR              0x80000006
+
+#define ERROR_UNSUPPORTED_CIPHER_FUNC       0x80000101
+#define ERROR_UNSUPPROTED_ENCRYPTION_MODE   0x80000102
+#define ERROR_UNSUPPROTED_OPERATION_MODE    0x80000103
+#define ERROR_UNSUPPORTED_PADDING_TYPE      0x80000104
+#define ERROR_UNSUPPORTED_HASHING_FUNC      0x80000105
+#define ERROR_UNSUPPORTED_XOF               0x80000106
+#define ERROR_UNSUPPORTED_PRF_FUNC          0x80000107
+
+#define ERROR_WRONG_INPUT_SIZE              0x80000201
+#define ERROR_TOO_SMALL_OUTPUT_SIZE         0x80000202
+#define ERROR_TOO_SMALL_BLOCK_SIZE          0x80000203
+#define ERROR_TOO_SMALL_ITERATIONS_NUMBER   0x80000204
+#define ERROR_TOO_BIG_BLOCK_SIZE            0x80000205
+
+#define ERROR_INAPPLICABLE_PADDING_TYPE     0x80000301
+#define ERROR_PADDING_CORRUPTED             0x80000302
+
+#define ERROR_NO_MEMORY                     0x80000f01
 
 typedef void* StateHandle;
 typedef StateHandle BlockCipherHandle;
@@ -76,7 +81,7 @@ typedef enum _BlockCipherOpMode {
 typedef enum _CryptoMode {
     Encryption_mode,
     Decryption_mode,
-    CryptoMode_mode_max
+    CryptoMode_max
 } CryptoMode;
 
 typedef enum _PaddingType {
@@ -149,30 +154,18 @@ typedef enum _Prf {
 
 int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
 
-// If you supply outputSize == 0, then function returns ERROR_WRONG_OUTPUT_SIZE error and outputSize variable will contain requiring size
+// If you supply outputSize == 0, then function returns ERROR_NULL_OUTPUT_SIZE error and outputSize variable will contain requiring size
 // For all cipher modes outputSize in DecryptByBlockCipher will return exact bytes length.
 // but with OFB if you pass there outputSize < inputSize you will get an error and outputSize returned will be equal inputSize.
 // And if there is no error outputSize will always contain exact bytes length.
-//int EncryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
-    //, __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv);
-//int DecryptByBlockCipher(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
-   // , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv);
 
-// Ex version has the roundsKeys input instead of key in main version
-int EncryptByBlockCipherEx(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* roundsKeys, __in BlockCipherType cipherType
-    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv);
-int DecryptByBlockCipherEx(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* roundsKeys, __in BlockCipherType cipherType
-    , __out void* output, __inout uint64_t* outputSize, __in BlockCipherOpMode mode, __inout_opt void* iv);
-
-// Check g_blockCipherKeysSizes for key sizes that you should supply with your ouput buffer for get respective rounds keys
-int GetBlockCipherRoundsKeys(__in const void* key, __in BlockCipherType cipherType, __out void* output);
-
-int InitBlockCiperState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv);
-int ReInitBlockCiperCryptoMode(__inout BlockCipherHandle handle, __in CryptoMode cryptoMode);
-int ReInitBlockCiperOpMode(__inout BlockCipherHandle handle, __in BlockCipherOpMode opMode);
-int ReInitBlockCiperPaddingType(__inout BlockCipherHandle handle, __in PaddingType padding);
-int ReInitBlockCiperIv(__inout BlockCipherHandle handle, __in void* iv);
+int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv);
+int ReInitBlockCipherCryptoMode(__inout BlockCipherHandle handle, __in CryptoMode cryptoMode);
+int ReInitBlockCipherOpMode(__inout BlockCipherHandle handle, __in BlockCipherOpMode opMode);
+int ReInitBlockCipherPaddingType(__inout BlockCipherHandle handle, __in PaddingType padding);
+int ReInitBlockCipherIv(__inout BlockCipherHandle handle, __in const void* iv);
 int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize);
+int FreeBlockCipherState(__inout BlockCipherHandle handle);
 
 // Before using GetHash with finalize flag you should allocate output buffer according to the output digest size of respective hashing function
 // You may check the numbers with g_hashFuncsSizesMapping array (see "func" and corresponding "blockSize" fields)

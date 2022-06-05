@@ -56,7 +56,7 @@ TEST(GetHashTest, WrongState) {
     int status = NO_ERROR;
     std::unique_ptr<uint8_t> buffer(nullptr);
     status = GetHash(nullptr, "", 0, true, buffer.get());
-    EXPECT_TRUE(status == ERROR_WRONG_STATE_HANDLE);
+    EXPECT_TRUE(status == ERROR_NULL_STATE_HANDLE);
 }
 
 TEST(GetHashTest, WrongOutput) {
@@ -65,11 +65,11 @@ TEST(GetHashTest, WrongOutput) {
     InitHashState(&handle, SHA_224);
     status = GetHash(handle, "", 0, true, nullptr);
     FreeHashState(handle);
-    EXPECT_TRUE(status == ERROR_WRONG_OUTPUT);
+    EXPECT_TRUE(status == ERROR_NULL_OUTPUT);
 }
 
 TEST(GetHashTest, WrongInput) {
-    GetHashMainTestFunc(nullptr, 55, SHA1, ERROR_WRONG_INPUT, nullptr);
+    GetHashMainTestFunc(nullptr, 55, SHA1, ERROR_NULL_INPUT, nullptr);
 }
 
 TEST(GetHashTest, WrongInputSize) {

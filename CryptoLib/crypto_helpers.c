@@ -8,7 +8,7 @@
 int CheckInput(__in const void* input, __in uint64_t inputSize)
 {
     if (!input)
-        return ERROR_WRONG_INPUT;
+        return ERROR_NULL_INPUT;
     else if (!inputSize)
         return ERROR_WRONG_INPUT_SIZE;
     else
@@ -18,9 +18,9 @@ int CheckInput(__in const void* input, __in uint64_t inputSize)
 int CheckOutput(__in const void* output, __in const uint64_t* outputSize)
 {
     if (!output && outputSize && *outputSize)
-        return ERROR_WRONG_OUTPUT;
+        return ERROR_NULL_OUTPUT;
     else if (!outputSize)
-        return ERROR_OUTPUT_SIZE_IS_NULL;
+        return ERROR_NULL_OUTPUT_SIZE;
     else
         return NO_ERROR;
 }
@@ -40,13 +40,13 @@ int CheckBlockCipherPrimaryArguments(const void* input, uint64_t inputSize, Padd
     else if ((unsigned)padding >= PaddingType_max)
         return ERROR_UNSUPPORTED_PADDING_TYPE;
     else if (!key)
-        return ERROR_WRONG_KEY;
+        return ERROR_NULL_KEY;
     else if ((unsigned)cipherType >= BlockCipherType_max)
         return ERROR_UNSUPPORTED_CIPHER_FUNC;
     else if ((unsigned)mode >= BlockCipherOpMode_max)
         return ERROR_UNSUPPROTED_ENCRYPTION_MODE;
     else if (mode != ECB_mode && !iv)
-        return ERROR_WRONG_INIT_VECTOR;
+        return ERROR_NULL_INIT_VECTOR;
     else
         return NO_ERROR;
 }
@@ -54,11 +54,11 @@ int CheckBlockCipherPrimaryArguments(const void* input, uint64_t inputSize, Padd
 int CheckHashAndXofPrimaryArguments(const StateHandle state, const void* input, uint64_t inputSize, bool finalize, const void* output)
 {
     if (!state)
-        return ERROR_WRONG_STATE_HANDLE;
+        return ERROR_NULL_STATE_HANDLE;
     else if (finalize && !output)
-        return ERROR_WRONG_OUTPUT;
+        return ERROR_NULL_OUTPUT;
     else if (!input && inputSize)
-        return ERROR_WRONG_INPUT;
+        return ERROR_NULL_INPUT;
     else
         return NO_ERROR;
 }
@@ -156,7 +156,7 @@ int FillLastDecryptedBlockInternal(__in PaddingType padding, __in uint64_t block
 
     if (requiringSize > *outputSize) {
         *outputSize = requiringSize;
-        return ERROR_WRONG_OUTPUT_SIZE;
+        return ERROR_TOO_SMALL_OUTPUT_SIZE;
     }
 
     *outputSize = requiringSize;

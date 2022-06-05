@@ -6,6 +6,13 @@
 #include "paddings.h"
 #include "crypto_internal.h"
 
+typedef uint64_t(*DesEncDecFunction)(const uint64_t* roundsKeys, const uint64_t input);
+
+int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* input, __in uint64_t inputSize
+    , __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize);
+int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* input, __in uint64_t inputSize
+    , __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize);
+
 typedef struct _CDBlocks {
     uint32_t cBlock;
     uint32_t dBlock;
@@ -192,6 +199,25 @@ void SingleDesGetRoundsKeys(__in uint64_t extendedKey, __out uint64_t* roundsKey
     roundsKeys[15] = DesGetRoundKey(DesGetRoundCDBlocksOne(cdBlocks));
 }
 
+void TripleDesGetRoundsKeys(__in const uint64_t* extendedKeys, __out uint64_t* roundsKeys)
+{
+    SingleDesGetRoundsKeys(*extendedKeys++, roundsKeys);
+    SingleDesGetRoundsKeys(*extendedKeys++, roundsKeys + 16);
+    SingleDesGetRoundsKeys(*extendedKeys, roundsKeys + 32);
+}
+
+inline void DesGetRoundsKeys(__in BlockCipherType cipher, __in const uint64_t* key, __out uint64_t* roundsKeys)
+{
+    switch (cipher) {
+    case DES_cipher_type:
+        SingleDesGetRoundsKeys(*key, roundsKeys);
+        break;
+    case TDES_cipher_type:
+        TripleDesGetRoundsKeys(key, roundsKeys);
+        break;
+    }
+}
+
 // Feistel block
 
 inline uint64_t DesFeistelExtention(uint32_t r)
@@ -238,7 +264,7 @@ const uint8_t DES_S_TRANSFORM_OPTIMIZED[8][64] =
         10, 13,  0,  7,  9,  0, 14,  9,  6,  3,  3,  4, 15,  6,  5, 10,
          1,  2, 13,  8, 12,  5,  7, 14, 11, 12,  4, 11,  2, 15,  8,  1,
         13,  1,  6, 10,  4, 13,  9,  0,  8,  6, 15,  9,  3,  8,  0,  7,
-        11,  4,  1, 15,  2, 14, 12,  3,  5, 11, 10,  5, 14,  2,  7 , 12
+        11,  4,  1, 15,  2, 14, 12,  3,  5, 11, 10,  5, 14,  2,  7, 12
     },
 
     {
@@ -484,9 +510,9 @@ inline uint64_t DesFinalPermutation(uint64_t encryptedBlock)
 
 // Main algo block
 
-uint64_t DesEncryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
+uint64_t DesEncryptBlock(const uint64_t* roundsKeys, const uint64_t input)
 {
-    uint64_t permInput = DesInitialPermutation(*input);
+    uint64_t permInput = DesInitialPermutation(input);
 
     for (int i = 0; i < 16; ++i)
         permInput = (permInput >> 32) | ((DesFeistelFunc(permInput >> 32, roundsKeys[i]) ^ permInput) << 32);
@@ -496,14 +522,9 @@ uint64_t DesEncryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
     return DesFinalPermutation(permInput);
 }
 
-uint64_t TdesEncryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
+uint64_t DesDecryptBlock(const uint64_t* roundsKeys, const uint64_t input)
 {
-    return DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(input, roundsKeys), roundsKeys + 16), roundsKeys + 32);
-}
-
-uint64_t DesDecryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
-{
-    uint64_t permInput = DesInitialPermutation(*input);
+    uint64_t permInput = DesInitialPermutation(input);
 
     permInput = permInput >> 32 | permInput << 32;
 
@@ -513,113 +534,163 @@ uint64_t DesDecryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
     return DesFinalPermutation(permInput);
 }
 
-uint64_t TdesEncryptBlock(const uint64_t* input, const uint64_t* roundsKeys)
+uint64_t TdesEncryptBlock(const uint64_t* roundsKeys, const uint64_t input)
 {
-    return DesDecryptBlock(DesEncryptBlock(DesDecryptBlock(input, roundsKeys + 32), roundsKeys + 16), roundsKeys);
+    return DesEncryptBlock(roundsKeys + 32, DesDecryptBlock(roundsKeys + 16, DesEncryptBlock(roundsKeys, input)));
 }
 
-int SingleDesEncrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const uint64_t* roundsKeys, __out void* output, __inout uint64_t* outputSize,
-    __in BlockCipherOpMode mode, __inout_opt uint64_t* iv)
+uint64_t TdesDecryptBlock(const uint64_t* roundsKeys, const uint64_t input)
+{
+    return DesDecryptBlock(roundsKeys, DesEncryptBlock(roundsKeys + 16, DesDecryptBlock(roundsKeys + 32, input)));
+}
+
+int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* input, __in uint64_t inputSize
+    , __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize)
 {
     int status = NO_ERROR;
-    if (status = AddPaddingInternal(input, inputSize, padding, DES_BLOCK_SIZE, output, outputSize, true))
+
+    if (!finalize) {
+        if (inputSize & 7)
+            return ERROR_WRONG_INPUT_SIZE;
+        else
+            *outputSize = inputSize;
+    }
+    else if (status = AddPaddingInternal(input, inputSize, padding, DES_BLOCK_SIZE, output, outputSize, true))
         return status;
+
+    DesEncDecFunction func = NULL;
+    uint64_t* roundsKeys = NULL;
+    uint64_t iv = 0;
+
+    if (cipher == DES_cipher_type) {
+        func = DesEncryptBlock;
+        roundsKeys = ((DesState*)state)->roundsKeys;
+        iv = ((DesState*)state)->iv;
+    }
+    else {
+        func = TdesEncryptBlock;
+        roundsKeys = ((TdesState*)state)->roundsKeys;
+        iv = ((TdesState*)state)->iv;
+    }
 
     uint64_t blocksNumber = *outputSize >> 3; // (outputSize / DES_BLOCK_SIZE) outputSize must be divisible by DES_BLOCK_SIZE without remainder
-    uint64_t ivBlock = iv ? *iv : 0;
 
-    switch (mode) {
+    switch (opMode) {
     case ECB_mode: {
         while (--blocksNumber)
-            *((uint64_t*)output)++ = DesEncryptBlock(*((uint64_t*)input)++, roundsKeys);
+            *((uint64_t*)output)++ = func(roundsKeys, *((uint64_t*)input)++);
 
-        *(uint64_t*)output = DesEncryptBlock(*(uint64_t*)output, roundsKeys);
+        *(uint64_t*)output = func(roundsKeys, finalize ? *(uint64_t*)output : *((uint64_t*)input));
 
         break;
     }
 
     case CBC_mode: {
         while (--blocksNumber) {
-            *(uint64_t*)output = DesEncryptBlock(ivBlock ^ *((uint64_t*)input)++, roundsKeys);
-            ivBlock = *((uint64_t*)output)++;
+            *(uint64_t*)output = func(roundsKeys, iv ^ *((uint64_t*)input)++);
+            iv = *((uint64_t*)output)++;
         }
 
-        *(uint64_t*)output = DesEncryptBlock(ivBlock ^ *(uint64_t*)output, roundsKeys);
-        ivBlock = *(uint64_t*)output;
+        *(uint64_t*)output = func(roundsKeys, iv ^ (finalize ? *(uint64_t*)output : *((uint64_t*)input)));
+        iv = *(uint64_t*)output;
 
         break;
     }
 
     case CFB_mode: {
         while (--blocksNumber) {
-            *(uint64_t*)output = DesEncryptBlock(ivBlock, roundsKeys) ^ *((uint64_t*)input)++;
-            ivBlock = *((uint64_t*)output)++;
+            *(uint64_t*)output = func(roundsKeys, iv) ^ *((uint64_t*)input)++;
+            iv = *((uint64_t*)output)++;
         }
 
-        *(uint64_t*)output ^= DesEncryptBlock(ivBlock, roundsKeys);
-        ivBlock = *(uint64_t*)output;
+        *(uint64_t*)output = func(roundsKeys, iv) ^ (finalize ? *(uint64_t*)output : *((uint64_t*)input));
+        iv = *(uint64_t*)output;
 
         break;
     }
 
     case OFB_mode: {
         while (--blocksNumber)
-            *((uint64_t*)output)++ = (ivBlock = DesEncryptBlock(ivBlock, roundsKeys)) ^ *((uint64_t*)input)++;
+            *((uint64_t*)output)++ = (iv = func(roundsKeys, iv)) ^ *((uint64_t*)input)++;
 
-        *(uint64_t*)output ^= (ivBlock = DesEncryptBlock(ivBlock, roundsKeys));
+        *(uint64_t*)output = (iv = func(roundsKeys, iv)) ^ (finalize ? *(uint64_t*)output : *((uint64_t*)input));
 
         break;
     }
 
     case CTR_mode: {
         while (--blocksNumber) {
-            *((uint64_t*)output)++ = DesEncryptBlock(ivBlock, roundsKeys) ^ *((uint64_t*)input)++;
-            ivBlock = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(ivBlock) + 1); // I'm not sure that approach with Big Endian counter is necessary
-                                                                                                 // but the other working examplse of des with ctr with which I can compare the result
-                                                                                                 // has that (based on my calculations).
+            *((uint64_t*)output)++ = func(roundsKeys, iv) ^ *((uint64_t*)input)++;
+            iv = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv) + 1); // I'm not sure that approach with Big Endian counter is necessary
+                                                                                       // but the other working examplse of des with ctr with which I can compare the result
+                                                                                       // has that (based on my calculations).
         }
 
-        *(uint64_t*)output = DesEncryptBlock(ivBlock, roundsKeys) ^ *(uint64_t*)output;
-        ivBlock = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(ivBlock) + 1);
+        *(uint64_t*)output = func(roundsKeys, iv) ^ (finalize ? *(uint64_t*)output : *((uint64_t*)input));
+        iv = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv) + 1);
 
         break;
     }
 
     }
 
-    if (iv)
-        *iv = ivBlock;
+    if (cipher == DES_cipher_type)
+        ((DesState*)state)->iv = iv;
+    else
+        ((TdesState*)state)->iv = iv;
 
     return NO_ERROR;
 }
 
-int SingleDesDecrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const uint64_t* roundsKeys, __out void* output, __inout uint64_t* outputSize,
-    __in BlockCipherOpMode mode, __inout_opt uint64_t* iv)
+int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* input, __in uint64_t inputSize
+    , __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize)
 {
     int status = NO_ERROR;
 
     if (inputSize & 7) // (7 == DES_BLOCK_SIZE - 1)
         return ERROR_WRONG_INPUT_SIZE;
 
+    DesEncDecFunction func = NULL;
+    uint64_t* roundsKeys = NULL;
+    uint64_t iv = 0;
+
+    if (cipher == DES_cipher_type) {
+        if (opMode == ECB_mode || opMode == CBC_mode)
+            func = DesDecryptBlock;
+        else
+            func = DesEncryptBlock;
+
+        roundsKeys = ((DesState*)state)->roundsKeys;
+        iv = ((DesState*)state)->iv;
+    }
+    else {
+        if (opMode == ECB_mode || opMode == CBC_mode)
+            func = TdesDecryptBlock;
+        else
+            func = TdesEncryptBlock;
+
+        roundsKeys = ((TdesState*)state)->roundsKeys;
+        iv = ((TdesState*)state)->iv;
+    }
+
     uint64_t blocksNumber = inputSize >> 3; // (inputSize / DES_BLOCK_SIZE) inputSize must be divisible by DES_BLOCK_SIZE without remainder
     uint64_t lastOutputBlock = 0;
-    uint64_t ivBlock = iv ? *iv : 0;
     uint64_t lastIvBlock = 0;
 
     bool multiBlock = inputSize > DES_BLOCK_SIZE;
 
-    switch (mode) {
+    switch (opMode) {
     case ECB_mode:
     case CBC_mode: {
-        lastOutputBlock = DesDecryptBlock(*(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE), roundsKeys);
+        lastOutputBlock = func(roundsKeys , *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE));
 
-        if (mode == CBC_mode) {
+        if (opMode == CBC_mode) {
             if (multiBlock) {
                 lastOutputBlock ^= *(uint64_t*)((uint8_t*)input + inputSize - 2 * DES_BLOCK_SIZE);
                 lastIvBlock = *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE);
             }
             else {
-                lastOutputBlock ^= ivBlock;
+                lastOutputBlock ^= iv;
                 lastIvBlock = *(uint64_t*)input;
             }
         }
@@ -628,11 +699,11 @@ int SingleDesDecrypt(__in const void* input, __in uint64_t inputSize, __in Paddi
 
     case CFB_mode: {
         if (multiBlock) {
-            lastOutputBlock = DesEncryptBlock(*(uint64_t*)((uint8_t*)input + inputSize - 2 * DES_BLOCK_SIZE), roundsKeys) ^ *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE);
+            lastOutputBlock = func(roundsKeys, *(uint64_t*)((uint8_t*)input + inputSize - 2 * DES_BLOCK_SIZE)) ^ *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE);
             lastIvBlock = *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE);
         }
         else {
-            lastOutputBlock = DesEncryptBlock(ivBlock, roundsKeys) ^ *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE);
+            lastOutputBlock = func(roundsKeys, iv) ^ *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE);
             lastIvBlock = *(uint64_t*)input;
         }
         break;
@@ -642,33 +713,39 @@ int SingleDesDecrypt(__in const void* input, __in uint64_t inputSize, __in Paddi
         // All input processing when OFB_mode must be calculated here
         if (*outputSize >= inputSize) {
             while (blocksNumber--)
-                *((uint64_t*)output)++ = (ivBlock = DesEncryptBlock(ivBlock, roundsKeys)) ^ *((uint64_t*)input)++;
+                *((uint64_t*)output)++ = (iv = func(roundsKeys, iv)) ^ *((uint64_t*)input)++;
             lastOutputBlock = *--((uint64_t*)output);
 
-            *iv = ivBlock;
+            lastIvBlock = iv;
         }
         else
-            return ERROR_WRONG_OUTPUT_SIZE;
+            return ERROR_TOO_SMALL_OUTPUT_SIZE;
 
         break;
     }
 
     case CTR_mode: {
-        lastOutputBlock = DesEncryptBlock(Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(ivBlock) + blocksNumber - 1), roundsKeys) ^ *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE);
-        lastIvBlock = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(ivBlock) + blocksNumber);
+        lastOutputBlock = func(roundsKeys, Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv) + blocksNumber - 1)) ^ *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE);
+        lastIvBlock = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv) + blocksNumber);
 
         break;
     }
 
     }
 
-    if ((status = FillLastDecryptedBlockInternal(padding, DES_BLOCK_SIZE, &lastOutputBlock, inputSize, output, outputSize)) || mode == OFB_mode)
+    if (!finalize) {
+        if (opMode != OFB_mode)
+            *((uint64_t*)output + blocksNumber - 1) = lastOutputBlock;
+
+        *outputSize = inputSize;
+    } 
+    else if (status = FillLastDecryptedBlockInternal(padding, DES_BLOCK_SIZE, &lastOutputBlock, inputSize, output, outputSize))
         return status;
 
-    switch (mode) {
+    switch (opMode) {
     case ECB_mode: {
         while (--blocksNumber)
-            *((uint64_t*)output)++ = DesDecryptBlock(*((uint64_t*)input)++, roundsKeys);
+            *((uint64_t*)output)++ = func(roundsKeys , *((uint64_t*)input)++);
 
         break;
     }
@@ -678,8 +755,8 @@ int SingleDesDecrypt(__in const void* input, __in uint64_t inputSize, __in Paddi
 
         while (--blocksNumber) {
             ivBlockNext = *((uint64_t*)input)++;
-            *((uint64_t*)output)++ = DesDecryptBlock(ivBlockNext, roundsKeys) ^ ivBlock;
-            ivBlock = ivBlockNext;
+            *((uint64_t*)output)++ = func(roundsKeys, ivBlockNext) ^ iv;
+            iv = ivBlockNext;
         }
 
         break;
@@ -690,221 +767,20 @@ int SingleDesDecrypt(__in const void* input, __in uint64_t inputSize, __in Paddi
 
         while (--blocksNumber) {
             ivBlockNext = *((uint64_t*)input)++;
-            *((uint64_t*)output)++ = DesEncryptBlock(ivBlock, roundsKeys) ^ ivBlockNext;
-            ivBlock = ivBlockNext;
+            *((uint64_t*)output)++ = func(roundsKeys, iv) ^ ivBlockNext;
+            iv = ivBlockNext;
         }
 
         break;
-    }
-
-    case CTR_mode: {
-        while (--blocksNumber) {
-            *((uint64_t*)output)++ = DesEncryptBlock(ivBlock, roundsKeys) ^ *((uint64_t*)input)++;
-            ivBlock = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(ivBlock) + 1);
-        }
-
-        break;
-    }
-
-    }
-
-    if (iv)
-        *iv = lastIvBlock;
-
-    return NO_ERROR;
-}
-
-void TripleDesGetRoundsKeys(__in const uint64_t* extendedKeys, __out uint64_t* roundsKeys)
-{
-    SingleDesGetRoundsKeys(*extendedKeys++, roundsKeys     );
-    SingleDesGetRoundsKeys(*extendedKeys++, roundsKeys + 16);
-    SingleDesGetRoundsKeys(*extendedKeys,   roundsKeys + 32);
-}
-
-int TripleDesEncrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const uint64_t* roundsKeys, __out void* output, __inout uint64_t* outputSize,
-    __in BlockCipherOpMode mode, __inout_opt uint64_t* iv)
-{
-    int status = NO_ERROR;
-    if (status = AddPaddingInternal(input, inputSize, padding, DES_BLOCK_SIZE, output, outputSize, true))
-        return status;
-
-    uint64_t blocksNumber = *outputSize >> 3; // (*outputSize / DES_BLOCK_SIZE) *outputSize must be divisible by DES_BLOCK_SIZE without remainder
-    uint64_t ivBlock = iv ? *iv : 0;
-    
-    switch (mode) {
-    case ECB_mode: {
-        while (--blocksNumber)
-            *((uint64_t*)output)++ = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(*((uint64_t*)input)++, roundsKeys), roundsKeys + 16), roundsKeys + 32);
-
-        *((uint64_t*)output)++ = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(*(uint64_t*)output, roundsKeys), roundsKeys + 16), roundsKeys + 32);
-
-        break;
-    }
-
-    case CBC_mode: {
-        while (--blocksNumber) {
-            *(uint64_t*)output = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(*((uint64_t*)input)++ ^ ivBlock, roundsKeys), roundsKeys + 16), roundsKeys + 32);
-            ivBlock = *((uint64_t*)output)++;
-        }
-
-        *(uint64_t*)output = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(*(uint64_t*)output ^ ivBlock, roundsKeys), roundsKeys + 16), roundsKeys + 32);
-        ivBlock = *(uint64_t*)output;
-
-        break;
-    }
-
-    case CFB_mode: {
-        while (--blocksNumber) {
-            *((uint64_t*)output)++ = ivBlock = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(ivBlock, roundsKeys), roundsKeys + 16), roundsKeys + 32) ^ *((uint64_t*)input)++;
-        }
-
-        *(uint64_t*)output = ivBlock = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(ivBlock, roundsKeys), roundsKeys + 16), roundsKeys + 32) ^ *(uint64_t*)output;
-
-        break;
-    }
-
-    case OFB_mode: {
-        while (--blocksNumber)
-            *((uint64_t*)output)++ = (ivBlock = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(ivBlock, roundsKeys), roundsKeys + 16), roundsKeys + 32)) ^ *((uint64_t*)input)++;
-        
-        *(uint64_t*)output = (ivBlock = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(ivBlock, roundsKeys), roundsKeys + 16), roundsKeys + 32)) ^ *(uint64_t*)output;
-
-        break;
-    }
-
-    case CTR_mode: {
-        while (--blocksNumber) {
-            *((uint64_t*)output)++ = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(ivBlock, roundsKeys), roundsKeys + 16), roundsKeys + 32) ^ *((uint64_t*)input)++;
-            ivBlock = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(ivBlock) + 1);
-        }
-
-        *((uint64_t*)output)++ = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(ivBlock, roundsKeys), roundsKeys + 16), roundsKeys + 32) ^ *(uint64_t*)output;
-        ivBlock = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(ivBlock) + 1);
-
-        break;
-    }
-
-    }
-
-    if (iv)
-        *iv = ivBlock;
-
-    return NO_ERROR;
-}
-
-int TripleDesDecrypt(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const uint64_t* roundsKeys, __out void* output, __inout uint64_t* outputSize,
-    __in BlockCipherOpMode mode, __inout_opt uint64_t* iv)
-{
-    int status = NO_ERROR;
-
-    if (inputSize & 7) // (7 == DES_BLOCK_SIZE - 1)
-        return ERROR_WRONG_INPUT_SIZE;
-
-    uint64_t blocksNumber = inputSize >> 3; // (inputSize / DES_BLOCK_SIZE) inputSize must be divisible by DES_BLOCK_SIZE without remainder
-    uint64_t lastOutputBlock = 0;
-    uint64_t ivBlock = iv ? *iv : 0;
-    uint64_t lastIvBlock = 0;
-
-    bool multiBlock = inputSize > DES_BLOCK_SIZE;
-
-    switch (mode) {
-    case ECB_mode:
-    case CBC_mode: {
-        lastOutputBlock = DesDecryptBlock(DesEncryptBlock(DesDecryptBlock(*(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE), roundsKeys + 32), roundsKeys + 16), roundsKeys);
-
-        if (mode == CBC_mode) {
-            if (multiBlock) {
-                lastOutputBlock ^= *(uint64_t*)((uint8_t*)input + inputSize - 2 * DES_BLOCK_SIZE);
-                lastIvBlock = *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE);
-            }
-            else {
-                lastOutputBlock ^= ivBlock;
-                lastIvBlock = *(uint64_t*)input;
-            }
-        }
-
-        break;
-    }
-
-    case CFB_mode: {
-        if (multiBlock) {
-            lastOutputBlock = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(*(uint64_t*)((uint8_t*)input + inputSize - 2 * DES_BLOCK_SIZE), roundsKeys), roundsKeys + 16), roundsKeys + 32)
-                ^ *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE);
-            lastIvBlock = *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE);
-        }
-        else {
-            lastOutputBlock = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(ivBlock, roundsKeys), roundsKeys + 16), roundsKeys + 32)
-                ^ *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE);
-            lastIvBlock = *(uint64_t*)input;
-        }
-
-        break;
-    }
-
-    case OFB_mode: {
-        // All input processing when OFB_mode must be calculated here
-        if (*outputSize >= inputSize) {
-            while (blocksNumber--)
-                *((uint64_t*)output)++ = (ivBlock = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(ivBlock, roundsKeys), roundsKeys + 16), roundsKeys + 32)) ^ *((uint64_t*)input)++;
-            lastOutputBlock = *--((uint64_t*)output);
-
-            *iv = ivBlock;
-        }
-        else
-            return ERROR_WRONG_OUTPUT_SIZE;
-        
-        break;
-    }
- 
-    case CTR_mode: {
-        lastOutputBlock = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(ivBlock) + blocksNumber - 1), roundsKeys), roundsKeys + 16), roundsKeys + 32)
-            ^ *(uint64_t*)((uint8_t*)input + inputSize - DES_BLOCK_SIZE);
-        lastIvBlock = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(ivBlock) + blocksNumber);
-        break;
-    }
-
     }
     
-    if ((status = FillLastDecryptedBlockInternal(padding, DES_BLOCK_SIZE, &lastOutputBlock, inputSize, output, outputSize)) || mode == OFB_mode)
-        return status;
-
-    switch (mode) {
-    case ECB_mode: {
-        while (--blocksNumber)
-            *((uint64_t*)output)++ = DesDecryptBlock(DesEncryptBlock(DesDecryptBlock(*((uint64_t*)input)++, roundsKeys + 32), roundsKeys + 16), roundsKeys);
-
+    case OFB_mode:
         break;
-    }
-
-    case CBC_mode: {
-        uint64_t ivBlockNext = 0;
-
-        while (--blocksNumber) {
-            ivBlockNext = *((uint64_t*)input)++;
-            *((uint64_t*)output)++ = DesDecryptBlock(DesEncryptBlock(DesDecryptBlock(ivBlockNext, roundsKeys + 32), roundsKeys + 16), roundsKeys) ^ ivBlock;
-            ivBlock = ivBlockNext;
-        }
-
-        break;
-    }
-
-    case CFB_mode: {
-        uint64_t ivBlockNext = 0;
-
-        while (--blocksNumber) {
-            ivBlockNext = *((uint64_t*)input)++;
-            *((uint64_t*)output)++ = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(ivBlock, roundsKeys), roundsKeys + 16), roundsKeys + 32) ^ ivBlockNext;
-            ivBlock = ivBlockNext;
-        }
-
-        break;
-    }
 
     case CTR_mode: {
-
         while (--blocksNumber) {
-            *((uint64_t*)output)++ = DesEncryptBlock(DesDecryptBlock(DesEncryptBlock(ivBlock, roundsKeys), roundsKeys + 16), roundsKeys + 32) ^ *((uint64_t*)input)++;
-            ivBlock = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(ivBlock) + 1);
+            *((uint64_t*)output)++ = func(roundsKeys, iv) ^ *((uint64_t*)input)++;
+            iv = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv) + 1);
         }
 
         break;
@@ -912,8 +788,19 @@ int TripleDesDecrypt(__in const void* input, __in uint64_t inputSize, __in Paddi
 
     }
 
-    if (iv)
-        *iv = lastIvBlock;
+    if (cipher == DES_cipher_type)
+        ((DesState*)state)->iv = lastIvBlock;
+    else
+        ((TdesState*)state)->iv = lastIvBlock;
 
     return NO_ERROR;
+}
+
+inline int DesProcess(__inout StateHandle state, __in BlockCipherType cipher, __in CryptoMode enMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* input, __in uint64_t inputSize
+    , __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize)
+{
+    if (enMode == Encryption_mode)
+        return DesEncrypt(state, cipher, opMode, padding, input, inputSize, finalize, output, outputSize);
+    else
+        return DesDecrypt(state, cipher, opMode, padding, input, inputSize, finalize, output, outputSize);
 }
