@@ -1,5 +1,28 @@
-// crypto.h
-//
+/*
+ * @file crypto.h
+ * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * 
+ * @section LICENSE
+ * 
+ * Copyright 2022 Andrey Grabov-Smetankin
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files 
+ * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, 
+ * publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO 
+ * THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+ * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * 
+ * @section DESCRIPTON
+ * 
+ * This file represents public interface, enums and macros of CryptoLib
+ */
 
 #pragma once
 
@@ -20,6 +43,7 @@
 extern "C" {
 #endif
 
+/// Return statuses
 #define NO_ERROR                            0x00000000
 
 #define ERROR_NULL_STATE_HANDLE             0x80000001
@@ -152,19 +176,102 @@ typedef enum _Prf {
     Prf_max
 } Prf;
 
-int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
+int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
 
 // If you supply outputSize == 0, then function returns ERROR_NULL_OUTPUT_SIZE error and outputSize variable will contain requiring size
 // For all cipher modes outputSize in DecryptByBlockCipher will return exact bytes length.
 // but with OFB if you pass there outputSize < inputSize you will get an error and outputSize returned will be equal inputSize.
 // And if there is no error outputSize will always contain exact bytes length.
 
+/*
+ * Inits state for block cipher
+ * 
+ * Before using encryption/decryption by block ciphers you must init respective state with help of this function
+ * When state is no longer need you should free it by call of FreeBlockCipherState
+ * 
+ * @param handle is a state handle
+ * @param cipher type of cipher that will be used in encryption/decryption
+ * @param cryptoMode encryption or decryption
+ * @param opMode type of operation mode (ECB, CBC, etc)
+ * @param padding type of padding that using in encryption/decryption
+ * @param key encryption key
+ * @param iv initialization vector (for ECB is not used)
+ * 
+ * @return status
+ */
 int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv);
+
+/*
+ * ReInits crypto mode (encryption/decryption)
+ *
+ * @param handle is a state handle that inited by InitBlockCipherState
+ * @param cryptoMode new mode
+ *
+ * @return status
+ */
 int ReInitBlockCipherCryptoMode(__inout BlockCipherHandle handle, __in CryptoMode cryptoMode);
+
+/*
+ * ReInits operation mode (ECB, CBC, etc)
+ *
+ * @param handle is a state handle that inited by InitBlockCipherState
+ * @param opMode new operation mode
+ *
+ * @return status
+ */
 int ReInitBlockCipherOpMode(__inout BlockCipherHandle handle, __in BlockCipherOpMode opMode);
+
+/*
+ * ReInits padding type
+ *
+ * @param handle is a state handle that inited by InitBlockCipherState
+ * @param opMode new padding type
+ *
+ * @return status
+ */
 int ReInitBlockCipherPaddingType(__inout BlockCipherHandle handle, __in PaddingType padding);
+
+/*
+ * ReInits initialization vector
+ *
+ * @param handle is a state handle that inited by InitBlockCipherState
+ * @param opMode new initialization vector
+ *
+ * @return status
+ */
 int ReInitBlockCipherIv(__inout BlockCipherHandle handle, __in const void* iv);
+
+/*
+ * Processing by block cipher 0function
+ *
+ * This is the main encryption/decryption function that using inited by InitBlockCipherState handle.
+ * If you using this function for partial input, input size must be exact divisible by block size of current cipher.
+ * When you pass the last part of current data, finalize flag should be true, and otherwise false.
+ * In order to avoid problems with data corruption do not reinit any of reinitable params of current handle
+ * between calls of ProcessingByBlockCipher with false finalize flag.
+ * 
+ * @param handle is a state handle that inited by InitBlockCipherState
+ * @param input data to encypt/decrypt
+ * @param inputSize size of the current input chunk
+ * @param finalize flag that indicate last chunk of data
+ * @param output buffer allocated by user for output data
+ * @param outputSize size of allocated output buffer
+ *      for all cipher modes outputSize in will return exact bytes length that output data contain
+ *      if you supply outputSize less than required, then function returns ERROR_TOO_SMALL_OUTPUT_SIZE error and outputSize variable will contain requiring size
+ *      in decryption with OFB_mode strongly recomended to immediately pass output buffer with size not less than inputSize
+ *      because calculation of outputSize with OFB_mode decryption includes full input decryption
+ *
+ * @return status
+ */
 int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize);
+
+/*
+ * Frees block cipher state
+ *
+ * @param handle is a state handle that inited by InitBlockCipherState
+ * 
+ * @return status
+ */
 int FreeBlockCipherState(__inout BlockCipherHandle handle);
 
 // Before using GetHash with finalize flag you should allocate output buffer according to the output digest size of respective hashing function
@@ -187,12 +294,7 @@ int GetPrf(__inout PrfHandle handle, __in_opt const void* input, __in uint64_t i
 int ResetPrfState(__inout PrfHandle handle);
 int FreePrfState(__inout PrfHandle handle);
 
-// Maximum saltSize you should pass here is 512 bytes
-int GetPbkdf2(__in const void* salt, __in uint64_t saltSize, __in const void* key, __in uint64_t keySize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize);
-
-// Here is no limit for saltSize except uint64_t length, but salt buffer must include additional 4 bytes for internal processing.
-// So if you pass saltSize as 1008 bytes, you should allocate 1012 bytes for salt.
-int GetPbkdf2Ex(__in const void* salt, __in uint64_t saltSize, __in const void* key, __in uint64_t keySize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize);
+int GetPbkdf2(__in_opt const void* salt, __in uint64_t saltSize, __in_opt const void* password, __in uint64_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize);
 
 #ifdef __cplusplus
 }

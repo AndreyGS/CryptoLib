@@ -78,6 +78,7 @@ TEST(XofStateFuncsTest, FreeXofStateWrongHandle) {
     EXPECT_TRUE(FreeXofState(nullptr) == ERROR_NULL_STATE_HANDLE);
 }
 
+// Current test working always well only on release version
 TEST(XofStateFuncsTest, FreeXofStateMain) {
     int status = NO_ERROR;
     XofHandle handle = NULL;

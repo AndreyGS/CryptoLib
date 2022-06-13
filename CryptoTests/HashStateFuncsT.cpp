@@ -78,6 +78,7 @@ TEST(HashStateFuncsTest, FreeHashStateWrongHandle) {
     EXPECT_TRUE(FreeHashState(nullptr) == ERROR_NULL_STATE_HANDLE);
 }
 
+// Current test working always well only on release version
 TEST(HashStateFuncsTest, FreeHashStateMain) {
     int status = NO_ERROR;
     HashHandle handle = NULL;

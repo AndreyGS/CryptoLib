@@ -78,6 +78,7 @@ TEST(PrfStateFuncsTest, FreePrfStateWrongHandle) {
     EXPECT_TRUE(FreePrfState(nullptr) == ERROR_NULL_STATE_HANDLE);
 }
 
+// Current test working always well only on release version
 TEST(PrfStateFuncsTest, FreePrfStateMain) {
     int status = NO_ERROR;
     PrfHandle handle = NULL;

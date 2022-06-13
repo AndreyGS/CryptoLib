@@ -269,6 +269,7 @@ exit:
     EXPECT_TRUE(status == ERROR_NULL_STATE_HANDLE);
 }
 
+// Current test working always well only on release version
 TEST(BlockCipherStateFuncsTest, FreeBlockCipherStateMain) {
     int status = NO_ERROR;
     int8_t key[] = "81cav5AS";

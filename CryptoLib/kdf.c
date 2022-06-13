@@ -14,7 +14,7 @@ int CheckPbkdf2Arguments(__in const void* salt, __in uint64_t saltSize, __in con
         return ERROR_NULL_KEY;
     else if (!output)
         return ERROR_NULL_OUTPUT;
-    else if ((unsigned)func >= Prf_max)
+    else if (func < HMAC_SHA1 || func > HMAC_SHA3_512)
         return ERROR_UNSUPPORTED_PRF_FUNC;
     else if (!iterationsNum)
         return ERROR_TOO_SMALL_ITERATIONS_NUMBER;
@@ -22,19 +22,27 @@ int CheckPbkdf2Arguments(__in const void* salt, __in uint64_t saltSize, __in con
         return NO_ERROR;
 }
 
-int GetPbkdf2(__in const void* salt, __in uint64_t saltSize, __in const void* key, __in uint64_t keySize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize)
+int GetPbkdf2(__in_opt const void* salt, __in uint64_t saltSize, __in_opt const void* password, __in uint64_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize)
 {
     int status = NO_ERROR;
-    if (status = CheckPbkdf2Arguments(salt, saltSize, key, keySize, func, iterationsNum, output, outputSize))
-        return status;
-    else if (saltSize > 512)
-        return ERROR_WRONG_INPUT_SIZE;
+    if (!salt && saltSize)
+        return ERROR_NULL_INPUT;
+    else if (!password && passwordSize)
+        return ERROR_NULL_KEY;
+    else if (func < HMAC_SHA1 || func > HMAC_SHA3_512)
+        return ERROR_UNSUPPORTED_PRF_FUNC;
+    else if (!iterationsNum)
+        return ERROR_TOO_SMALL_ITERATIONS_NUMBER;
+    else if (!output)
+        return ERROR_NULL_OUTPUT;
+    else if (!outputSize)
+        return ERROR_TOO_SMALL_OUTPUT_SIZE;
     else {
         uint8_t* saltBuffer = NULL;
         EVAL(AllocBuffer((size_t)saltSize + 4, &saltBuffer));
 
         memcpy(saltBuffer, salt, (size_t)saltSize);
-        status = GetPbkdf2Internal(saltBuffer, saltSize, key, keySize, func, iterationsNum, output, outputSize);
+        status = GetPbkdf2Internal(saltBuffer, saltSize, password, passwordSize, func, iterationsNum, output, outputSize);
         FreeBuffer(saltBuffer);
     }
 
@@ -51,7 +59,7 @@ int GetPbkdf2Ex(__in const void* salt, __in uint64_t saltSize, __in const void* 
         return GetPbkdf2Internal(salt, saltSize, key, keySize, func, iterationsNum, output, outputSize);
 }
 
-int GetPbkdf2Internal(__in const void* salt, __in uint64_t saltSize, __in const void* key, __in uint64_t keySize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize)
+int GetPbkdf2Internal(__in_opt const void* salt, __in uint64_t saltSize, __in_opt const void* password, __in uint64_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize)
 {
     int status = NO_ERROR;
 
@@ -75,7 +83,7 @@ int GetPbkdf2Internal(__in const void* salt, __in uint64_t saltSize, __in const 
 
     while (blocksNum--) {
         *(uint32_t*)((uint8_t*)salt + saltSize) = Uint32LittleEndianToBigEndian(++blocksCounter);
-        GetPrfInternal(state, salt, saltFullSize, key, keySize, true, buffer1, 0);
+        GetPrfInternal(state, salt, saltFullSize, password, passwordSize, true, buffer1, 0);
 
         if (blocksNum) {
             buffer2 = output;
@@ -88,7 +96,7 @@ int GetPbkdf2Internal(__in const void* salt, __in uint64_t saltSize, __in const 
 
         uint64_t blockIterationsNum = iterationsNum;
         while (--blockIterationsNum) {
-            GetPrfInternal(state, buffer1, didgestSize, key, keySize, true, buffer1, 0);
+            GetPrfInternal(state, buffer1, didgestSize, password, passwordSize, true, buffer1, 0);
             for (uint16_t i = 0; i < didgestSize; ++i)
                 buffer2[i] ^= buffer1[i];
         }

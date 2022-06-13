@@ -45,7 +45,7 @@ int CheckPaddingOutput(__in uint64_t blockSize, __in const void* paddedOutput, _
 
 // AddPaddingInternal function adds padding and fills last block by padding directly to output with respective offset 
 // and when fillAllBlock is set and (inputSize % blockSize != 0) it also copying the begining of the last input block to output with respective offset
-int AddPaddingInternal(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
+int AddPaddingInternal(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
 {
     int status = NO_ERROR;
 

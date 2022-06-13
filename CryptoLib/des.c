@@ -8,11 +8,6 @@
 
 typedef uint64_t(*DesEncDecFunction)(const uint64_t* roundsKeys, const uint64_t input);
 
-int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* input, __in uint64_t inputSize
-    , __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize);
-int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* input, __in uint64_t inputSize
-    , __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize);
-
 typedef struct _CDBlocks {
     uint32_t cBlock;
     uint32_t dBlock;
@@ -718,8 +713,10 @@ int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
 
             lastIvBlock = iv;
         }
-        else
+        else {
+            *outputSize = inputSize;
             return ERROR_TOO_SMALL_OUTPUT_SIZE;
+        }
 
         break;
     }
