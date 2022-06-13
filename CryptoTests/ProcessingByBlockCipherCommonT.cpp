@@ -1,3 +1,6 @@
+//  ProcessingByBlockCipherCommonT.cpp
+//
+
 #include "pch.h"
 
 #include "ProcessingByBlockCipherTestSupportFunctions.h"

@@ -44,6 +44,6 @@ typedef struct _Shake256State {
     uint64_t tailBlocks[34];
 } Shake256State;
 
-void Sha3GetHash(__inout void* state, __in const void* input, __in uint64_t inputSize, __in HashFunc func, __in bool finalize, __out_opt uint64_t* output);
-void Sha3GetXof(__inout void* state, __in const void* input, __in uint64_t inputSize, __in Xof func, __in bool finalize, __out_opt uint64_t* output, __in uint64_t outputSize);
+void Sha3GetHash(__inout void* state, __in_opt const void* input, __in uint64_t inputSize, __in HashFunc func, __in bool finalize, __out_opt uint64_t* output);
+void Sha3GetXof(__inout void* state, __in_opt const void* input, __in uint64_t inputSize, __in Xof func, __in bool finalize, __out_opt uint64_t* output, __in uint64_t outputSize);
 

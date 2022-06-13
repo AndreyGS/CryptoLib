@@ -1,4 +1,4 @@
-//  EncryptByBlockCipherT.cpp
+//  ProcessingByBlockCipherEncryptionT.cpp
 //
 
 #include "pch.h"

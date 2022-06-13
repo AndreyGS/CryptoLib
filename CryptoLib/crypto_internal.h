@@ -204,7 +204,7 @@ extern inline void
 ReInitBlockCipherPaddingTypeInternal(__inout BlockCipherState* handle, __in PaddingType padding);
 
 void 
-ReInitBlockCipherIvInternal(__inout BlockCipherState* handle, __in void* iv);
+ReInitBlockCipherIvInternal(__inout BlockCipherState* handle, __in const void* iv);
 
 int 
 ProcessingByBlockCipherInternal(__inout BlockCipherState* handle, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize);
@@ -246,7 +246,7 @@ extern inline void
 ResetPrfStateInternal(__inout PrfState* state);
 
 void 
-GetPrfInternal(__inout PrfState* state, __in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in bool finalize, __out_opt void* output, __in_opt uint64_t outputSize);
+GetPrfInternal(__inout PrfState* state, __in_opt const void* input, __in uint64_t inputSize, __in_opt const void* key, __in uint64_t keySize, __in bool finalize, __out_opt void* output, __in_opt uint64_t outputSize);
 
 extern inline void 
 FreePrfStateInternal(__inout PrfState* state);

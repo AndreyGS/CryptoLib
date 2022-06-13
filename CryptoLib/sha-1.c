@@ -77,7 +77,7 @@ void Sha1ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* output)
     output[4] += e;
 }
 
-void Sha1Get(__inout Sha1State* state, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt uint32_t* output)
+void Sha1Get(__inout Sha1State* state, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt uint32_t* output)
 {
     uint64_t blocksNum = (inputSize >> 6 /* inputSize / SHA1_BLOCK_SIZE */) + 1;
     uint32_t* mainState = state->state;

@@ -1,3 +1,6 @@
+// crypto_internal.cpp
+//
+
 #include "pch.h"
 
 #include "crypto_internal.h"
@@ -151,7 +154,7 @@ void ResetHashStateInternal(__inout HashState* state)
     memset(startZeroing, 0, sizeZeroing);
 }
 
-void GetHashInternal(__inout HashState* state, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output)
+void GetHashInternal(__inout HashState* state, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output)
 {
     assert(state && (!finalize || output) && (input || !inputSize));
 
@@ -258,7 +261,7 @@ inline void ResetPrfStateInternal(__inout PrfState* state)
     memset(state->state, 0, g_PrfSizesMapping[state->func].stateSize);
 }
 
-void GetPrfInternal(__inout PrfState* state, __in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in bool finalize, __out_opt void* output, __in_opt uint64_t outputSize)
+void GetPrfInternal(__inout PrfState* state, __in_opt const void* input, __in uint64_t inputSize, __in_opt const void* key, __in uint64_t keySize, __in bool finalize, __out_opt void* output, __in_opt uint64_t outputSize)
 {
     assert(state && (!finalize || output) && (input || !inputSize) && (key || !keySize));
 

@@ -15,7 +15,8 @@ void GetHashMainTestFunc(__in const void* input, __in uint64_t inputSize, __in H
     EVAL(GetHash(handle, input, inputSize, true, buffer.get()));
 
 exit:
-    FreeHashState(handle);
+    if (handle)
+        FreeHashState(handle);
 
     if (expectedRes) {
         std::string result = GetHexResult(buffer.get(), outputSize);
@@ -38,7 +39,8 @@ void GetHashMultipleTestFunc(__in const void* input1, __in uint64_t inputSize1, 
     EVAL(GetHash(handle, input2, inputSize2, true, buffer.get()));
 
 exit:
-    FreeHashState(handle);
+    if (handle)
+        FreeHashState(handle);
 
     if (expectedRes) {
         std::string result = GetHexResult(buffer.get(), outputSize);
@@ -134,6 +136,7 @@ TEST(GetHashTest, WrongInputSize) {
 }
 
 // Main test
+// 
 // 1 - full one block (== input + padding) testing
 // 2 - full one block + one byte == two blocks testing
 // 3 - two blocks testing

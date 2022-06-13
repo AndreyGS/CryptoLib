@@ -2,12 +2,8 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="common.cpp" />
-    <ClCompile Include="GetHashExT.cpp" />
     <ClCompile Include="GetPbkdf2ExT.cpp" />
     <ClCompile Include="GetPbkdf2T.cpp" />
-    <ClCompile Include="GetPrfT.cpp" />
-    <ClCompile Include="GetXofMultipleT.cpp" />
-    <ClCompile Include="GetXofT.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="GetHashT.cpp">
@@ -31,6 +27,18 @@
     <ClCompile Include="ProcessingByBlockCipherCommonT.cpp">
       <Filter>BlockCiphersTests</Filter>
     </ClCompile>
+    <ClCompile Include="GetXofT.cpp">
+      <Filter>XofFuncsTests</Filter>
+    </ClCompile>
+    <ClCompile Include="XofStateFuncsT.cpp">
+      <Filter>XofFuncsTests</Filter>
+    </ClCompile>
+    <ClCompile Include="GetPrfT.cpp">
+      <Filter>PrfFuncsTests</Filter>
+    </ClCompile>
+    <ClCompile Include="PrfStateFuncsT.cpp">
+      <Filter>PrfFuncsTests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h" />
@@ -48,6 +56,12 @@
     </Filter>
     <Filter Include="BlockCiphersTests">
       <UniqueIdentifier>{e02d9c41-2167-4b4e-91aa-8a5f11497a40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XofFuncsTests">
+      <UniqueIdentifier>{10b6861c-34b5-4e17-87cb-efe176e0b576}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PrfFuncsTests">
+      <UniqueIdentifier>{17fe7bb2-c454-4fcc-8068-b3188bc3c3b9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -168,22 +168,22 @@ int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* i
 int FreeBlockCipherState(__inout BlockCipherHandle handle);
 
 // Before using GetHash with finalize flag you should allocate output buffer according to the output digest size of respective hashing function
-// You may check the numbers with g_hashFuncsSizesMapping array (see "func" and corresponding "blockSize" fields)
+// You may check the numbers with macros _DIGEST_SIZE like SHA1_DIGEST_SIZE
 int InitHashState(__inout HashHandle* handle, __in HashFunc func);
-int GetHash(__inout HashHandle handle, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output);
+int GetHash(__inout HashHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output);
 int ResetHashState(__inout HashHandle handle);
 int FreeHashState(__inout HashHandle handle);
 
 int InitXofState(__inout XofHandle* handle, __in Xof func);
-int GetXof(__inout XofHandle handle, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __in uint64_t outputSize);
+int GetXof(__inout XofHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __in uint64_t outputSize);
 int ResetXofState(__inout XofHandle handle);
 int FreeXofState(__inout XofHandle handle);
 
 // Get pseudorandom function result (currently only HMAC supported - see PRF enum)
 // outputSize parameter is only filled on variable size output XOF funcs - SHAKE128 and SHAKE256 - but KMAC functions are not supported yet,
-// For all the rest you may check the numbers with g_hashFuncsSizesMapping array (see respective hash function in "func" and corresponding "blockSize" fields)
+// For all of the rest you may check the numbers with macros _DIGEST_SIZE like SHA1_DIGEST_SIZE
 int InitPrfState(__inout PrfHandle* handle, __in Prf func);
-int GetPrf(__inout PrfHandle handle, __in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in bool finalize, __out_opt void* output, __in_opt uint64_t outputSize);
+int GetPrf(__inout PrfHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in_opt const void* key, __in uint64_t keySize, __in bool finalize, __out_opt void* output, __in_opt uint64_t outputSize);
 int ResetPrfState(__inout PrfHandle handle);
 int FreePrfState(__inout PrfHandle handle);
 

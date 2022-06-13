@@ -22,5 +22,5 @@ typedef struct _Sha2_64State {
 
 void Sha2_32InitState(__in HashFunc func, __out uint32_t* state);
 void Sha2_64InitState(__in HashFunc func, __out uint64_t* state);
-void Sha2_32Get(__inout Sha2_32State* state, __in const void* input, __in uint64_t inputSize, __in HashFunc func,  __in bool finalize, __out_opt uint32_t* output);
-void Sha2_64Get(__inout Sha2_64State* state, __in const void* input, __in uint64_t inputSize, __in HashFunc func,  __in bool finalize, __out_opt uint64_t* output);
+void Sha2_32Get(__inout Sha2_32State* state, __in_opt const void* input, __in uint64_t inputSize, __in HashFunc func,  __in bool finalize, __out_opt uint32_t* output);
+void Sha2_64Get(__inout Sha2_64State* state, __in_opt const void* input, __in uint64_t inputSize, __in HashFunc func,  __in bool finalize, __out_opt uint64_t* output);

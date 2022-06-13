@@ -4,7 +4,7 @@
 #include "crypto_internal.h"
 #include "paddings.h"
 
-void Sha3Get(__inout StateHandle state, __in const void* input, __in uint64_t inputSize, __in Sha3Func func, __in bool finalize, __out_opt uint64_t* output, __in_opt uint64_t outputSize);
+void Sha3Get(__inout StateHandle state, __in_opt const void* input, __in uint64_t inputSize, __in Sha3Func func, __in bool finalize, __out_opt uint64_t* output, __in_opt uint64_t outputSize);
 
 const uint64_t RC[] =
 {
@@ -123,17 +123,17 @@ inline void Sha3StateXor(__in const uint64_t* input, __in Sha3Func func, __inout
     }  
 }
 
-void Sha3GetHash(__inout void* state, __in const void* input, __in uint64_t inputSize, __in HashFunc func, __in bool finalize, __out_opt uint64_t* output)
+void Sha3GetHash(__inout void* state, __in_opt const void* input, __in uint64_t inputSize, __in HashFunc func, __in bool finalize, __out_opt uint64_t* output)
 {
     Sha3Get(state, input, inputSize, func - SHA3_224, finalize, output, 0);
 }
 
-void Sha3GetXof(__inout void* state, __in const void* input, __in uint64_t inputSize, __in Xof func, __in bool finalize, __out_opt uint64_t* output, __in uint64_t outputSize)
+void Sha3GetXof(__inout void* state, __in_opt const void* input, __in uint64_t inputSize, __in Xof func, __in bool finalize, __out_opt uint64_t* output, __in uint64_t outputSize)
 {
     Sha3Get(state, input, inputSize, func + Sha3Func_SHA3_512 + 1, finalize, output, outputSize);
 }
 
-void Sha3Get(__inout StateHandle state, __in const void* input, __in uint64_t inputSize, __in Sha3Func func, __in bool finalize, __out_opt uint64_t* output, __in_opt uint64_t outputSize)
+void Sha3Get(__inout StateHandle state, __in_opt const void* input, __in uint64_t inputSize, __in Sha3Func func, __in bool finalize, __out_opt uint64_t* output, __in_opt uint64_t outputSize)
 {
     uint16_t blockSize = func == Sha3Func_SHAKE128 || func == Sha3Func_SHAKE256
                        ? g_XofSizesMapping[func - Sha3Func_SHAKE128].blockSize

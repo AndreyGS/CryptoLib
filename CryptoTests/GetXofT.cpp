@@ -14,7 +14,8 @@ void GetXofMainTestFunc(__in const void* input, __in uint64_t inputSize, __in Xo
     EVAL(GetXof(handle, input, inputSize, true, buffer.get(), outputSize));
 
 exit:
-    FreeXofState(handle);
+    if (handle)
+        FreeXofState(handle);
 
     if (expectedRes) {
         std::string result = GetHexResult(buffer.get(), outputSize);
@@ -36,7 +37,8 @@ void GetXofMultipleTestFunc(__in const void* input1, __in uint64_t inputSize1, _
     EVAL(GetXof(handle, input2, inputSize2, true, buffer.get(), outputSize));
 
 exit:
-    FreeXofState(handle);
+    if (handle)
+        FreeXofState(handle);
 
     if (expectedRes) {
         std::string result = GetHexResult(buffer.get(), outputSize);
@@ -93,9 +95,10 @@ TEST(GetXofTest, WrongInputSize) {
 // 1 - full one block (== input + padding) testing
 // 2 - full one block + one byte == two blocks testing
 // 3 - two blocks testing
-// 4 - empty string testing
-// 5 - one byte output
-// 6 - multiple test
+// 4 - tree plus blocks testing
+// 5 - empty string testing
+// 6 - one byte output
+// 7 - multiple test
 
 // SHAKE128
 
@@ -118,6 +121,13 @@ TEST(GetXofTest, SHAKE128TwoBlock) {
                                                                       "d3338f88002840b46d8732c62d22ec09deab5febbbdda5f38dd9e1b4dbd9bed21b3c7b8dbc65fb72b0293e933f7e7704fd0e"
                                                                       "490ad94748eb161934417ca8f70fb9ef503e753d127927e98cff0f2f19d622f5d9845e1781c252a0cd8b13467252633c198a"
                                                                       "deba2dbd52f9ead25a7b45fc9135ba903b5afe285135fe222c2dcbe60373165cf84d219c37c32248a83108f395fa1d0fb803");
+}
+
+TEST(GetXofTest, SHAKE128ThreePlusBlocks) {
+    GetXofMainTestFunc(TEST_STRING_513, 513, SHAKE128, 200, NO_ERROR, "72aed7b0b3d93c4349e1614a06c6026852143080c07d542f84fadd9534ae4df301d6fc70d51ecc5bc0c05176c31fd5879ea9"
+                                                                      "cb0e8908487a32a9cf2e6004971716a7c50710717aa62697db48da451d09210dd10de26e9d9c4088a4de4d66deec44934352"
+                                                                      "191e83ea71b5c30c813b78c3574e8ebccd270155e25ff781bb283c9ff0402c4723849c2600d402021b1c9eecd4a7a4a1908c"
+                                                                      "6ec43198d4802df86e000103a4e2cd3a6148048e7b859b63841a40d307a8479a9dc51c07abafce1db40b4da2aef25fadf3c1");
 }
 
 TEST(GetXofTest, SHAKE128Empty) {
@@ -159,6 +169,13 @@ TEST(GetXofTest, SHAKE256TwoBlock) {
                                                                       "0d869ccac2ae1e2f016d84b1c9fe72cd7b762802a77679efa44ea4474ad34d9f8f6ff1980f70bd5142f74672f346f1735164"
                                                                       "0575ddbaa78557ecc672c5dcb9940b5a21fd7e0c73d33fbb3a5d578e324f340e255a3ef669225a14740bafebbe4852dd593b"
                                                                       "0ae4326a457c0c6449d343583cd3a7acd7cc7a4e186a0f07a6084d3639ccf5725bc9834ae367050a7eee4ed5eee1165b180d");
+}
+
+TEST(GetXofTest, SHAKE256ThreePlusBlocks) {
+    GetXofMainTestFunc(TEST_STRING_513, 513, SHAKE256, 200, NO_ERROR, "b970a686acaebf055faa8b23cd2acbe1292ec8ea44a2884057e6fb8406a064023bf64dafb76979a92b6935fa3410f67bed5f"
+                                                                      "18cba66c167f4f59c8126e4f19eb8a8327b8d858d3a4c2fc46db836d1197662076613b7b67c93e4efe2d31f8f33ef7cfee64"
+                                                                      "b9dda93f02976f932dc25230fe56ae547a55e7309aeea7a8dc82a537b28ae55717d141732dffae449528799f25135dc3281b"
+                                                                      "1bfb8bd3d7befef20ccdcbb11497ac0bc117d45fc22a6799541c275bb7f0cdae577cdf67838691b8571090a38d3877e0f743");
 }
 
 TEST(GetXofTest, SHAKE256Empty) {

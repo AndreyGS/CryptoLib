@@ -189,7 +189,7 @@ void Sha2_32ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* outpu
     output[7] += h;
 }
 
-void Sha2_32Get(__inout Sha2_32State* state, __in const void* input, __in uint64_t inputSize, __in HashFunc func, __in bool finalize, __out_opt uint32_t* output)
+void Sha2_32Get(__inout Sha2_32State* state, __in_opt const void* input, __in uint64_t inputSize, __in HashFunc func, __in bool finalize, __out_opt uint32_t* output)
 {
     uint64_t blocksNum = (inputSize >> 6) + 1; // inputSize / SHA1_BLOCK_SIZE + 1
     uint32_t* mainState = state->state;
@@ -275,7 +275,7 @@ void Sha2_64ProcessBlock(const uint64_t* input, uint64_t* words, uint64_t* outpu
     output[7] += h;
 }
 
-void Sha2_64Get(__inout Sha2_64State* state, __in const void* input, __in uint64_t inputSize, __in HashFunc func, __in bool finalize, __out_opt uint64_t* output)
+void Sha2_64Get(__inout Sha2_64State* state, __in_opt const void* input, __in uint64_t inputSize, __in HashFunc func, __in bool finalize, __out_opt uint64_t* output)
 {
     uint64_t blocksNum = (inputSize >> 7) + 1;
     uint64_t* mainState = state->state;

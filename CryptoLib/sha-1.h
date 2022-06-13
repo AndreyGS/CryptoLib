@@ -13,4 +13,4 @@ typedef struct _Sha1State {
 } Sha1State;
 
 void Sha1InitState(__out uint32_t* state);
-void Sha1Get(__inout Sha1State* state, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt uint32_t* output);
+void Sha1Get(__inout Sha1State* state, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt uint32_t* output);

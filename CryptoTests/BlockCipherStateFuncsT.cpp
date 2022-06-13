@@ -1,3 +1,6 @@
+//  BlockCipherStateFuncsT.cpp
+//
+
 #include "pch.h"
 
 #include "ProcessingByBlockCipherTestSupportFunctions.h"
@@ -54,7 +57,7 @@ TEST(BlockCipherStateFuncsTest, InitBlockCipherStateMain) {
     EVAL(InitBlockCipherState(&handle, DES_cipher_type, Encryption_mode, CBC_mode, No_padding, key, &desIv));
     state = (BlockCipherState*)handle;
 
-    EXPECT_TRUE(state->cipher == DES_cipher_type && state->enMode == Encryption_mode && state->opMode == CBC_mode && state->padding == No_padding, ((DesState*)&(state->state))->iv == desIv);
+    EXPECT_TRUE(state->cipher == DES_cipher_type && state->enMode == Encryption_mode && state->opMode == CBC_mode && state->padding == No_padding && ((DesState*)&(state->state))->iv == desIv);
 
     FreeBlockCipherState(handle);
 
@@ -272,6 +275,7 @@ TEST(BlockCipherStateFuncsTest, FreeBlockCipherStateMain) {
     BlockCipherHandle handle = nullptr;
     BlockCipherState* state = nullptr;
     uint64_t iv = 0, ivCopy = iv;
+    bool allOk = false;
 
     EVAL(InitBlockCipherState(&handle, (BlockCipherType)0, Decryption_mode, CBC_mode, No_padding, key, &iv));
     state = (BlockCipherState*)handle;
@@ -295,6 +299,8 @@ TEST(BlockCipherStateFuncsTest, FreeBlockCipherStateMain) {
         EXPECT_TRUE(memcmp(handle, test.get(), g_blockCiphersSizes[(BlockCipherType_max - 1)].stateAndHeaderSize) == 0);
     }
 
+    allOk = true;
+
 exit:
-    EXPECT_TRUE(status == NO_ERROR);
+    EXPECT_TRUE(allOk);
 }

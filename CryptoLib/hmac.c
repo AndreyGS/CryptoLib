@@ -4,7 +4,7 @@
 #include "pch.h"
 #include "hmac.h"
 
-void GetHmac(__inout HmacStateHandle state, __in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in Prf func, __in bool finalize, __out_opt void* output)
+void GetHmac(__inout HmacStateHandle state, __in_opt const void* input, __in uint64_t inputSize, __in_opt const void* key, __in uint64_t keySize, __in Prf func, __in bool finalize, __out_opt void* output)
 {
     int status = NO_ERROR;
 
@@ -16,12 +16,13 @@ void GetHmac(__inout HmacStateHandle state, __in const void* input, __in uint64_
     uint8_t* oKeyPad = NULL;
     bool isStart = false;
 
+    // First we need to init pointers and if it is a first call (isStart) then we should also init hash state
     switch (func) {
     case HMAC_SHA1:
         blockSize = SHA1_BLOCK_SIZE;
         didgestSize = SHA1_DIGEST_SIZE;
         iKeyPad = ((Hmac_Sha1State*)(state))->iKeyPad;
-        iKeyPad = ((Hmac_Sha1State*)(state))->oKeyPad;
+        oKeyPad = ((Hmac_Sha1State*)(state))->oKeyPad;
         isStart = !((Hmac_Sha1State*)(state))->notFirst;
 
         if (isStart) {
@@ -36,7 +37,7 @@ void GetHmac(__inout HmacStateHandle state, __in const void* input, __in uint64_
         blockSize = SHA2_32_BLOCK_SIZE;
         didgestSize = func == HMAC_SHA_224 ? SHA_224_DIGEST_SIZE : SHA_256_DIGEST_SIZE;
         iKeyPad = ((Hmac_Sha2_32State*)(state))->iKeyPad;
-        iKeyPad = ((Hmac_Sha2_32State*)(state))->oKeyPad;
+        oKeyPad = ((Hmac_Sha2_32State*)(state))->oKeyPad;
         isStart = !((Hmac_Sha2_32State*)(state))->notFirst;
 
         if (isStart) {
@@ -51,9 +52,9 @@ void GetHmac(__inout HmacStateHandle state, __in const void* input, __in uint64_
     case HMAC_SHA_512_256:
     case HMAC_SHA_512:
         blockSize = SHA2_64_BLOCK_SIZE;
-        didgestSize = func == HMAC_SHA_384 ? SHA_256_DIGEST_SIZE : func == HMAC_SHA_512_224 ? SHA_512_224_DIGEST_SIZE : func == HMAC_SHA_512_256 ? SHA_512_256_DIGEST_SIZE : SHA_512_DIGEST_SIZE;
+        didgestSize = func == HMAC_SHA_384 ? SHA_384_DIGEST_SIZE : func == HMAC_SHA_512_224 ? SHA_512_224_DIGEST_SIZE : func == HMAC_SHA_512_256 ? SHA_512_256_DIGEST_SIZE : SHA_512_DIGEST_SIZE;
         iKeyPad = ((Hmac_Sha2_64State*)(state))->iKeyPad;
-        iKeyPad = ((Hmac_Sha2_64State*)(state))->oKeyPad;
+        oKeyPad = ((Hmac_Sha2_64State*)(state))->oKeyPad;
         isStart = !((Hmac_Sha2_64State*)(state))->notFirst;
 
         if (isStart) {
@@ -71,6 +72,7 @@ void GetHmac(__inout HmacStateHandle state, __in const void* input, __in uint64_
                 ((HashState*)hashState)->func = SHA_512;
                 break;
             }
+
             ((Hmac_Sha2_64State*)(state))->notFirst = true;
         }
 
@@ -80,11 +82,13 @@ void GetHmac(__inout HmacStateHandle state, __in const void* input, __in uint64_
         blockSize = SHA3_224_BLOCK_SIZE;
         didgestSize = SHA3_224_DIGEST_SIZE;
         iKeyPad = ((Hmac_Sha3_224State*)(state))->iKeyPad;
-        iKeyPad = ((Hmac_Sha3_224State*)(state))->oKeyPad;
+        oKeyPad = ((Hmac_Sha3_224State*)(state))->oKeyPad;
         isStart = !((Hmac_Sha3_224State*)(state))->notFirst;
 
-        if (isStart)
+        if (isStart) {
+            ((HashState*)hashState)->func = SHA3_224;
             ((Hmac_Sha3_224State*)(state))->notFirst = true;
+        }
 
         break;
 
@@ -92,11 +96,13 @@ void GetHmac(__inout HmacStateHandle state, __in const void* input, __in uint64_
         blockSize = SHA3_256_BLOCK_SIZE;
         didgestSize = SHA3_256_DIGEST_SIZE;
         iKeyPad = ((Hmac_Sha3_256State*)(state))->iKeyPad;
-        iKeyPad = ((Hmac_Sha3_256State*)(state))->oKeyPad;
+        oKeyPad = ((Hmac_Sha3_256State*)(state))->oKeyPad;
         isStart = !((Hmac_Sha3_256State*)(state))->notFirst;
 
-        if (isStart)
+        if (isStart) {
+            ((HashState*)hashState)->func = SHA3_256;
             ((Hmac_Sha3_256State*)(state))->notFirst = true;
+        }
 
         break;
 
@@ -104,11 +110,13 @@ void GetHmac(__inout HmacStateHandle state, __in const void* input, __in uint64_
         blockSize = SHA3_384_BLOCK_SIZE;
         didgestSize = SHA3_384_DIGEST_SIZE;
         iKeyPad = ((Hmac_Sha3_384State*)(state))->iKeyPad;
-        iKeyPad = ((Hmac_Sha3_384State*)(state))->oKeyPad;
+        oKeyPad = ((Hmac_Sha3_384State*)(state))->oKeyPad;
         isStart = !((Hmac_Sha3_384State*)(state))->notFirst;
 
-        if (isStart)
+        if (isStart) {
+            ((HashState*)hashState)->func = SHA3_384;
             ((Hmac_Sha3_384State*)(state))->notFirst = true;
+        }
 
         break;
 
@@ -116,16 +124,20 @@ void GetHmac(__inout HmacStateHandle state, __in const void* input, __in uint64_
         blockSize = SHA3_512_BLOCK_SIZE;
         didgestSize = SHA3_512_DIGEST_SIZE;
         iKeyPad = ((Hmac_Sha3_512State*)(state))->iKeyPad;
-        iKeyPad = ((Hmac_Sha3_512State*)(state))->oKeyPad;
+        oKeyPad = ((Hmac_Sha3_512State*)(state))->oKeyPad;
         isStart = !((Hmac_Sha3_512State*)(state))->notFirst;
 
-        if (isStart)
+        if (isStart) {
+            ((HashState*)hashState)->func = SHA3_512;
             ((Hmac_Sha3_512State*)(state))->notFirst = true;
+        }
 
         break;
     }
 
     if (isStart) {
+        ResetHashStateInternal(hashState);
+
         if (keySize > blockSize) {
             GetHashInternal(hashState, key, keySize, true, iKeyPad);
             keySize = didgestSize;
