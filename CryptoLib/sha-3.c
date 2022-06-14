@@ -1,5 +1,3 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 /**
  * @file sha-3.c
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
@@ -21,10 +19,9 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * @section DESCRIPTON
- *
- * This file represents public interface, enums and macros of CryptoLib
  */
+ // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+ // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 
 #include "pch.h"
 
@@ -50,7 +47,7 @@ inline uint16_t GetSha3Capacity(Sha3Func func)
     case Sha3Func_SHA3_224:
         return 56;
     case Sha3Func_SHA3_256:
-        return 64;
+        return 64; //-V1037
     case Sha3Func_SHA3_384:
         return 96;
     case Sha3Func_SHA3_512:
@@ -84,18 +81,20 @@ void Keccak_p_Rnds(__inout uint64_t* state)
         }
 
         // Rho and Pi
-        int i = 1, j = 0;
-        int it1 = 0, it2 = 0;
-        *buffer = state[1];
-        for (int t = 0; t < 24; ++t) {
-            it1 = j;
-            j = (2 * i + 3 * j) % 5;
-            i = it1;
-            it1 = i + j * 5;
-            buffer[1] = state[it1];
-            it2 = ((t + 1) * (t + 2) >> 1) & 0x3f;
-            state[it1] = *buffer << it2 | *buffer >> (64 - it2);
-            *buffer = buffer[1];
+        {
+            int i = 1, j = 0;
+            int it1 = 0, it2 = 0;
+            *buffer = state[1];
+            for (int t = 0; t < 24; ++t) {
+                it1 = j;
+                j = (2 * i + 3 * j) % 5;
+                i = it1;
+                it1 = i + j * 5;
+                buffer[1] = state[it1];
+                it2 = ((t + 1) * (t + 2) >> 1) & 0x3f; //-V634
+                state[it1] = *buffer << it2 | *buffer >> (64 - it2);
+                *buffer = buffer[1];
+            }
         }
 
         // Chi

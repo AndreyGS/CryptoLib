@@ -1,5 +1,3 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 /**
  * @file crypto.c: here placed all aggregating functins
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
@@ -21,10 +19,9 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * @section DESCRIPTON
- *
- * This file represents public interface, enums and macros of CryptoLib
  */
+ // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+ // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 
 #include "pch.h"
 
@@ -35,7 +32,7 @@
 int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
 {
     int status = NO_ERROR;
-    if (status = CheckPaddingInputOutput(input, inputSize, blockSize, output, outputSize))
+    if (status = CheckPaddingInputOutput(input, inputSize, blockSize, output, outputSize)) //-V559
         return status;
     
     return AddPaddingInternal(input, inputSize, padding, blockSize, output, outputSize, fillAllBlock);
@@ -160,7 +157,7 @@ int ResetHashState(__inout HashHandle handle)
 int GetHash(__inout HashHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output)
 {
     int status = NO_ERROR;
-    if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output))
+    if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output)) //-V559
         return status;
 
     if (!finalize && (inputSize % g_hashFuncsSizesMapping[*(HashFunc*)handle].blockSize))
@@ -203,7 +200,7 @@ int ResetXofState(__inout XofHandle handle)
 int GetXof(__inout XofHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __in uint64_t outputSize)
 {
     int status = NO_ERROR;
-    if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output))
+    if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output)) //-V559
         return status;
     else if (!outputSize)
         return ERROR_NULL_OUTPUT_SIZE;

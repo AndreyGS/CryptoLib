@@ -1,5 +1,3 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 /**
  * @file des.c
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
@@ -21,10 +19,9 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * @section DESCRIPTON
- *
- * This file represents public interface, enums and macros of CryptoLib
  */
+ // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+ // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 
 #include "pch.h"
 #include "des.h"
@@ -575,7 +572,7 @@ int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
         else
             *outputSize = inputSize;
     }
-    else if (status = AddPaddingInternal(input, inputSize, padding, DES_BLOCK_SIZE, output, outputSize, true))
+    else if (status = AddPaddingInternal(input, inputSize, padding, DES_BLOCK_SIZE, output, outputSize, true)) //-V559
         return status;
 
     DesEncDecFunction func = NULL;
@@ -761,7 +758,7 @@ int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
 
         *outputSize = inputSize;
     } 
-    else if (status = FillLastDecryptedBlockInternal(padding, DES_BLOCK_SIZE, &lastOutputBlock, inputSize, output, outputSize))
+    else if (status = FillLastDecryptedBlockInternal(padding, DES_BLOCK_SIZE, &lastOutputBlock, inputSize, output, outputSize)) //-V559
         return status;
 
     switch (opMode) {

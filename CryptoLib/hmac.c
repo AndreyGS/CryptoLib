@@ -1,5 +1,3 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 /**
  * @file hmac.c
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
@@ -21,10 +19,9 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * @section DESCRIPTON
- *
- * This file represents public interface, enums and macros of CryptoLib
  */
+ // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+ // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 
 #include "pch.h"
 #include "hmac.h"
@@ -168,14 +165,14 @@ void GetHmac(__inout HmacStateHandle state, __in_opt const void* input, __in uin
             keySize = didgestSize;
         }
         else
-            memcpy(iKeyPad, key, (size_t)keySize);
+            memcpy(iKeyPad, key, (size_t)keySize); //-V575
 
         memset(iKeyPad + keySize, 0, blockSize - (uint16_t)keySize);
-        memcpy(oKeyPad, iKeyPad, blockSize);
+        memcpy(oKeyPad, iKeyPad, blockSize); //-V575
 
         uint8_t* p = (uint8_t*)iKeyPad;
         for (uint8_t i = 0; i < blockSize; ++i)
-            *p++ ^= '\x36';
+            *p++ ^= '\x36'; //-V769
 
         p = (uint8_t*)oKeyPad;
         for (uint8_t i = 0; i < blockSize; ++i)

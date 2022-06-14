@@ -19,9 +19,6 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * @section DESCRIPTON
- *
- * This file represents public interface, enums and macros of CryptoLib
  */
 
 // Files listed below are compiled only once, improving build performance for future builds.

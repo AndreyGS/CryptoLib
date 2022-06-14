@@ -1,5 +1,3 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 /**
  * @file kdf.c
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
@@ -21,31 +19,13 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * @section DESCRIPTON
- *
- * This file represents public interface, enums and macros of CryptoLib
  */
+ // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+ // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 
 #include "pch.h"
 #include "kdf.h"
 #include "hmac.h"
-
-int CheckPbkdf2Arguments(__in const void* salt, __in uint64_t saltSize, __in const void* key, __in uint64_t keySize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize)
-{
-    int status = NO_ERROR;
-    if (!salt && saltSize)
-        return ERROR_NULL_INPUT;
-    else if (!key && keySize)
-        return ERROR_NULL_KEY;
-    else if (!output)
-        return ERROR_NULL_OUTPUT;
-    else if (func < HMAC_SHA1 || func > HMAC_SHA3_512)
-        return ERROR_UNSUPPORTED_PRF_FUNC;
-    else if (!iterationsNum)
-        return ERROR_TOO_SMALL_ITERATIONS_NUMBER;
-    else
-        return NO_ERROR;
-}
 
 int GetPbkdf2(__in_opt const void* salt, __in uint64_t saltSize, __in_opt const void* password, __in uint64_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize)
 {
@@ -66,22 +46,13 @@ int GetPbkdf2(__in_opt const void* salt, __in uint64_t saltSize, __in_opt const 
         uint8_t* saltBuffer = NULL;
         EVAL(AllocBuffer((size_t)saltSize + 4, &saltBuffer));
 
-        memcpy(saltBuffer, salt, (size_t)saltSize);
+        memcpy(saltBuffer, salt, (size_t)saltSize); //-V575
         status = GetPbkdf2Internal(saltBuffer, saltSize, password, passwordSize, func, iterationsNum, output, outputSize);
         FreeBuffer(saltBuffer);
     }
 
 exit:
     return status;
-}
-
-int GetPbkdf2Ex(__in const void* salt, __in uint64_t saltSize, __in const void* key, __in uint64_t keySize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize)
-{
-    int status = NO_ERROR;
-    if (status = CheckPbkdf2Arguments(salt, saltSize, key, keySize, func, iterationsNum, output, outputSize))
-        return status;
-    else
-        return GetPbkdf2Internal(salt, saltSize, key, keySize, func, iterationsNum, output, outputSize);
 }
 
 int GetPbkdf2Internal(__in_opt const void* salt, __in uint64_t saltSize, __in_opt const void* password, __in uint64_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize)

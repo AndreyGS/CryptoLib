@@ -1,5 +1,3 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 /**
  * @file crypto_helpers.c
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
@@ -21,10 +19,9 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * @section DESCRIPTON
- *
- * This file represents public interface, enums and macros of CryptoLib
  */
+ // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+ // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 
 #include "pch.h"
 #include "crypto_helpers.h"
@@ -60,7 +57,7 @@ int CheckInputOutput(__in const void* input, __in uint64_t inputSize, __in const
 int CheckBlockCipherPrimaryArguments(const void* input, uint64_t inputSize, PaddingType padding, const uint64_t* key, BlockCipherType cipherType, const void* output, const uint64_t* outputSize, BlockCipherOpMode mode, const void* iv)
 {
     int status = NO_ERROR;
-    if (status = CheckInputOutput(input, inputSize, output, outputSize))
+    if (status = CheckInputOutput(input, inputSize, output, outputSize)) //-V559
         return status;
     else if ((unsigned)padding >= PaddingType_max)
         return ERROR_UNSUPPORTED_PADDING_TYPE;
@@ -162,8 +159,7 @@ inline int AllocBuffer(size_t size, void** buffer)
 inline void FreeBuffer(void* buffer)
 {
 #ifndef KERNEL
-    if (buffer)
-        free(buffer);
+    free(buffer);
 #endif
 }
 
@@ -172,7 +168,7 @@ int FillLastDecryptedBlockInternal(__in PaddingType padding, __in uint64_t block
     int status = NO_ERROR;
     uint64_t paddingSize = 0;
 
-    if (status = PullPaddingSizeInternal(padding, lastOutputBlock, blockSize, &paddingSize))
+    if (status = PullPaddingSizeInternal(padding, lastOutputBlock, blockSize, &paddingSize)) //-V559
         return status;
     else if (paddingSize > blockSize)
         return ERROR_PADDING_CORRUPTED;

@@ -1,5 +1,3 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 /**
  * @file sha-1.c
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
@@ -21,10 +19,9 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * @section DESCRIPTON
- *
- * This file represents public interface, enums and macros of CryptoLib
  */
+ // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+ // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 
 #include "pch.h"
 #include "sha-1.h"
@@ -39,10 +36,10 @@ const uint32_t H[5] = {
     0xc3d2e1f0
 };
 
-const uint32_t K1 = 0x5a827999;
-const uint32_t K2 = 0x6ed9eba1;
-const uint32_t K3 = 0x8f1bbcdc;
-const uint32_t K4 = 0xca62c1d6;
+const uint32_t K1 = 0x5a827999; //-V707
+const uint32_t K2 = 0x6ed9eba1; //-V707
+const uint32_t K3 = 0x8f1bbcdc; //-V707
+const uint32_t K4 = 0xca62c1d6; //-V707
 
 void Sha1InitState(__out uint32_t* state)
 {

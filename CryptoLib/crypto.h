@@ -176,6 +176,26 @@ typedef enum _Prf {
     Prf_max
 } Prf;
 
+/**
+ * Adds padding to output with offset by inputSize
+ * 
+ * If for some reason you wish to add some padding to your data this function may help you.
+ * It adds padding to output with offset by inputSize, that is start of padding will be (uint8_t*)offset + inputSize,
+ * so you can add padding inplace passing to input and output the same pointer.
+ * Also if you use different pointers you may use fillAllBlock flag, that fills start of last block by input data if it (last block) not fully filled.
+ * If outputSize is not enough to contain all padding, the function will return ERROR_TOO_SMALL_OUTPUT_SIZE and outputSize variable will contain required size.
+ * 
+ * @param input data to pad
+ * @param inputSize size of data
+ * @param padding type
+ * @param blockSize size of block to pad
+ * @param output buffer that will be filled by pad
+ * @param outputSize inputSize + padSize
+ * @param fillAllBlock see description of function work
+ * 
+ * @return status
+ * 
+*/
 int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
 
 /**
