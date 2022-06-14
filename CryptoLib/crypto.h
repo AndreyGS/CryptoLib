@@ -1,4 +1,4 @@
-/*
+/**
  * @file crypto.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  * 
@@ -178,15 +178,10 @@ typedef enum _Prf {
 
 int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
 
-// If you supply outputSize == 0, then function returns ERROR_NULL_OUTPUT_SIZE error and outputSize variable will contain requiring size
-// For all cipher modes outputSize in DecryptByBlockCipher will return exact bytes length.
-// but with OFB if you pass there outputSize < inputSize you will get an error and outputSize returned will be equal inputSize.
-// And if there is no error outputSize will always contain exact bytes length.
-
-/*
+/**
  * Inits state for block cipher
  * 
- * Before using encryption/decryption by block ciphers you must init respective state with help of this function
+ * Before using encryption/decryption by block ciphers you must init respective state with help of this function.
  * When state is no longer need you should free it by call of FreeBlockCipherState
  * 
  * @param handle is a state handle
@@ -201,7 +196,7 @@ int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType
  */
 int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv);
 
-/*
+/**
  * ReInits crypto mode (encryption/decryption)
  *
  * @param handle is a state handle that inited by InitBlockCipherState
@@ -211,7 +206,7 @@ int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType
  */
 int ReInitBlockCipherCryptoMode(__inout BlockCipherHandle handle, __in CryptoMode cryptoMode);
 
-/*
+/**
  * ReInits operation mode (ECB, CBC, etc)
  *
  * @param handle is a state handle that inited by InitBlockCipherState
@@ -221,7 +216,7 @@ int ReInitBlockCipherCryptoMode(__inout BlockCipherHandle handle, __in CryptoMod
  */
 int ReInitBlockCipherOpMode(__inout BlockCipherHandle handle, __in BlockCipherOpMode opMode);
 
-/*
+/**
  * ReInits padding type
  *
  * @param handle is a state handle that inited by InitBlockCipherState
@@ -231,7 +226,7 @@ int ReInitBlockCipherOpMode(__inout BlockCipherHandle handle, __in BlockCipherOp
  */
 int ReInitBlockCipherPaddingType(__inout BlockCipherHandle handle, __in PaddingType padding);
 
-/*
+/**
  * ReInits initialization vector
  *
  * @param handle is a state handle that inited by InitBlockCipherState
@@ -241,12 +236,12 @@ int ReInitBlockCipherPaddingType(__inout BlockCipherHandle handle, __in PaddingT
  */
 int ReInitBlockCipherIv(__inout BlockCipherHandle handle, __in const void* iv);
 
-/*
+/**
  * Make processing by block cipher function
  *
  * This is the main encryption/decryption function that using handle inited by InitBlockCipherState handle.
- * If you using this function for partial input, input size must be exact divisible by block size of current cipher.
- * When you pass the last part of current data, finalize flag should be true, and otherwise false.
+ * If you are using this function for partial input, input size must be exact divisible by block size of current cipher.
+ * When you pass the last part of the current data, finalize flag should be true, and otherwise false.
  * In order to avoid problems with data corruption do not reinit any of reinitable params of current handle
  * between calls of ProcessingByBlockCipher with false finalize flag.
  * You must understand that finalize flag only adds/retirives padding to/from input and not resets any field of the state.
@@ -258,16 +253,16 @@ int ReInitBlockCipherIv(__inout BlockCipherHandle handle, __in const void* iv);
  * @param finalize flag that indicate last chunk of data
  * @param output buffer allocated by user for output data
  * @param outputSize size of allocated output buffer
- *      for all cipher modes outputSize in will return exact bytes length that output data contain
- *      if you supply outputSize less than required, then function returns ERROR_TOO_SMALL_OUTPUT_SIZE error and outputSize variable will contain requiring size
- *      in decryption with OFB_mode strongly recomended to immediately pass output buffer with size not less than inputSize
- *      because calculation of outputSize with OFB_mode decryption includes full input decryption
+ *      for all cipher modes outputSize in will return exact bytes length that output data contain.
+ *      If you supply outputSize less than required, then function returns ERROR_TOO_SMALL_OUTPUT_SIZE error and outputSize variable will contain requiring size.
+ *      In decryption with OFB_mode strongly recomended to immediately pass output buffer with size not less than inputSize
+ *      because calculation of outputSize with OFB_mode decryption includes full input decryption.
  *
  * @return status
  */
 int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize);
 
-/*
+/**
  * Frees block cipher state
  *
  * @param handle is a state handle that inited by InitBlockCipherState
@@ -276,7 +271,7 @@ int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* i
  */
 int FreeBlockCipherState(__inout BlockCipherHandle handle);
 
-/*
+/**
  * Inits state for hash function
  *
  * Before using hashing you must init respective state with help of this function.
@@ -289,7 +284,7 @@ int FreeBlockCipherState(__inout BlockCipherHandle handle);
  */
 int InitHashState(__inout HashHandle* handle, __in HashFunc func);
 
-/*
+/**
  * Resets internal hash state
  * 
  * If you wish to throw away any processed chunks of data and start to hashing
@@ -302,7 +297,7 @@ int InitHashState(__inout HashHandle* handle, __in HashFunc func);
  */
 int ResetHashState(__inout HashHandle handle);
 
-/*
+/**
  * GetHash is make processing by hashing function
  *
  * This is the main hashing function that using handle inited by InitHashState handle.
@@ -325,7 +320,7 @@ int ResetHashState(__inout HashHandle handle);
  */
 int GetHash(__inout HashHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output);
 
-/*
+/**
  * Frees hash function state
  *
  * @param handle is a state handle that inited by InitHashState
@@ -334,7 +329,7 @@ int GetHash(__inout HashHandle handle, __in_opt const void* input, __in uint64_t
  */
 int FreeHashState(__inout HashHandle handle);
 
-/*
+/**
  * Inits state for XOF
  *
  * Before using hashing you must init respective state with help of this function.
@@ -347,7 +342,7 @@ int FreeHashState(__inout HashHandle handle);
  */
 int InitXofState(__inout XofHandle* handle, __in Xof func);
 
-/*
+/**
  * Resets internal XOF state
  *
  * If you wish to throw away any processed chunks of data and start to "hashing"
@@ -360,7 +355,7 @@ int InitXofState(__inout XofHandle* handle, __in Xof func);
  */
 int ResetXofState(__inout XofHandle handle);
 
-/*
+/**
  * GetXof is make processing by XOF
  *
  * This is the main "hashing" function by XOF that using handle inited by InitXofState handle.
@@ -382,7 +377,7 @@ int ResetXofState(__inout XofHandle handle);
  */
 int GetXof(__inout XofHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __in uint64_t outputSize);
 
-/*
+/**
  * Frees XOF state
  *
  * @param handle is a state handle that inited by InitXofState
@@ -391,7 +386,7 @@ int GetXof(__inout XofHandle handle, __in_opt const void* input, __in uint64_t i
  */
 int FreeXofState(__inout XofHandle handle);
 
-/*
+/**
  * Inits state for pseudo random function
  *
  * Before using PRF you must init respective state with help of this function.
@@ -405,7 +400,7 @@ int FreeXofState(__inout XofHandle handle);
  */
 int InitPrfState(__inout PrfHandle* handle, __in Prf func);
 
-/*
+/**
  * Resets internal PRF state
  *
  * If you wish to throw away any processed chunks of data and start
@@ -418,7 +413,7 @@ int InitPrfState(__inout PrfHandle* handle, __in Prf func);
  */
 int ResetPrfState(__inout PrfHandle handle);
 
-/*
+/**
  * GetPrf is make processing by hashing function
  *
  * This is the main function that using handle inited by InitPrfState handle.
@@ -442,7 +437,7 @@ int ResetPrfState(__inout PrfHandle handle);
  */
 int GetPrf(__inout PrfHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in_opt const void* key, __in uint64_t keySize, __in bool finalize, __out_opt void* output, __in_opt uint64_t outputSize);
 
-/*
+/**
  * Frees PRF state
  *
  * @param handle is a state handle that inited by InitPrfState
@@ -451,7 +446,7 @@ int GetPrf(__inout PrfHandle handle, __in_opt const void* input, __in uint64_t i
  */
 int FreePrfState(__inout PrfHandle handle);
 
-/*
+/**
  * GetPbkdf2 get key by PBKDF2 algorithm
  *
  * @param salt is a salt for password

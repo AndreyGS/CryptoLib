@@ -1,4 +1,4 @@
-/*
+/**
  * @file sha-3.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *

@@ -1,4 +1,4 @@
-/*
+/**
  * @file kdf.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *

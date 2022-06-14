@@ -1,4 +1,4 @@
-/*
+/**
  * @file crypto_internal.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *

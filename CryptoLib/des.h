@@ -1,4 +1,4 @@
-/*
+/**
  * @file des.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *

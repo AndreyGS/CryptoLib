@@ -1,4 +1,4 @@
-/*
+/**
  * @file pch.h: This is a precompiled header file.
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *

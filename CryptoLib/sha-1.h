@@ -1,4 +1,4 @@
-/*
+/**
  * @file sha-1.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
