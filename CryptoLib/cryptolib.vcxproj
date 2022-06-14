@@ -184,7 +184,7 @@
     <ClCompile Include="consts.c" />
     <ClCompile Include="crypto.c" />
     <ClCompile Include="crypto_helpers.c" />
-    <ClCompile Include="crypto_internal.cpp" />
+    <ClCompile Include="crypto_internal.c" />
     <ClCompile Include="des.c" />
     <ClCompile Include="hmac.c" />
     <ClCompile Include="kdf.c" />
