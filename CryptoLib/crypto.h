@@ -242,13 +242,15 @@ int ReInitBlockCipherPaddingType(__inout BlockCipherHandle handle, __in PaddingT
 int ReInitBlockCipherIv(__inout BlockCipherHandle handle, __in const void* iv);
 
 /*
- * Processing by block cipher 0function
+ * Make processing by block cipher function
  *
- * This is the main encryption/decryption function that using inited by InitBlockCipherState handle.
+ * This is the main encryption/decryption function that using handle inited by InitBlockCipherState handle.
  * If you using this function for partial input, input size must be exact divisible by block size of current cipher.
  * When you pass the last part of current data, finalize flag should be true, and otherwise false.
  * In order to avoid problems with data corruption do not reinit any of reinitable params of current handle
  * between calls of ProcessingByBlockCipher with false finalize flag.
+ * You must understand that finalize flag only adds/retirives padding to/from input and not resets any field of the state.
+ * You should use new IV (if it's not ECB mode) every time you start new data (file) encryption, by setting it with ReInitBlockCipherIv.
  * 
  * @param handle is a state handle that inited by InitBlockCipherState
  * @param input data to encypt/decrypt
@@ -274,26 +276,195 @@ int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* i
  */
 int FreeBlockCipherState(__inout BlockCipherHandle handle);
 
-// Before using GetHash with finalize flag you should allocate output buffer according to the output digest size of respective hashing function
-// You may check the numbers with macros _DIGEST_SIZE like SHA1_DIGEST_SIZE
+/*
+ * Inits state for hash function
+ *
+ * Before using hashing you must init respective state with help of this function.
+ * When state is no longer need you should free it by call of FreeHashState.
+ *
+ * @param handle is a state handle
+ * @param func is a hash function that will be used in hashing
+ * 
+ * @return status
+ */
 int InitHashState(__inout HashHandle* handle, __in HashFunc func);
-int GetHash(__inout HashHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output);
+
+/*
+ * Resets internal hash state
+ * 
+ * If you wish to throw away any processed chunks of data and start to hashing
+ * with begining using current handle, you should call this function before.
+ * Also state is automaticaly resets after call of GetHash with finalize flag.
+ *
+ * @param handle is a state handle that inited by InitHashState
+ *
+ * @return status
+ */
 int ResetHashState(__inout HashHandle handle);
+
+/*
+ * GetHash is make processing by hashing function
+ *
+ * This is the main hashing function that using handle inited by InitHashState handle.
+ * If you using this function for partial input, input size must be exact divisible by block size of current hashing function.
+ * (you may check the numbers from macros _BLOCK_SIZE like SHA1_BLOCK_SIZE).
+ * When you pass the last part of current data, finalize flag should be true, and otherwise false.
+ * In order to avoid problems with data corruption do not reset state by ResetHashState 
+ * between calls of GetHash with false finalize flag.
+ * Output buffer must be supplied when finalize flag is set.
+ * The size of output is the size of respective didgest
+ * (you may check the numbers from macros _DIGEST_SIZE like SHA1_DIGEST_SIZE.)
+ *
+ * @param handle is a state handle that inited by InitBlockCipherState
+ * @param input data to hashing
+ * @param inputSize size of the current input chunk (if input is nullptr than must be equal to 0)
+ * @param finalize flag that indicate last chunk of data
+ * @param output buffer allocated by user for output didgest
+ *
+ * @return status
+ */
+int GetHash(__inout HashHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output);
+
+/*
+ * Frees hash function state
+ *
+ * @param handle is a state handle that inited by InitHashState
+ *
+ * @return status
+ */
 int FreeHashState(__inout HashHandle handle);
 
+/*
+ * Inits state for XOF
+ *
+ * Before using hashing you must init respective state with help of this function.
+ * When state is no longer need you should free it by call of FreeXofState.
+ *
+ * @param handle is a state handle
+ * @param func is a XOF that will be used in "hashing"
+ *
+ * @return status
+ */
 int InitXofState(__inout XofHandle* handle, __in Xof func);
-int GetXof(__inout XofHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __in uint64_t outputSize);
+
+/*
+ * Resets internal XOF state
+ *
+ * If you wish to throw away any processed chunks of data and start to "hashing"
+ * with begining using current handle, you should call this function before.
+ * Also state is automaticaly resets after call of GetHash with finalize flag.
+ *
+ * @param handle is a state handle that inited by InitXofState
+ *
+ * @return status
+ */
 int ResetXofState(__inout XofHandle handle);
+
+/*
+ * GetXof is make processing by XOF
+ *
+ * This is the main "hashing" function by XOF that using handle inited by InitXofState handle.
+ * If you using this function for partial input, input size must be exact divisible by block size of current hashing function.
+ * (you may check the numbers from macros _BLOCK_SIZE like SHAKE128_BLOCK_SIZE).
+ * When you pass the last part of current data, finalize flag should be true, and otherwise false.
+ * In order to avoid problems with data corruption do not reset state by ResetXofState
+ * between calls of GetXof with false finalize flag.
+ * Output buffer must be supplied when finalize flag is set.
+ *
+ * @param handle is a state handle that inited by InitBlockCipherState
+ * @param input data to hashing
+ * @param inputSize size of the current input chunk (if input is nullptr than must be equal to 0)
+ * @param finalize flag that indicate last chunk of data
+ * @param output buffer allocated by user for output didgest
+ * @param outputSize size of output buffer
+ *
+ * @return status
+ */
+int GetXof(__inout XofHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __in uint64_t outputSize);
+
+/*
+ * Frees XOF state
+ *
+ * @param handle is a state handle that inited by InitXofState
+ *
+ * @return status
+ */
 int FreeXofState(__inout XofHandle handle);
 
-// Get pseudorandom function result (currently only HMAC supported - see PRF enum)
-// outputSize parameter is only filled on variable size output XOF funcs - SHAKE128 and SHAKE256 - but KMAC functions are not supported yet,
-// For all of the rest you may check the numbers with macros _DIGEST_SIZE like SHA1_DIGEST_SIZE
+/*
+ * Inits state for pseudo random function
+ *
+ * Before using PRF you must init respective state with help of this function.
+ * When state is no longer need you should free it by call of FreePrfState.
+ * Currently only HMAC supported - see PRF enum.
+ *
+ * @param handle is a state handle
+ * @param func is a PRF that will be used
+ *
+ * @return status
+ */
 int InitPrfState(__inout PrfHandle* handle, __in Prf func);
-int GetPrf(__inout PrfHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in_opt const void* key, __in uint64_t keySize, __in bool finalize, __out_opt void* output, __in_opt uint64_t outputSize);
+
+/*
+ * Resets internal PRF state
+ *
+ * If you wish to throw away any processed chunks of data and start
+ * with begining using current handle, you should call this function before.
+ * Also state is automaticaly resets after call of GetHash with finalize flag.
+ *
+ * @param handle is a state handle that inited by InitPrfState
+ *
+ * @return status
+ */
 int ResetPrfState(__inout PrfHandle handle);
+
+/*
+ * GetPrf is make processing by hashing function
+ *
+ * This is the main function that using handle inited by InitPrfState handle.
+ * If you using this function for partial input, input size must be exact divisible by block size of respective hashing function.
+ * (you may check the numbers from macros _BLOCK_SIZE like SHA1_BLOCK_SIZE).
+ * When you pass the last part of current data, finalize flag should be true, and otherwise false.
+ * In order to avoid problems with data corruption do not reset state by ResetPrfState
+ * between calls of GetPrf with false finalize flag.
+ * Output buffer must be supplied when finalize flag is set.
+ *
+ * @param handle is a state handle that inited by InitBlockCipherState
+ * @param input data/message
+ * @param inputSize size of the current input chunk (if input is nullptr than must be equal to 0)
+ * @param key key
+ * @param keySize size of the key (if key is nullptr than must be equal to 0)
+ * @param finalize flag that indicate last chunk of data
+ * @param output buffer allocated by user for output didgest (for all HMAC functions see respective macros _DIGEST_SIZE like SHA1_DIGEST_SIZE)
+ * @param outputSize size of output buffer (currently not supported, cause only HMAC functions with fixed output size is used)
+ *
+ * @return status
+ */
+int GetPrf(__inout PrfHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in_opt const void* key, __in uint64_t keySize, __in bool finalize, __out_opt void* output, __in_opt uint64_t outputSize);
+
+/*
+ * Frees PRF state
+ *
+ * @param handle is a state handle that inited by InitPrfState
+ *
+ * @return status
+ */
 int FreePrfState(__inout PrfHandle handle);
 
+/*
+ * GetPbkdf2 get key by PBKDF2 algorithm
+ *
+ * @param salt is a salt for password
+ * @param saltSize size of the salt
+ * @param password password
+ * @param passwordSize size of the password
+ * @param func PRF that will be used in algorithm
+ * @param iterationsNum number of iterations
+ * @param output buffer allocated by user for derived key
+ * @param outputSize size of output buffer and derived key
+ *
+ * @return status
+ */
 int GetPbkdf2(__in_opt const void* salt, __in uint64_t saltSize, __in_opt const void* password, __in uint64_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize);
 
 #ifdef __cplusplus
