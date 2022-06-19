@@ -32,7 +32,7 @@
 int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
 {
     int status = NO_ERROR;
-    if (status = CheckPaddingInputOutput(input, inputSize, blockSize, output, outputSize)) //-V559
+    if (status = CheckPaddingInputOutput(input, inputSize, blockSize, output, outputSize))
         return status;
     
     return AddPaddingInternal(input, inputSize, padding, blockSize, output, outputSize, fillAllBlock);
@@ -101,7 +101,7 @@ int ReInitBlockCipherIv(__inout BlockCipherHandle handle, __in const void* iv)
     else if (!iv)
         return ERROR_NULL_INIT_VECTOR;
 
-    ReInitBlockCipherIvInternal(handle, iv);
+    ReInitBlockCipherIvInternal(((BlockCipherState*)handle)->cipher, iv, ((BlockCipherState*)handle)->state);
 
     return NO_ERROR;
 }
@@ -157,7 +157,7 @@ int ResetHashState(__inout HashHandle handle)
 int GetHash(__inout HashHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output)
 {
     int status = NO_ERROR;
-    if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output)) //-V559
+    if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output))
         return status;
 
     if (!finalize && (inputSize % g_hashFuncsSizesMapping[*(HashFunc*)handle].blockSize))
@@ -200,7 +200,7 @@ int ResetXofState(__inout XofHandle handle)
 int GetXof(__inout XofHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __in uint64_t outputSize)
 {
     int status = NO_ERROR;
-    if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output)) //-V559
+    if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output))
         return status;
     else if (!outputSize)
         return ERROR_NULL_OUTPUT_SIZE;

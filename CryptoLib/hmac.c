@@ -165,14 +165,14 @@ void GetHmac(__inout HmacStateHandle state, __in_opt const void* input, __in uin
             keySize = didgestSize;
         }
         else
-            memcpy(iKeyPad, key, (size_t)keySize); //-V575
+            memcpy(iKeyPad, key, (size_t)keySize);
 
         memset(iKeyPad + keySize, 0, blockSize - (uint16_t)keySize);
-        memcpy(oKeyPad, iKeyPad, blockSize); //-V575
+        memcpy(oKeyPad, iKeyPad, blockSize);
 
         uint8_t* p = (uint8_t*)iKeyPad;
         for (uint8_t i = 0; i < blockSize; ++i)
-            *p++ ^= '\x36'; //-V769
+            *p++ ^= '\x36';
 
         p = (uint8_t*)oKeyPad;
         for (uint8_t i = 0; i < blockSize; ++i)

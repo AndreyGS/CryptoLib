@@ -29,44 +29,73 @@
 #include "paddings.h"
 #include "hmac.h"
 
+inline size_t GetSpecificBlockCipherStateSize(__in BlockCipherType cipher)
+{
+    switch (cipher) {
+    case DES_cipher_type:
+        return sizeof(DesState);
+    case TDES_cipher_type:
+        return sizeof(TdesState);
+    case AES128_cipher_type:
+        return sizeof(Aes128State);
+    case AES192_cipher_type:
+        return sizeof(Aes192State);
+    case AES256_cipher_type:
+        return sizeof(Aes256State);
+    default:
+        return 0;
+    }
+}
+
 int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv)
 {
+    assert(state && key && (opMode == ECB_mode || iv));
+
     int status = NO_ERROR;
-    void* roundsKeys = NULL;
 
-    EVAL(AllocBuffer(g_blockCiphersSizes[cipher].stateAndHeaderSize, state));
-
+    EVAL(AllocBuffer(state, sizeof(BlockCipherState)));
     (*state)->cipher = cipher;
+
+    size_t specificStateSize = GetSpecificBlockCipherStateSize(cipher);
 
     switch (cipher) {
     case DES_cipher_type:
-        roundsKeys = ((DesState*)&((*state)->state))->roundsKeys;
-        break;
     case TDES_cipher_type:
-        roundsKeys = ((TdesState*)&((*state)->state))->roundsKeys;
+        EVAL(AllocBuffer(&(*state)->state, specificStateSize));
+        break;
+    case AES128_cipher_type:
+    case AES192_cipher_type:
+    case AES256_cipher_type:
+        EVAL(AlignedAllocBuffer(&(*state)->state, specificStateSize, 16));
         break;
     }
 
-    GetBlockCipherRoundsKeysInternal(cipher, key, roundsKeys);
+    BlockCipherKeySchedule(cipher, key, (*state)->state);
 
     ReInitBlockCipherCryptoModeInternal(*state, cryptoMode);
     ReInitBlockCipherOpModeInternal(*state, opMode);
     ReInitBlockCipherPaddingTypeInternal(*state, padding);
 
     if (iv)
-        ReInitBlockCipherIvInternal(*state, iv);
+        ReInitBlockCipherIvInternal(cipher, iv, (*state)->state);
 
 exit:
     return status;
 }
 
-void GetBlockCipherRoundsKeysInternal(__in BlockCipherType cipher, __in const void* key, __out void* roundsKeys)
+void BlockCipherKeySchedule(__in BlockCipherType cipher, __in const void* key, __inout void* specificCipherState)
 {
+    assert(key && specificCipherState);
+
     switch (cipher) {
     case DES_cipher_type:
     case TDES_cipher_type:
-        DesGetRoundsKeys(cipher, key, roundsKeys);
+        DesKeySchedule(cipher, key, specificCipherState);
         break;
+    case AES128_cipher_type:
+    case AES192_cipher_type:
+    case AES256_cipher_type:
+        AesKeySchedule(cipher, key, specificCipherState);
     }
 }
 
@@ -91,16 +120,28 @@ inline void ReInitBlockCipherPaddingTypeInternal(__inout BlockCipherState* state
     state->padding = padding;
 }
 
-void ReInitBlockCipherIvInternal(__inout BlockCipherState* state, __in const void* iv)
+void ReInitBlockCipherIvInternal(__in BlockCipherType cipher, __in const void* iv, __inout void* specificCipherState)
 {
-    assert(state);
+    assert(specificCipherState);
 
-    switch (state->cipher) {
+    switch (cipher) {
     case DES_cipher_type:
-        ((DesState*)&(state->state))->iv = *(uint64_t*)iv;
+        ((DesState*)specificCipherState)->iv = *(uint64_t*)iv;
         break;
     case TDES_cipher_type:
-        ((TdesState*)&(state->state))->iv = *(uint64_t*)iv;
+        ((TdesState*)specificCipherState)->iv = *(uint64_t*)iv;
+        break;
+    case AES128_cipher_type:
+        ((Aes128State*)specificCipherState)->iv[0] = ((uint64_t*)iv)[0];
+        ((Aes128State*)specificCipherState)->iv[1] = ((uint64_t*)iv)[1];
+        break;
+    case AES192_cipher_type:
+        ((Aes192State*)specificCipherState)->iv[0] = ((uint64_t*)iv)[0];
+        ((Aes192State*)specificCipherState)->iv[1] = ((uint64_t*)iv)[1];
+        break;
+    case AES256_cipher_type:
+        ((Aes256State*)specificCipherState)->iv[0] = ((uint64_t*)iv)[0];
+        ((Aes256State*)specificCipherState)->iv[1] = ((uint64_t*)iv)[1];
         break;
     }
 }
@@ -121,12 +162,27 @@ int ProcessingByBlockCipherInternal(__inout BlockCipherState* state, __in const 
     }
 }
 
-inline void FreeBlockCipherStateInternal(__inout BlockCipherState* state)
+void FreeBlockCipherStateInternal(__inout BlockCipherState* state)
 {
-    assert(state);
+    assert(state && state->state);
 
-    memset_s(state, g_blockCiphersSizes[state->cipher].stateAndHeaderSize, 0, g_blockCiphersSizes[state->cipher].stateAndHeaderSize);
+    size_t specificStateSize = GetSpecificBlockCipherStateSize(state->cipher);
 
+    memset_s(state->state, specificStateSize, 0, specificStateSize);
+
+    switch (state->cipher) {
+    case DES_cipher_type:
+    case TDES_cipher_type:
+        FreeBuffer(state->state);
+        break;
+    case AES128_cipher_type:
+    case AES192_cipher_type:
+    case AES256_cipher_type:
+        AlignedFreeBuffer(state->state);
+        break;
+    }
+
+    memset_s(state, sizeof(BlockCipherState), 0, sizeof(BlockCipherState));
     FreeBuffer(state);
 }
 
@@ -136,7 +192,7 @@ int InitHashStateInternal(__inout HashState** state, __in HashFunc func)
 
     int status = NO_ERROR;
 
-    EVAL(AllocBuffer(g_hashFuncsSizesMapping[func].stateAndHeaderSize, state));
+    EVAL(AllocBuffer(state, g_hashFuncsSizesMapping[func].stateAndHeaderSize));
     (*state)->func = func;
     ResetHashStateInternal(*state);
 
@@ -221,7 +277,7 @@ int InitXofStateInternal(__inout XofState** state, __in Xof func)
 
     int status = NO_ERROR;
 
-    EVAL(AllocBuffer(g_XofSizesMapping[func].stateAndHeaderSize, state));
+    EVAL(AllocBuffer(state, g_XofSizesMapping[func].stateAndHeaderSize));
     (*state)->func = func;
     ResetXofStateInternal(*state);
 
@@ -268,7 +324,7 @@ int InitPrfStateInternal(__inout PrfState** state, __in Prf func)
 
     int status = NO_ERROR;
 
-    EVAL(AllocBuffer(g_PrfSizesMapping[func].stateAndHeaderSize, state));
+    EVAL(AllocBuffer(state, g_PrfSizesMapping[func].stateAndHeaderSize));
     (*state)->func = func;
     ResetPrfStateInternal(*state);
 

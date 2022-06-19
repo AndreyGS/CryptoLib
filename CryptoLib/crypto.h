@@ -28,7 +28,7 @@
 
 #ifndef KERNEL
 #include <stdint.h>
-#endif
+#endif // !KERNEL
 
 #ifndef __in
     #define __in 
@@ -72,6 +72,8 @@ extern "C" {
 
 #define ERROR_NO_MEMORY                     0x80000f01
 
+#define MAX_PKCSN7_BLOCK_SIZE               255
+
 typedef void* StateHandle;
 typedef StateHandle BlockCipherHandle;
 typedef StateHandle HashHandle;
@@ -81,17 +83,32 @@ typedef StateHandle PrfHandle;
 typedef enum _BlockCipherType {
     DES_cipher_type,
     TDES_cipher_type,       // 3DES-EDE3 with single IV
+    AES128_cipher_type,
+    AES192_cipher_type,
+    AES256_cipher_type,
     BlockCipherType_max
 } BlockCipherType;
 
 #define DES_KEY_SIZE                    8
 #define TDES_KEY_SIZE                   24
 
-#define DES_BLOCK_SIZE                  8
-#define TDES_BLOCK_SIZE                 8
+#define AES128_KEY_SIZE                 16
+#define AES192_KEY_SIZE                 24
+#define AES256_KEY_SIZE                 32
 
-#define DES_IV_SIZE                     8
-#define TDES_IV_SIZE                    8
+#define DES_BLOCK_SIZE                  8
+#define TDES_BLOCK_SIZE                 DES_BLOCK_SIZE
+
+#define AES128_BLOCK_SIZE               16
+#define AES192_BLOCK_SIZE               AES128_BLOCK_SIZE
+#define AES256_BLOCK_SIZE               AES128_BLOCK_SIZE
+
+#define DES_IV_SIZE                     DES_BLOCK_SIZE
+#define TDES_IV_SIZE                    DES_BLOCK_SIZE
+
+#define AES128_IV_SIZE                  AES128_BLOCK_SIZE
+#define AES192_BLOCK_SIZE               AES128_BLOCK_SIZE
+#define AES256_BLOCK_SIZE               AES128_BLOCK_SIZE
 
 typedef enum _BlockCipherOpMode {
     ECB_mode,

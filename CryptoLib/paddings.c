@@ -46,7 +46,7 @@ int CutISO7816PaddingInternal(__in uint64_t blockSize, __in const void* output, 
 int CheckPaddingInputOutput(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __in void* output, __in uint64_t* outputSize)
 {
     int status = NO_ERROR;
-    if (status = CheckInputOutput(input, inputSize, output, outputSize)) //-V559
+    if (status = CheckInputOutput(input, inputSize, output, outputSize))
         return status;
     else if (!blockSize)
         return ERROR_TOO_SMALL_BLOCK_SIZE;
@@ -57,7 +57,7 @@ int CheckPaddingInputOutput(__in const void* input, __in uint64_t inputSize, __i
 int CheckPaddingOutput(__in uint64_t blockSize, __in const void* paddedOutput, __in uint64_t* outputSize)
 {
     int status = NO_ERROR;
-    if (status = CheckOutput(paddedOutput, outputSize)) //-V559
+    if (status = CheckOutput(paddedOutput, outputSize))
         return status;
     else if (!blockSize)
         return ERROR_TOO_SMALL_BLOCK_SIZE;
@@ -111,7 +111,7 @@ int AddPaddingInternal(__in const void* input, __in uint64_t inputSize, __in Pad
 int PullPaddingSize(__in PaddingType padding, __in void* input, __in uint64_t blockSize, __out uint64_t* paddingSize)
 {
     int status = NO_ERROR;
-    if (status = CheckPaddingOutput(blockSize, input, paddingSize)) { //-V559
+    if (status = CheckPaddingOutput(blockSize, input, paddingSize)) {
         if (status == ERROR_NULL_OUTPUT)
             status = ERROR_NULL_INPUT;
         return status;
@@ -151,7 +151,7 @@ int PullPaddingSizeInternal(__in PaddingType padding, __in const void* input, __
 int CutPadding(__in PaddingType padding, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize)
 {
     int status = NO_ERROR;
-    if (status = CheckPaddingOutput(blockSize, output, outputSize)) //-V559
+    if (status = CheckPaddingOutput(blockSize, output, outputSize))
         return status;
 
     return CutPaddingInternal(padding, blockSize, output, outputSize);
@@ -235,7 +235,7 @@ int GetPaddingSize(__in uint64_t inputSize, __in uint64_t blockSize, __inout uin
 int AddZeroPadding(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
 {
     int status = NO_ERROR;
-    if (status = CheckPaddingInputOutput(input, inputSize, blockSize, output, outputSize)) //-V559
+    if (status = CheckPaddingInputOutput(input, inputSize, blockSize, output, outputSize))
         return status;
     
     return AddZeroPaddingInternal(input, inputSize, blockSize, output, outputSize, fillAllBlock);
@@ -272,7 +272,7 @@ int PullZeroPaddingSizeInternal(__in const void* input, __in uint64_t blockSize,
 int CutZeroPadding(__in uint64_t blockSize, __in const void* output, __inout uint64_t* outputSize)
 {
     int status = NO_ERROR;
-    if (status = CheckPaddingOutput(blockSize, output, outputSize)) //-V559
+    if (status = CheckPaddingOutput(blockSize, output, outputSize))
         return status;
 
     return CutZeroPaddingInternal(blockSize, output, outputSize);
@@ -282,7 +282,7 @@ int CutZeroPaddingInternal(__in uint64_t blockSize, __in const void* output, __i
 {
     int status = NO_ERROR;
     uint64_t paddingSize = 0;
-    if (status = PullZeroPaddingSizeInternal(output, blockSize, &paddingSize)) //-V559
+    if (status = PullZeroPaddingSizeInternal(output, blockSize, &paddingSize))
         return status;
     else
         return *outputSize -= paddingSize, NO_ERROR;
@@ -295,7 +295,7 @@ int CutZeroPaddingInternal(__in uint64_t blockSize, __in const void* output, __i
 int AddPKCSN7Padding(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
 {
     int status = NO_ERROR;
-    if (status = CheckPaddingInputOutput(input, inputSize, blockSize, output, outputSize)) //-V559
+    if (status = CheckPaddingInputOutput(input, inputSize, blockSize, output, outputSize))
         return status;
     else if (blockSize > MAX_PKCSN7_BLOCK_SIZE)
         return ERROR_TOO_BIG_BLOCK_SIZE;
@@ -331,7 +331,7 @@ int PullPKCSN7PaddingSizeInternal(__in const void* input, __in uint64_t blockSiz
 int CutPKCSN7Padding(__in uint64_t blockSize, __in const void* output, __inout uint64_t* outputSize)
 {
     int status = NO_ERROR;
-    if (status = CheckPaddingOutput(blockSize, output, outputSize)) //-V559
+    if (status = CheckPaddingOutput(blockSize, output, outputSize))
         return status;
 
     return CutPKCSN7PaddingInternal(blockSize, output, outputSize);
@@ -341,7 +341,7 @@ int CutPKCSN7PaddingInternal(__in uint64_t blockSize, __in const void* output, _
 {
     int status = NO_ERROR;
     uint8_t paddingSize = 0;
-    if (status = PullPKCSN7PaddingSizeInternal(output, blockSize, &paddingSize)) //-V559
+    if (status = PullPKCSN7PaddingSizeInternal(output, blockSize, &paddingSize))
         return status;
     else
         return *outputSize -= paddingSize, NO_ERROR;
@@ -354,7 +354,7 @@ int CutPKCSN7PaddingInternal(__in uint64_t blockSize, __in const void* output, _
 int AddISO7816Padding(__in const void* input, __in uint64_t inputSize, __in uint64_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
 {
     int status = NO_ERROR;
-    if (status = CheckPaddingInputOutput(input, inputSize, blockSize, output, outputSize)) //-V559
+    if (status = CheckPaddingInputOutput(input, inputSize, blockSize, output, outputSize))
         return status;
 
     return AddISO7816PaddingInternal(input, inputSize, blockSize, output, outputSize, fillAllBlock);
@@ -394,7 +394,7 @@ int PullISO7816PaddingSizeInternal(__in const void* input, __in uint64_t blockSi
 int CutISO7816Padding(__in uint64_t blockSize, __in const void* output, __inout uint64_t* outputSize)
 {
     int status = NO_ERROR;
-    if (status = CheckPaddingOutput(blockSize, output, outputSize)) //-V559
+    if (status = CheckPaddingOutput(blockSize, output, outputSize))
         return status;
 
     CutISO7816PaddingInternal(blockSize, output, outputSize);
@@ -406,7 +406,7 @@ int CutISO7816PaddingInternal(__in uint64_t blockSize, __in const void* output, 
 {
     int status = NO_ERROR;
     uint64_t paddingSize = 0;
-    if (status = PullISO7816PaddingSizeInternal(output, blockSize, &paddingSize)) //-V559
+    if (status = PullISO7816PaddingSizeInternal(output, blockSize, &paddingSize))
         return status;
     else
         return *outputSize -= paddingSize, NO_ERROR;

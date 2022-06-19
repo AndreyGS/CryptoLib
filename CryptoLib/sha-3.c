@@ -47,7 +47,7 @@ inline uint16_t GetSha3Capacity(Sha3Func func)
     case Sha3Func_SHA3_224:
         return 56;
     case Sha3Func_SHA3_256:
-        return 64; //-V1037
+        return 64;
     case Sha3Func_SHA3_384:
         return 96;
     case Sha3Func_SHA3_512:
@@ -91,7 +91,7 @@ void Keccak_p_Rnds(__inout uint64_t* state)
                 i = it1;
                 it1 = i + j * 5;
                 buffer[1] = state[it1];
-                it2 = ((t + 1) * (t + 2) >> 1) & 0x3f; //-V634
+                it2 = ((t + 1) * (t + 2) >> 1) & 0x3f;
                 state[it1] = *buffer << it2 | *buffer >> (64 - it2);
                 *buffer = buffer[1];
             }

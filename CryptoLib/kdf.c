@@ -44,9 +44,9 @@ int GetPbkdf2(__in_opt const void* salt, __in uint64_t saltSize, __in_opt const 
         return ERROR_TOO_SMALL_OUTPUT_SIZE;
     else {
         uint8_t* saltBuffer = NULL;
-        EVAL(AllocBuffer((size_t)saltSize + 4, &saltBuffer));
+        EVAL(AllocBuffer(&saltBuffer, (size_t)saltSize + 4));
 
-        memcpy(saltBuffer, salt, (size_t)saltSize); //-V575
+        memcpy(saltBuffer, salt, (size_t)saltSize);
         status = GetPbkdf2Internal(saltBuffer, saltSize, password, passwordSize, func, iterationsNum, output, outputSize);
         FreeBuffer(saltBuffer);
     }
@@ -64,8 +64,8 @@ int GetPbkdf2Internal(__in_opt const void* salt, __in uint64_t saltSize, __in_op
     uint8_t* buffer1 = NULL;
     uint8_t* buffer2 = NULL;
     PrfState* state = NULL;
-    EVAL(AllocBuffer(didgestSize, &buffer1));
-    EVAL(AllocBuffer(didgestSize, &buffer2));
+    EVAL(AllocBuffer(&buffer1, didgestSize));
+    EVAL(AllocBuffer(&buffer2, didgestSize));
     EVAL(InitPrfState(&state, func));
 
     uint8_t* reserveBuffer2 = buffer2;

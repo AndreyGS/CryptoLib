@@ -1,5 +1,5 @@
 /**
- * @file pch.h: This is a precompiled header file.
+ * @file aes.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,31 +21,28 @@
  *
  */
 
-// Files listed below are compiled only once, improving build performance for future builds.
-// This also affects IntelliSense performance, including code completion and many code browsing features.
-// However, files listed here are ALL re-compiled if any one of them is updated between builds.
-// Do not add files here that you will be updating frequently as this negates the performance advantage.
+#pragma once
 
-#ifndef PCH_H
-#define PCH_H
+#include "crypto_helpers.h"
 
-#ifndef KERNEL
-#include <stdint.h>
-#include <stdbool.h>
-#include <memory.h>
-#include <stdlib.h>
-#include <assert.h>
-#endif //!KERNEL
+typedef struct _Aes128State {
+    uint32_t roundsKeys[44];
+    uint64_t iv[2];
+} Aes128State;
 
-#if defined(__STDC_LIB_EXT1__) && !defined(KERNEL)
-#define __STDC_WANT_LIB_EXT1__ 1
-#include <string.h>
-#else
-errno_t memset_s(void* dest, rsize_t destsz, int ch, rsize_t count);
-#endif
+typedef struct _Aes192State {
+    uint32_t roundsKeys[52];
+    uint64_t iv[2];
+} Aes192State;
 
-#define ALIGN_TO_8_BYTES(x) (((x) + 7) & 7)
+typedef struct _Aes256State {
+    uint32_t roundsKeys[60];
+    uint64_t iv[2];
+} Aes256State;
 
-//#define GET_FIELD_OFFSET(type, field) &((#type*)0)->#field
+#define AES128_ROUNDS_KEYS_SIZE         176
+#define AES192_ROUNDS_KEYS_SIZE         208
+#define AES256_ROUNDS_KEYS_SIZE         240
 
-#endif //PCH_H
+void AesKeySchedule(__in BlockCipherType cipher, __in const uint32_t* key, __out uint32_t* roundsKeys);
+

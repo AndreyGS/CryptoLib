@@ -25,6 +25,10 @@
 
 #include "crypto.h"
 
+#ifndef KERNEL
+#include <stdalign.h>
+#endif // !KERNEL
+
 #define EVAL(expr) { status = expr; if (status < 0) goto exit; }
 
 int CheckInput(__in const void* input, __in uint64_t inputSize);
@@ -43,7 +47,9 @@ extern inline uint32_t Uint32LittleEndianToBigEndian(uint32_t input);
 extern inline uint64_t Uint64LittleEndianToBigEndian(uint64_t input);
 extern inline uint64_t Uint64LittleEndianToBigEndianBits(uint64_t input);
 
-extern inline int AllocBuffer(size_t size, void**);
+extern inline int AllocBuffer(void** buffer, size_t size);
+extern inline int AlignedAllocBuffer(void** buffer, size_t size, size_t alignment);
 extern inline void FreeBuffer(void* buffer);
+extern inline void AlignedFreeBuffer(void* buffer);
 
 int FillLastDecryptedBlockInternal(__in PaddingType padding, __in uint64_t blockSize, __in const void* lastOutputBlock, __in uint64_t inputSize, __out void* output, __inout uint64_t* outputSize);

@@ -195,7 +195,7 @@ inline uint64_t DesGetRoundKey(CDBlocks cdBlocks)
         | ((uint64_t)cdBlocks.dBlock & 0x0000000000000010 /* 2^ 4 */) << 36;
 }
 
-void SingleDesGetRoundsKeys(__in uint64_t extendedKey, __out uint64_t* roundsKeys)
+void SingleDesKeySchedule(__in uint64_t extendedKey, __out uint64_t* roundsKeys)
 {
     CDBlocks cdBlocks = DesGetZeroCDBlocks(DesGetExtendedKeyPermutation(extendedKey));
     roundsKeys[0] = DesGetRoundKey(cdBlocks = DesGetRoundCDBlocksOne(cdBlocks));
@@ -216,21 +216,23 @@ void SingleDesGetRoundsKeys(__in uint64_t extendedKey, __out uint64_t* roundsKey
     roundsKeys[15] = DesGetRoundKey(DesGetRoundCDBlocksOne(cdBlocks));
 }
 
-void TripleDesGetRoundsKeys(__in const uint64_t* extendedKeys, __out uint64_t* roundsKeys)
+void TripleDesKeySchedule(__in const uint64_t* extendedKeys, __out uint64_t* roundsKeys)
 {
-    SingleDesGetRoundsKeys(*extendedKeys++, roundsKeys);
-    SingleDesGetRoundsKeys(*extendedKeys++, roundsKeys + 16);
-    SingleDesGetRoundsKeys(*extendedKeys, roundsKeys + 32);
+    SingleDesKeySchedule(*extendedKeys++, roundsKeys);
+    SingleDesKeySchedule(*extendedKeys++, roundsKeys + 16);
+    SingleDesKeySchedule(*extendedKeys, roundsKeys + 32);
 }
 
-inline void DesGetRoundsKeys(__in BlockCipherType cipher, __in const uint64_t* key, __out uint64_t* roundsKeys)
+inline void DesKeySchedule(__in BlockCipherType cipher, __in const uint64_t* key, __out uint64_t* roundsKeys)
 {
+    assert(key && roundsKeys);
+
     switch (cipher) {
     case DES_cipher_type:
-        SingleDesGetRoundsKeys(*key, roundsKeys);
+        SingleDesKeySchedule(*key, roundsKeys);
         break;
     case TDES_cipher_type:
-        TripleDesGetRoundsKeys(key, roundsKeys);
+        TripleDesKeySchedule(key, roundsKeys);
         break;
     }
 }
@@ -572,7 +574,7 @@ int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
         else
             *outputSize = inputSize;
     }
-    else if (status = AddPaddingInternal(input, inputSize, padding, DES_BLOCK_SIZE, output, outputSize, true)) //-V559
+    else if (status = AddPaddingInternal(input, inputSize, padding, DES_BLOCK_SIZE, output, outputSize, true))
         return status;
 
     DesEncDecFunction func = NULL;
@@ -758,7 +760,7 @@ int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
 
         *outputSize = inputSize;
     } 
-    else if (status = FillLastDecryptedBlockInternal(padding, DES_BLOCK_SIZE, &lastOutputBlock, inputSize, output, outputSize)) //-V559
+    else if (status = FillLastDecryptedBlockInternal(padding, DES_BLOCK_SIZE, &lastOutputBlock, inputSize, output, outputSize))
         return status;
 
     switch (opMode) {

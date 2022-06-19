@@ -156,7 +156,7 @@ void Sha2_64InitState(__in HashFunc func, __out uint64_t* state)
         break;
     }
 
-    state[0] = pH[0], state[1] = pH[1], state[2] = pH[2], state[3] = pH[3], //-V522
+    state[0] = pH[0], state[1] = pH[1], state[2] = pH[2], state[3] = pH[3],
     state[4] = pH[4], state[5] = pH[5], state[6] = pH[6], state[7] = pH[7];
 }
 

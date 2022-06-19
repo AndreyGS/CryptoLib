@@ -75,3 +75,12 @@ exit:
     EXPECT_TRUE(status == ERROR_TOO_SMALL_OUTPUT_SIZE);
     delete[] buffer;
 }
+
+// Temp test
+TEST(ProcessingByBlockCipherCommonT, AesRoundsKeys) {
+    int status = NO_ERROR;
+    BlockCipherHandle handle = nullptr;
+    uint8_t* buffer = new uint8_t[1];
+    int8_t key[] = {0x2b,0x7e,0x15,0x16,0x28,0xae,0xd2,0xa6,0xab,0xf7,0x15,0x88,0x09,0xcf,0x4f,0x3c};
+    InitBlockCipherState(&handle, AES128_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, key, nullptr);
+}

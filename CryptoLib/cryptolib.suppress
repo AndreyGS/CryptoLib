@@ -1,0 +1,258 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true">
+      <xs:complexType>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element name="SuppressVersion">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="CurrentVersion" type="xs:int" minOccurs="0" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="CryptoLib">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="FileName" type="xs:string" default="" />
+                <xs:element name="ErrorCode" type="xs:string" default="" />
+                <xs:element name="Message" type="xs:string" default="" />
+                <xs:element name="CodePrev" type="xs:unsignedInt" default="0" />
+                <xs:element name="CodeCurrent" type="xs:unsignedInt" default="0" />
+                <xs:element name="CodeNext" type="xs:unsignedInt" default="0" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+      <xs:unique name="Constraint1" msdata:PrimaryKey="true">
+        <xs:selector xpath=".//CryptoLib" />
+        <xs:field xpath="FileName" />
+        <xs:field xpath="ErrorCode" />
+        <xs:field xpath="Message" />
+        <xs:field xpath="CodePrev" />
+        <xs:field xpath="CodeCurrent" />
+        <xs:field xpath="CodeNext" />
+      </xs:unique>
+    </xs:element>
+  </xs:schema>
+  <SuppressVersion>
+    <CurrentVersion>2</CurrentVersion>
+  </SuppressVersion>
+  <CryptoLib>
+    <FileName>sha-3.c</FileName>
+    <ErrorCode>V2006</ErrorCode>
+    <Message>Implicit type conversion from enum type to integer type.</Message>
+    <CodePrev>123</CodePrev>
+    <CodeCurrent>1997650960</CodeCurrent>
+    <CodeNext>125</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>sha-3.c</FileName>
+    <ErrorCode>V2006</ErrorCode>
+    <Message>Implicit type conversion from enum type to integer type.</Message>
+    <CodePrev>123</CodePrev>
+    <CodeCurrent>1067804637</CodeCurrent>
+    <CodeNext>125</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>sha-1.c</FileName>
+    <ErrorCode>V707</ErrorCode>
+    <Message>Giving short names to global variables is considered to be bad practice. It is suggested to rename 'K_' variable.</Message>
+    <CodePrev>0</CodePrev>
+    <CodeCurrent>310192084</CodeCurrent>
+    <CodeNext>310183484</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>sha-1.c</FileName>
+    <ErrorCode>V707</ErrorCode>
+    <Message>Giving short names to global variables is considered to be bad practice. It is suggested to rename 'K_' variable.</Message>
+    <CodePrev>310192084</CodePrev>
+    <CodeCurrent>310183484</CodeCurrent>
+    <CodeNext>310183764</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>sha-1.c</FileName>
+    <ErrorCode>V707</ErrorCode>
+    <Message>Giving short names to global variables is considered to be bad practice. It is suggested to rename 'K_' variable.</Message>
+    <CodePrev>310183484</CodePrev>
+    <CodeCurrent>310183764</CodeCurrent>
+    <CodeNext>310191678</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>sha-1.c</FileName>
+    <ErrorCode>V707</ErrorCode>
+    <Message>Giving short names to global variables is considered to be bad practice. It is suggested to rename 'K_' variable.</Message>
+    <CodePrev>310183764</CodePrev>
+    <CodeCurrent>310191678</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>hmac.c</FileName>
+    <ErrorCode>V575</ErrorCode>
+    <Message>The potential null pointer is passed into 'memcpy' function. Inspect the first argument.</Message>
+    <CodePrev>539</CodePrev>
+    <CodeCurrent>2519064958</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>hmac.c</FileName>
+    <ErrorCode>V575</ErrorCode>
+    <Message>The potential null pointer is passed into 'memcpy' function. Inspect the first argument.</Message>
+    <CodePrev>3814599387</CodePrev>
+    <CodeCurrent>4260731397</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>hmac.c</FileName>
+    <ErrorCode>V769</ErrorCode>
+    <Message>The 'p' pointer in the 'p ++' expression could be nullptr. In such case, resulting value will be senseless and it should not be used.</Message>
+    <CodePrev>1400132876</CodePrev>
+    <CodeCurrent>106101</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>sha-2.c</FileName>
+    <ErrorCode>V522</ErrorCode>
+    <Message>There might be dereferencing of a potential null pointer 'pH'.</Message>
+    <CodePrev>0</CodePrev>
+    <CodeCurrent>1032436345</CodeCurrent>
+    <CodeNext>1057210234</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>sha-3.c</FileName>
+    <ErrorCode>V1037</ErrorCode>
+    <Message>Two or more case-branches perform the same actions. Check lines: _, _</Message>
+    <CodePrev>142866370</CodePrev>
+    <CodeCurrent>22523</CodeCurrent>
+    <CodeNext>142866426</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>sha-3.c</FileName>
+    <ErrorCode>V634</ErrorCode>
+    <Message>The priority of the '*' operation is higher than that of the '&gt;&gt;' operation. It's possible that parentheses should be used in the expression.</Message>
+    <CodePrev>76918869</CodePrev>
+    <CodeCurrent>3029684475</CodeCurrent>
+    <CodeNext>454823451</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>kdf.c</FileName>
+    <ErrorCode>V575</ErrorCode>
+    <Message>The potential null pointer is passed into 'memcpy' function. Inspect the second argument.</Message>
+    <CodePrev>0</CodePrev>
+    <CodeCurrent>53721780</CodeCurrent>
+    <CodeNext>432566797</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>crypto_helpers.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>18976499</CodePrev>
+    <CodeCurrent>3900154314</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>crypto_helpers.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>0</CodePrev>
+    <CodeCurrent>4249759228</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>paddings.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>18976499</CodePrev>
+    <CodeCurrent>3900154314</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>paddings.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>18976499</CodePrev>
+    <CodeCurrent>972014807</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>paddings.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>18976499</CodePrev>
+    <CodeCurrent>3131518881</CodeCurrent>
+    <CodeNext>3085086960</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>paddings.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>18976499</CodePrev>
+    <CodeCurrent>1567986605</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>paddings.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>18976499</CodePrev>
+    <CodeCurrent>2103312076</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>paddings.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>183546439</CodePrev>
+    <CodeCurrent>2229941483</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>paddings.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>88650311</CodePrev>
+    <CodeCurrent>3639224197</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>paddings.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>183546439</CodePrev>
+    <CodeCurrent>1014111469</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>crypto.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>18976499</CodePrev>
+    <CodeCurrent>2103312076</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>crypto.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>18976499</CodePrev>
+    <CodeCurrent>2882023569</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>des.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>125</CodePrev>
+    <CodeCurrent>3025705629</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>des.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>125</CodePrev>
+    <CodeCurrent>2895670235</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+</NewDataSet>

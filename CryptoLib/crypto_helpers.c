@@ -27,6 +27,14 @@
 #include "crypto_helpers.h"
 #include "paddings.h"
 
+#if defined _MSC_VER
+#define AllignedAlloc _aligned_malloc
+#define AllignedFree _aligned_free
+#else
+#define AllignedAlloc aligned_alloc
+#define AllignedFree free
+#endif
+
 int CheckInput(__in const void* input, __in uint64_t inputSize)
 {
     if (!input)
@@ -57,7 +65,7 @@ int CheckInputOutput(__in const void* input, __in uint64_t inputSize, __in const
 int CheckBlockCipherPrimaryArguments(const void* input, uint64_t inputSize, PaddingType padding, const uint64_t* key, BlockCipherType cipherType, const void* output, const uint64_t* outputSize, BlockCipherOpMode mode, const void* iv)
 {
     int status = NO_ERROR;
-    if (status = CheckInputOutput(input, inputSize, output, outputSize)) //-V559
+    if (status = CheckInputOutput(input, inputSize, output, outputSize))
         return status;
     else if ((unsigned)padding >= PaddingType_max)
         return ERROR_UNSUPPORTED_PADDING_TYPE;
@@ -144,11 +152,27 @@ inline uint64_t Uint64LittleEndianToBigEndianBits(uint64_t input)
         |  (input & 0x0101010101010101) << 7;
 }
 
-inline int AllocBuffer(size_t size, void** buffer)
+inline int AllocBuffer(void** buffer, size_t size)
 {
+    assert(buffer);
+
     *buffer = NULL;
 #ifndef KERNEL
     *buffer = malloc(size);
+#endif
+    if (!*buffer)
+        return ERROR_NO_MEMORY;
+    else
+        return NO_ERROR;
+}
+
+inline int AlignedAllocBuffer(void** buffer, size_t size, size_t alignment)
+{
+    assert(buffer);
+
+    *buffer = NULL;
+#ifndef KERNEL
+    *buffer = AllignedAlloc(size, alignment);
 #endif
     if (!*buffer)
         return ERROR_NO_MEMORY;
@@ -163,12 +187,19 @@ inline void FreeBuffer(void* buffer)
 #endif
 }
 
+inline void AlignedFreeBuffer(void* buffer)
+{
+#ifndef KERNEL
+    AllignedFree(buffer);
+#endif
+}
+
 int FillLastDecryptedBlockInternal(__in PaddingType padding, __in uint64_t blockSize, __in const void* lastOutputBlock, __in uint64_t inputSize, __out void* output, __inout uint64_t* outputSize)
 {
     int status = NO_ERROR;
     uint64_t paddingSize = 0;
 
-    if (status = PullPaddingSizeInternal(padding, lastOutputBlock, blockSize, &paddingSize)) //-V559
+    if (status = PullPaddingSizeInternal(padding, lastOutputBlock, blockSize, &paddingSize))
         return status;
     else if (paddingSize > blockSize)
         return ERROR_PADDING_CORRUPTED;

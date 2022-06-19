@@ -57,7 +57,7 @@ TEST(BlockCipherStateFuncsTest, InitBlockCipherStateMain) {
     EVAL(InitBlockCipherState(&handle, DES_cipher_type, Encryption_mode, CBC_mode, No_padding, key, &desIv));
     state = (BlockCipherState*)handle;
 
-    EXPECT_TRUE(state->cipher == DES_cipher_type && state->enMode == Encryption_mode && state->opMode == CBC_mode && state->padding == No_padding && ((DesState*)&(state->state))->iv == desIv);
+    EXPECT_TRUE(state->cipher == DES_cipher_type && state->enMode == Encryption_mode && state->opMode == CBC_mode && state->padding == No_padding && ((DesState*)state->state)->iv == desIv);
 
     FreeBlockCipherState(handle);
 
@@ -244,13 +244,13 @@ TEST(BlockCipherStateFuncsTest, ReInitBlockCipherIvMain) {
     EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, CBC_mode, No_padding, key, &iv));
     state = (BlockCipherState*)handle;
 
-    EXPECT_EQ(((DesState*)&(state->state))->iv, ivCopy);
+    EXPECT_EQ(((DesState*)state->state)->iv, ivCopy);
 
     ivCopy = iv = 0x0123456789abcdef;
 
     EVAL(ReInitBlockCipherIv(handle, &iv));
 
-    EXPECT_EQ(((DesState*)&(state->state))->iv, ivCopy);
+    EXPECT_EQ(((DesState*)state->state)->iv, ivCopy);
 
 exit:
     if (handle)
@@ -275,29 +275,28 @@ TEST(BlockCipherStateFuncsTest, FreeBlockCipherStateMain) {
     int8_t key[] = "81cav5AS";
     BlockCipherHandle handle = nullptr;
     BlockCipherState* state = nullptr;
+    void* specificCipherState = nullptr;
     uint64_t iv = 0, ivCopy = iv;
     bool allOk = false;
 
     EVAL(InitBlockCipherState(&handle, (BlockCipherType)0, Decryption_mode, CBC_mode, No_padding, key, &iv));
     state = (BlockCipherState*)handle;
+    specificCipherState = ((BlockCipherState*)handle)->state;
 
     EVAL(FreeBlockCipherState(handle));
     
     {
-        std::unique_ptr<uint8_t> test(new uint8_t[g_blockCiphersSizes[0].stateAndHeaderSize]);
-        memset(test.get(), 0, g_blockCiphersSizes[0].stateAndHeaderSize);
+        std::unique_ptr<uint8_t> test(new uint8_t[sizeof(DesState)]);
+        memset(test.get(), 0, sizeof(DesState));
 
-        EXPECT_TRUE(memcmp(handle, test.get(), g_blockCiphersSizes[0].stateAndHeaderSize) == 0);
+        EXPECT_TRUE(memcmp(specificCipherState, test.get(), sizeof(DesState)) == 0);
     }
 
-    EVAL(InitBlockCipherState(&handle, (BlockCipherType)(BlockCipherType_max - 1), Decryption_mode, CBC_mode, No_padding, key, &iv));
-    EVAL(FreeBlockCipherState(handle));
-
     {
-        std::unique_ptr<uint8_t> test(new uint8_t[g_blockCiphersSizes[(BlockCipherType_max - 1)].stateAndHeaderSize]);
-        memset(test.get(), 0, g_blockCiphersSizes[(BlockCipherType_max - 1)].stateAndHeaderSize);
+        std::unique_ptr<BlockCipherState> test(new BlockCipherState);
+        memset(test.get(), 0, sizeof(BlockCipherState));
 
-        EXPECT_TRUE(memcmp(handle, test.get(), g_blockCiphersSizes[(BlockCipherType_max - 1)].stateAndHeaderSize) == 0);
+        EXPECT_TRUE(memcmp(state, test.get(), sizeof(BlockCipherState)) == 0);
     }
 
     allOk = true;

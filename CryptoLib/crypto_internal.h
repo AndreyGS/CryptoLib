@@ -25,6 +25,7 @@
 
 #include "crypto_helpers.h"
 #include "des.h"
+#include "aes.h"
 #include "sha-1.h"
 #include "sha-2.h"
 #include "sha-3.h"
@@ -38,25 +39,15 @@ typedef struct _BlockCipherState {
     CryptoMode enMode;
     BlockCipherOpMode opMode;
     PaddingType padding;
-    uint64_t state[ANYSIZE_ARRAY];
+    void* state;
 } BlockCipherState;
 
 typedef struct _BlockCiphersSizes {
     BlockCipherType cipher;
-    uint16_t keySize;
-    uint16_t roundsKeysSize;
     uint16_t stateSize;
-    uint16_t stateAndHeaderSize;
 } BlockCiphersSizes;
 
-static const BlockCiphersSizes g_blockCiphersSizes[] = {
-    { DES_cipher_type,   DES_KEY_SIZE,  DES_ROUNDS_KEYS_SIZE, sizeof(DesState),  BLOCK_CIPHER_STATE_DES_SIZE  },
-    { TDES_cipher_type, TDES_KEY_SIZE, TDES_ROUNDS_KEYS_SIZE, sizeof(TdesState), BLOCK_CIPHER_STATE_TDES_SIZE }
-};
-
 #define BITS_PER_BYTE                   8
-#define DES_BLOCK_SIZE                  8
-#define MAX_PKCSN7_BLOCK_SIZE           255
 
 typedef struct _HashState {
     HashFunc func;
@@ -208,11 +199,14 @@ static const PrfSizes g_PrfSizesMapping[] = {
 };
 
 // Block Ciphers Functions
+extern inline size_t
+GetSpecificBlockCipherStateSize(__in BlockCipherType cipher);
+
 int
 InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv);
 
 extern inline void 
-GetBlockCipherRoundsKeysInternal(__in BlockCipherType cipher, __in const void* key, __out void* roundsKeys);
+BlockCipherKeySchedule(__in BlockCipherType cipher, __in const void* key, __inout void* specificCipherState);
 
 extern inline void 
 ReInitBlockCipherCryptoModeInternal(__inout BlockCipherState* handle, __in CryptoMode cryptoMode);
@@ -224,12 +218,12 @@ extern inline void
 ReInitBlockCipherPaddingTypeInternal(__inout BlockCipherState* handle, __in PaddingType padding);
 
 void 
-ReInitBlockCipherIvInternal(__inout BlockCipherState* handle, __in const void* iv);
+ReInitBlockCipherIvInternal(__in BlockCipherType cipher, __in const void* iv, __inout void* specificCipherState);
 
 int 
 ProcessingByBlockCipherInternal(__inout BlockCipherState* handle, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize);
 
-extern inline void 
+void 
 FreeBlockCipherStateInternal(__inout BlockCipherState* state);
 
 // Hash Functions
