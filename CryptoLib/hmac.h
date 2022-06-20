@@ -24,5 +24,57 @@
 #pragma once
 
 #include "crypto_internal.h"
+#include "sha-1.h"
+#include "sha-2.h"
+#include "sha-3.h"
+
+typedef struct _Hmac_Sha1State {
+    uint8_t hashFuncState[HASH_STATE_SHA1_SIZE];
+    uint8_t iKeyPad[SHA1_BLOCK_SIZE];
+    uint8_t oKeyPad[SHA1_BLOCK_SIZE];
+    bool notFirst;
+} Hmac_Sha1State;
+
+typedef struct _Hmac_Sha2_32State {
+    uint8_t hashFuncState[HASH_STATE_SHA2_32_SIZE];
+    uint8_t iKeyPad[SHA2_32_BLOCK_SIZE];
+    uint8_t oKeyPad[SHA2_32_BLOCK_SIZE];
+    bool notFirst;
+} Hmac_Sha2_32State;
+
+typedef struct _Hmac_Sha2_64State {
+    uint8_t hashFuncState[HASH_STATE_SHA2_64_SIZE];
+    uint8_t iKeyPad[SHA2_64_BLOCK_SIZE];
+    uint8_t oKeyPad[SHA2_64_BLOCK_SIZE];
+    bool notFirst;
+} Hmac_Sha2_64State;
+
+typedef struct _Hmac_Sha3_224State {
+    uint8_t hashFuncState[HASH_STATE_SHA3_224_SIZE];
+    uint8_t iKeyPad[SHA3_224_BLOCK_SIZE];
+    uint8_t oKeyPad[SHA3_224_BLOCK_SIZE];
+    bool notFirst;
+} Hmac_Sha3_224State;
+
+typedef struct _Hmac_Sha3_256State {
+    uint8_t hashFuncState[HASH_STATE_SHA3_256_SIZE];
+    uint8_t iKeyPad[SHA3_256_BLOCK_SIZE];
+    uint8_t oKeyPad[SHA3_256_BLOCK_SIZE];
+    bool notFirst;
+} Hmac_Sha3_256State;
+
+typedef struct _Hmac_Sha3_384State {
+    uint8_t hashFuncState[HASH_STATE_SHA3_384_SIZE];
+    uint8_t iKeyPad[SHA3_384_BLOCK_SIZE];
+    uint8_t oKeyPad[SHA3_384_BLOCK_SIZE];
+    bool notFirst;
+} Hmac_Sha3_384State;
+
+typedef struct _Hmac_Sha3_512State {
+    uint8_t hashFuncState[HASH_STATE_SHA3_512_SIZE];
+    uint8_t iKeyPad[SHA3_512_BLOCK_SIZE];
+    uint8_t oKeyPad[SHA3_512_BLOCK_SIZE];
+    bool notFirst;
+} Hmac_Sha3_512State;
 
 void GetHmac(__inout HmacStateHandle state, __in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in Prf func, __in bool finalize, __out_opt void* output);

@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "crypto_helpers.h"
+#include "crypto_internal.h"
 
 typedef struct _Sha2_32State {
     uint32_t state[8];
@@ -39,6 +39,9 @@ typedef struct _Sha2_64State {
     uint64_t words[80];
     uint64_t tailBlocks[32];
 } Sha2_64State;
+
+#define HASH_STATE_SHA2_32_SIZE          HASH_STATE_HEADER_SIZE + sizeof(Sha2_32State)
+#define HASH_STATE_SHA2_64_SIZE          HASH_STATE_HEADER_SIZE + sizeof(Sha2_64State)
 
 void Sha2_32InitState(__in HashFunc func, __out uint32_t* state);
 void Sha2_64InitState(__in HashFunc func, __out uint64_t* state);

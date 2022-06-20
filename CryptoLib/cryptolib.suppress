@@ -255,4 +255,12 @@
     <CodeCurrent>2895670235</CodeCurrent>
     <CodeNext>352761</CodeNext>
   </CryptoLib>
+  <CryptoLib>
+    <FileName>aes.c</FileName>
+    <ErrorCode>V1032</ErrorCode>
+    <Message>The pointer 'output' is cast to a more strictly aligned pointer type.</Message>
+    <CodePrev>0</CodePrev>
+    <CodeCurrent>64464084</CodeCurrent>
+    <CodeNext>125</CodeNext>
+  </CryptoLib>
 </NewDataSet>

@@ -31,6 +31,17 @@
 
 #define EVAL(expr) { status = expr; if (status < 0) goto exit; }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#if defined(__STDC_LIB_EXT1__) && !defined(KERNEL)
+    #define __STDC_WANT_LIB_EXT1__ 1
+    #include <string.h>
+#else
+    errno_t memset_s(void* dest, rsize_t destsz, int ch, rsize_t count);
+#endif
+
 int CheckInput(__in const void* input, __in uint64_t inputSize);
 int CheckOutput(__in const void* output, __in const uint64_t* outputSize);
 int CheckInputOutput(__in const void* input, __in uint64_t inputSize, __in const void* output, __in const uint64_t* outputSize);
@@ -53,3 +64,7 @@ extern inline void FreeBuffer(void* buffer);
 extern inline void AlignedFreeBuffer(void* buffer);
 
 int FillLastDecryptedBlockInternal(__in PaddingType padding, __in uint64_t blockSize, __in const void* lastOutputBlock, __in uint64_t inputSize, __out void* output, __inout uint64_t* outputSize);
+
+#ifdef __cplusplus
+}
+#endif

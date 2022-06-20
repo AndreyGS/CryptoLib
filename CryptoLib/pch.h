@@ -37,13 +37,6 @@
 #include <assert.h>
 #endif //!KERNEL
 
-#if defined(__STDC_LIB_EXT1__) && !defined(KERNEL)
-#define __STDC_WANT_LIB_EXT1__ 1
-#include <string.h>
-#else
-errno_t memset_s(void* dest, rsize_t destsz, int ch, rsize_t count);
-#endif
-
 #define ALIGN_TO_8_BYTES(x) (((x) + 7) & 7)
 
 //#define GET_FIELD_OFFSET(type, field) &((#type*)0)->#field
