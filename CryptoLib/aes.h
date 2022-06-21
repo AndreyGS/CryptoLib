@@ -40,9 +40,13 @@ typedef struct _Aes256State {
     uint64_t iv[2];
 } Aes256State;
 
-#define AES128_ROUNDS_KEYS_SIZE         176
-#define AES192_ROUNDS_KEYS_SIZE         208
-#define AES256_ROUNDS_KEYS_SIZE         240
-
 void AesKeySchedule(__in BlockCipherType cipher, __in const uint32_t* key, __out uint32_t* roundsKeys);
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+void AesEncryptBlock(__in uint64_t* roundsKeys, __in uint8_t roundsNum, __in uint64_t* input, __out uint64_t* output);
+void AesDecryptBlock(__in uint64_t* roundsKeys, __in uint8_t roundsNum, __in uint64_t* input, __out uint64_t* output);
+#ifdef __cplusplus
+}
+#endif
