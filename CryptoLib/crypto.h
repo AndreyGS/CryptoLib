@@ -99,16 +99,13 @@ typedef enum _BlockCipherType {
 #define DES_BLOCK_SIZE                  8
 #define TDES_BLOCK_SIZE                 DES_BLOCK_SIZE
 
-#define AES128_BLOCK_SIZE               16
-#define AES192_BLOCK_SIZE               AES128_BLOCK_SIZE
-#define AES256_BLOCK_SIZE               AES128_BLOCK_SIZE
+#define AES_BLOCK_SIZE                  16
 
 #define DES_IV_SIZE                     DES_BLOCK_SIZE
 #define TDES_IV_SIZE                    DES_BLOCK_SIZE
 
-#define AES128_IV_SIZE                  AES128_BLOCK_SIZE
-#define AES192_BLOCK_SIZE               AES128_BLOCK_SIZE
-#define AES256_BLOCK_SIZE               AES128_BLOCK_SIZE
+#define AES_IV_SIZE                     AES_BLOCK_SIZE
+
 
 typedef enum _BlockCipherOpMode {
     ECB_mode,
@@ -231,7 +228,7 @@ int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType
  * 
  * @return status
  */
-int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv);
+int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt const void* iv);
 
 /**
  * ReInits crypto mode (encryption/decryption)

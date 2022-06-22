@@ -100,7 +100,7 @@ inline size_t GetSpecificBlockCipherStateSize(__in BlockCipherType cipher)
     }
 }
 
-int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv)
+int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt const void* iv)
 {
     assert(state && key && (opMode == ECB_mode || iv));
 
@@ -210,6 +210,13 @@ int ProcessingByBlockCipherInternal(__inout BlockCipherState* state, __in const 
             return DesEncrypt(state->state, state->cipher, state->opMode, state->padding, input, inputSize, finalize, output, outputSize);
         else
             return DesDecrypt(state->state, state->cipher, state->opMode, state->padding, input, inputSize, finalize, output, outputSize);
+    case AES128_cipher_type:
+    case AES192_cipher_type:
+    case AES256_cipher_type:
+        if (state->enMode == Encryption_mode)
+            return AesEncrypt(state->state, state->cipher, state->opMode, state->padding, input, inputSize, finalize, output, outputSize);
+        else
+            return AesDecrypt(state->state, state->cipher, state->opMode, state->padding, input, inputSize, finalize, output, outputSize);
     default:
         return NO_ERROR;
     }

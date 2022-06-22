@@ -263,4 +263,12 @@
     <CodeCurrent>64464084</CodeCurrent>
     <CodeNext>125</CodeNext>
   </CryptoLib>
+  <CryptoLib>
+    <FileName>aes.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>125</CodePrev>
+    <CodeCurrent>3025705949</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
 </NewDataSet>

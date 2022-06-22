@@ -103,7 +103,7 @@ extern inline size_t
 GetSpecificBlockCipherStateSize(__in BlockCipherType cipher);
 
 int
-InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv);
+InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt const void* iv);
 
 inline void 
 BlockCipherKeySchedule(__in BlockCipherType cipher, __in const void* key, __inout void* specificCipherState);

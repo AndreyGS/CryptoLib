@@ -25,6 +25,7 @@
 
 #include "pch.h"
 #include "aes.h"
+#include "paddings.h"
 
 const uint8_t AES_S_BOX[256] = 
 {
@@ -298,7 +299,7 @@ inline void AesMixColumnsInv(__inout uint8_t* input)
 }
 
 // roundsNum variable is expecting real rounds num minus one (for exclusion of one additional substraction)
-void AesEncryptBlock(__in uint64_t* roundsKeys, __in uint8_t roundsNum, __in uint64_t* input, __out uint64_t* output)
+void AesEncryptBlock(__in const uint64_t* roundsKeys, __in uint8_t roundsNum, __in const uint64_t* input, __out uint64_t* output)
 {
     output[0] = input[0] ^ *roundsKeys++;
     output[1] = input[1] ^ *roundsKeys++;
@@ -318,7 +319,7 @@ void AesEncryptBlock(__in uint64_t* roundsKeys, __in uint8_t roundsNum, __in uin
 }
 
 // roundsNum variable is expecting real rounds num minus one (for exclusion of one additional substraction)
-void AesDecryptBlock(__in uint64_t* roundsKeys, __in uint8_t roundsNum, __in uint64_t* input, __out uint64_t* output)
+void AesDecryptBlock(__in const uint64_t* roundsKeys, __in uint8_t roundsNum, __in const uint64_t* input, __out uint64_t* output)
 {
     roundsKeys += (roundsNum + 1) << 1;
 
@@ -343,4 +344,156 @@ void AesDecryptBlock(__in uint64_t* roundsKeys, __in uint8_t roundsNum, __in uin
 
     output[0] ^= roundsKeys[0];
     output[1] ^= roundsKeys[1];
+}
+
+int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in uint64_t inputSize
+    , __in bool finalize, __out_opt uint64_t* output, __inout uint64_t* outputSize)
+{
+    int status = NO_ERROR;
+
+    if (!finalize) {
+        if (inputSize & 15)
+            return ERROR_WRONG_INPUT_SIZE;
+        else
+            *outputSize = inputSize;
+    }
+    else if (status = AddPaddingInternal(input, inputSize, padding, AES_BLOCK_SIZE, output, outputSize, true))
+        return status;
+
+    uint64_t* roundsKeys = state;
+    uint64_t* iv = NULL;
+    uint8_t fullRoundsNum = 0;
+
+    if (cipher == AES128_cipher_type) {
+        iv = ((Aes128State*)state)->iv;
+        fullRoundsNum = 9;
+    }
+    else if (cipher == AES192_cipher_type) {
+        iv = ((Aes192State*)state)->iv;
+        fullRoundsNum = 11;
+    }
+    else {
+        iv = ((Aes256State*)state)->iv;
+        fullRoundsNum = 13;
+    }
+
+    uint64_t blocksNumber = *outputSize >> 4; // (outputSize / AES_BLOCK_SIZE) outputSize must be divisible by AES_BLOCK_SIZE without remainder
+
+    switch (opMode) {
+    case ECB_mode: {
+        while (--blocksNumber) {
+            AesEncryptBlock(roundsKeys, fullRoundsNum, input, output);
+            input += 2;
+            output += 2;
+        }
+
+        AesEncryptBlock(roundsKeys, fullRoundsNum, finalize ? output : input, output);
+
+        break;
+    }
+
+    case CBC_mode: {
+        --input; // for speeding
+
+        while (--blocksNumber) {
+            iv[0] ^= *++input, iv[1] ^= *++input;
+            AesEncryptBlock(roundsKeys, fullRoundsNum, iv, output);
+            iv[0] = *output++, iv[1] = *output++;
+        }
+
+        if (finalize)
+            iv[0] ^= output[0], iv[1] ^= output[1];
+        else
+            iv[0] ^= *++input, iv[1] ^= *++input;
+
+        AesEncryptBlock(roundsKeys, fullRoundsNum, iv, output);
+
+        if (!finalize)
+            iv[0] = *output++, iv[1] = *output++;
+
+        break;
+    }
+
+    case CFB_mode: {
+        --input; // for speeding
+
+        while (--blocksNumber) {
+            AesEncryptBlock(roundsKeys, fullRoundsNum, iv, output);
+            iv[0] = *output++ ^= *++input,
+            iv[1] = *output++ ^= *++input;
+        }
+
+        if (finalize) {
+            uint64_t tempOutput[2] = { output[0], output[1] };
+            AesEncryptBlock(roundsKeys, fullRoundsNum, iv, tempOutput);
+            output[0] ^= tempOutput[0], output[1] ^= tempOutput[1];
+        }
+        else {
+            AesEncryptBlock(roundsKeys, fullRoundsNum, iv, output);
+            iv[0] = *output++ ^= *++input,
+            iv[1] = *output   ^= *++input;
+        }
+
+        break;
+    }
+
+    case OFB_mode: {
+        --input;    // for speeding
+        --output;   //
+        
+        while (--blocksNumber) {
+            AesEncryptBlock(roundsKeys, fullRoundsNum, iv, iv);
+            *++output = iv[0] ^ *++input,
+            *++output = iv[1] ^ *++input;
+        }
+
+        AesEncryptBlock(roundsKeys, fullRoundsNum, iv, iv);
+
+        if (finalize) {
+            *++output ^= iv[0],
+            *++output ^= iv[1];
+        }
+        else {
+            *++output = iv[0] ^ *++input,
+            *output   = iv[1] ^ *++input;
+        }
+
+        break;
+    }
+
+    case CTR_mode: {
+        --input;    // for speeding
+
+        while (--blocksNumber) {
+            AesEncryptBlock(roundsKeys, fullRoundsNum, iv, output);
+            *output++ ^= *++input, * output++ ^= *++input;
+
+            iv[1] = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv[1]) + 1);    // I'm not sure that approach with Big Endian counter is necessary
+                                                                                                // but the other working examplse of AES with ctr with which I can compare the result
+                                                                                                // has that (based on my calculations).
+        }
+
+        if (finalize) {
+            uint64_t tempOutput[2] = { output[0], output[1] };
+            AesEncryptBlock(roundsKeys, fullRoundsNum, iv, tempOutput);
+            output[0] ^= tempOutput[0], output[1] ^= tempOutput[1];
+        }
+        else {
+            AesEncryptBlock(roundsKeys, fullRoundsNum, iv, output);
+            *output++ ^= *++input, *output ^= *++input;
+
+            iv[1] = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv[1]) + 1);
+        }
+
+        break;
+    }
+
+    }
+
+    return NO_ERROR;
+}
+
+int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in uint64_t inputSize
+    , __in bool finalize, __out_opt uint64_t* output, __inout uint64_t* outputSize) {
+    return NO_ERROR;
 }

@@ -9,6 +9,8 @@
 
 const char TEST_STRING_7[] = "This is";
 const char TEST_STRING_8[] = "somekind";
+const char TEST_STRING_16[] = "following tables";
+const char TEST_STRING_16_2[] = "precedence and a";
 const char TEST_STRING_55[] = "ofthe test strings fortesting proposes, sowhat to write";
 const char TEST_STRING_56[] = "The function that the construction produces from these c";
 const char TEST_STRING_64[] = "here I don't really now. Maybe it should be something clever or ";

@@ -42,11 +42,8 @@ typedef struct _Aes256State {
 
 void AesKeySchedule(__in BlockCipherType cipher, __in const uint32_t* key, __out uint32_t* roundsKeys);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-void AesEncryptBlock(__in uint64_t* roundsKeys, __in uint8_t roundsNum, __in uint64_t* input, __out uint64_t* output);
-void AesDecryptBlock(__in uint64_t* roundsKeys, __in uint8_t roundsNum, __in uint64_t* input, __out uint64_t* output);
-#ifdef __cplusplus
-}
-#endif
+int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in uint64_t inputSize
+    , __in bool finalize, __out_opt uint64_t* output, __inout uint64_t* outputSize);
+
+int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in uint64_t inputSize
+    , __in bool finalize, __out_opt uint64_t* output, __inout uint64_t* outputSize);

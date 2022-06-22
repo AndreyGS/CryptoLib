@@ -38,7 +38,7 @@ int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType
     return AddPaddingInternal(input, inputSize, padding, blockSize, output, outputSize, fillAllBlock);
 }
 
-int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt void* iv)
+int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt const void* iv)
 {
     if (!handle)
         return ERROR_NULL_STATE_HANDLE;
