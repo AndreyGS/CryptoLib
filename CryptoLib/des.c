@@ -693,6 +693,7 @@ int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     }
 
     uint64_t blocksNumber = inputSize >> 3; // (inputSize / DES_BLOCK_SIZE) inputSize must be divisible by DES_BLOCK_SIZE without remainder
+    const uint64_t* lastInputBlock = input + blocksNumber - 1;
     uint64_t lastOutputBlock = 0;
     uint64_t lastIvBlock = 0;
 
@@ -701,12 +702,12 @@ int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     switch (opMode) {
     case ECB_mode:
     case CBC_mode: {
-        lastOutputBlock = func(roundsKeys , *(input + blocksNumber - 1));
+        lastOutputBlock = func(roundsKeys , *lastInputBlock);
 
         if (opMode == CBC_mode) {
             if (multiBlock) {
-                lastOutputBlock ^= *(input + blocksNumber - 2);
-                lastIvBlock = *(input + blocksNumber - 1);
+                lastOutputBlock ^= *(lastInputBlock - 1);
+                lastIvBlock = *lastInputBlock;
             }
             else {
                 lastOutputBlock ^= iv;
@@ -718,11 +719,11 @@ int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
 
     case CFB_mode: {
         if (multiBlock) {
-            lastOutputBlock = func(roundsKeys, *(input + blocksNumber - 2)) ^ *(input + blocksNumber - 1);
-            lastIvBlock = *(input + blocksNumber - 1);
+            lastOutputBlock = func(roundsKeys, *(lastInputBlock - 1)) ^ *lastInputBlock;
+            lastIvBlock = *lastInputBlock;
         }
         else {
-            lastOutputBlock = func(roundsKeys, iv) ^ *(input + blocksNumber - 1);
+            lastOutputBlock = func(roundsKeys, iv) ^ *lastInputBlock;
             lastIvBlock = *input;
         }
         break;
@@ -746,7 +747,7 @@ int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     }
 
     case CTR_mode: {
-        lastOutputBlock = func(roundsKeys, Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv) + blocksNumber - 1)) ^ *(input + blocksNumber - 1);
+        lastOutputBlock = func(roundsKeys, Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv) + blocksNumber - 1)) ^ *lastInputBlock;
         lastIvBlock = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv) + blocksNumber);
 
         break;

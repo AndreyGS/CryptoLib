@@ -286,17 +286,21 @@ TEST(BlockCipherStateFuncsTest, FreeBlockCipherStateMain) {
     EVAL(FreeBlockCipherState(handle));
     
     {
-        std::unique_ptr<uint8_t> test(new uint8_t[sizeof(DesState)]);
-        memset(test.get(), 0, sizeof(DesState));
+        std::unique_ptr<uint8_t> test_1(new uint8_t[sizeof(DesState)]);
+        std::unique_ptr<uint8_t> test_2(new uint8_t[sizeof(DesState)]);
+        memset(test_1.get(), 0, sizeof(DesState));
+        memset(test_2.get(), 0xdd, sizeof(DesState));
 
-        EXPECT_TRUE(memcmp(specificCipherState, test.get(), sizeof(DesState)) == 0);
+        EXPECT_TRUE(memcmp(specificCipherState, test_1.get(), sizeof(DesState)) == 0 || memcmp(specificCipherState, test_2.get(), sizeof(DesState)) == 0);
     }
 
     {
-        std::unique_ptr<BlockCipherState> test(new BlockCipherState);
-        memset(test.get(), 0, sizeof(BlockCipherState));
+        std::unique_ptr<BlockCipherState> test_1(new BlockCipherState);
+        std::unique_ptr<BlockCipherState> test_2(new BlockCipherState);
+        memset(test_1.get(), 0, sizeof(BlockCipherState));
+        memset(test_1.get(), 0xdd, sizeof(BlockCipherState));
 
-        EXPECT_TRUE(memcmp(state, test.get(), sizeof(BlockCipherState)) == 0);
+        EXPECT_TRUE(memcmp(state, test_1.get(), sizeof(BlockCipherState)) == 0 || memcmp(state, test_2.get(), sizeof(BlockCipherState)) == 0);
     }
 
     allOk = true;

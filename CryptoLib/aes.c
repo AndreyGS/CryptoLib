@@ -494,6 +494,194 @@ int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
 }
 
 int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in uint64_t inputSize
-    , __in bool finalize, __out_opt uint64_t* output, __inout uint64_t* outputSize) {
+    , __in bool finalize, __out_opt uint64_t* output, __inout uint64_t* outputSize)
+{
+    int status = NO_ERROR;
+
+    if (inputSize & 15)
+        return ERROR_WRONG_INPUT_SIZE;
+
+    uint64_t* roundsKeys = state;
+    uint64_t* iv = NULL;
+    uint8_t fullRoundsNum = 0;
+
+    if (cipher == AES128_cipher_type) {
+        iv = ((Aes128State*)state)->iv;
+        fullRoundsNum = 9;
+    }
+    else if (cipher == AES192_cipher_type) {
+        iv = ((Aes192State*)state)->iv;
+        fullRoundsNum = 11;
+    }
+    else {
+        iv = ((Aes256State*)state)->iv;
+        fullRoundsNum = 13;
+    }
+
+    uint64_t blocksNumber = inputSize >> 4; // (inputSize / AES_BLOCK_SIZE) inputSize must be divisible by AES_BLOCK_SIZE without remainder
+    const uint64_t* lastInputBlock = input + ((blocksNumber - 1) << 1);
+    uint64_t lastOutputBlock[2] = { 0 };
+    uint64_t lastIvBlock[2] = { 0 };
+
+    bool multiBlock = inputSize > AES_BLOCK_SIZE;
+
+    switch (opMode) {
+    case ECB_mode:
+    case CBC_mode: {
+        AesDecryptBlock(roundsKeys, fullRoundsNum, lastInputBlock, lastOutputBlock);
+
+        if (opMode == CBC_mode) {
+            if (multiBlock) {
+                lastOutputBlock[0] ^= *(lastInputBlock - 2),
+                lastOutputBlock[1] ^= *(lastInputBlock - 1),
+                lastIvBlock[0] = lastInputBlock[0],
+                lastIvBlock[1] = lastInputBlock[1];
+            }
+            else {
+                lastOutputBlock[0] ^= iv[0],
+                lastOutputBlock[1] ^= iv[1],
+                lastIvBlock[0] = input[0],
+                lastIvBlock[1] = input[1];
+            }
+        }
+        break;
+    }
+
+    case CFB_mode: {
+        if (multiBlock) {
+            AesEncryptBlock(roundsKeys, fullRoundsNum, lastInputBlock - 2, lastOutputBlock);
+            lastOutputBlock[0] ^= lastInputBlock[0],
+            lastOutputBlock[1] ^= lastInputBlock[1],
+            lastIvBlock[0] = lastInputBlock[0],
+            lastIvBlock[1] = lastInputBlock[1];
+        }
+        else {
+            AesEncryptBlock(roundsKeys, fullRoundsNum, iv, lastOutputBlock);
+            lastOutputBlock[0] ^= input[0],
+            lastOutputBlock[1] ^= input[1],
+            lastIvBlock[0] = input[0],
+            lastIvBlock[1] = input[1];
+        }
+        break;
+    }
+
+    case OFB_mode: {
+        // All input processing when OFB_mode must be calculated here
+        if (*outputSize >= inputSize) {
+            --input;
+            --output;
+
+            while (blocksNumber--) {
+                AesEncryptBlock(roundsKeys, fullRoundsNum, iv, iv);
+                *++output = iv[0] ^ *++input,
+                *++output = iv[1] ^ *++input;
+            }
+
+            lastOutputBlock[0] ^= output[-1],
+            lastOutputBlock[1] ^= *output,
+            lastIvBlock[0] = iv[0],
+            lastIvBlock[1] = iv[1];
+        }
+        else {
+            *outputSize = inputSize;
+            return ERROR_TOO_SMALL_OUTPUT_SIZE;
+        }
+
+        break;
+    }
+
+    case CTR_mode: {
+        lastIvBlock[0] = iv[0];
+        lastIvBlock[1] = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv[1]) + blocksNumber - 1);
+        AesEncryptBlock(roundsKeys, fullRoundsNum, lastIvBlock, lastOutputBlock);
+        lastOutputBlock[0] ^= lastInputBlock[0],
+        lastOutputBlock[1] ^= lastInputBlock[1],
+        lastIvBlock[1] = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv[1]) + blocksNumber);
+
+        break;
+    }
+
+    }
+
+    if (!finalize) {
+        if (opMode != OFB_mode) {
+            *(output + ((blocksNumber - 1) << 1)) = lastOutputBlock[0],
+            *(output + (blocksNumber << 1) - 1) = lastOutputBlock[1];
+        }
+
+        *outputSize = inputSize;
+    }
+    else if (status = FillLastDecryptedBlockInternal(padding, AES_BLOCK_SIZE, &lastOutputBlock, inputSize, output, outputSize))
+        return status;
+
+    switch (opMode) {
+    case ECB_mode: {
+        while (--blocksNumber) {
+            AesDecryptBlock(roundsKeys, fullRoundsNum, input, output);
+            input += 2,
+            output += 2;
+        }
+
+        break;
+    }
+
+    case CBC_mode: {
+        uint64_t ivBlockNext[2] = { 0 };
+        --input,
+        output;
+
+        while (--blocksNumber) {
+            ivBlockNext[0] = *++input,
+            ivBlockNext[1] = *++input;
+            AesDecryptBlock(roundsKeys, fullRoundsNum, ivBlockNext, output);
+            *output++ ^= iv[0],
+            *output++ ^= iv[1];
+            iv[0] = ivBlockNext[0],
+            iv[1] = ivBlockNext[1];
+        }
+
+        break;
+    }
+
+    case CFB_mode: {
+        uint64_t ivBlockNext[2] = { 0 };
+        --input,
+        output;
+
+        while (--blocksNumber) {
+            ivBlockNext[0] = *++input,
+            ivBlockNext[1] = *++input;
+            AesEncryptBlock(roundsKeys, fullRoundsNum, iv, output);
+            *output++ ^= ivBlockNext[0],
+            *output++ ^= ivBlockNext[1];
+            iv[0] = ivBlockNext[0],
+            iv[1] = ivBlockNext[1];
+        }
+
+        break;
+    }
+
+    case OFB_mode:
+        break;
+
+    case CTR_mode: {
+        --input,
+        output;
+
+        while (--blocksNumber) {
+            AesEncryptBlock(roundsKeys, fullRoundsNum, iv, output);
+            *output++ ^= *++input,
+            *output++ ^= *++input;
+            iv[1] = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv[1]) + 1);
+        }
+
+        break;
+    }
+
+    }
+
+    iv[0] = lastIvBlock[0];
+    iv[1] = lastIvBlock[1];
+
     return NO_ERROR;
 }
