@@ -1,5 +1,5 @@
 /**
- * @file aes.c: here placed all aggregating functins
+ * @file aes.c
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

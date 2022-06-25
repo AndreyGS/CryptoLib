@@ -12,9 +12,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, TooSmallOutputSize) {
     uint8_t input[] = { 0xb9, 0xe9, 0x8a, 0x3c, 0x77, 0xa5, 0x10, 0x86 };
     uint64_t outputSize = 0;
     uint8_t* buffer = new uint8_t[outputSize];
-    int8_t key[] = "81cav5AS";
     BlockCipherHandle handle = nullptr;
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, key, nullptr));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, KEY_8, nullptr));
     EVAL(ProcessingByBlockCipher(handle, input, 8, true, buffer, &outputSize));
 
 exit:
@@ -33,37 +32,37 @@ exit:
 TEST(ProcessingByBlockCipherDecryptionTest, DesECBsingle) {
     uint8_t input[] = { 0xb9, 0xe9, 0x8a, 0x3c, 0x77, 0xa5, 0x10, 0x86 };
 
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5AS", DES_cipher_type, 7, ECB_mode, nullptr
-        , NO_ERROR, TEST_STRING_7, 7, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_8, DES_cipher_type, 7, ECB_mode, nullptr
+        , NO_ERROR, TEST_STRING_7, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, DesCBCsingle) {
     uint8_t input[] = { 0x1d, 0x2d, 0x5b, 0x11, 0xab, 0x31, 0xc5, 0x12 };
 
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5AS", DES_cipher_type, 7, CBC_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_7, 7, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_8, DES_cipher_type, 7, CBC_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_7, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, DesCFBsingle) {
     uint8_t input[] = { 0xe2, 0x4a, 0x3e, 0x6a, 0xa8, 0xd6, 0x50, 0x46 };
 
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5AS", DES_cipher_type, 7, CFB_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_7, 7, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_8, DES_cipher_type, 7, CFB_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_7, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, DesOFBsingle) {
     uint8_t input[] = { 0xe2, 0x4a, 0x3e, 0x6a, 0xa8, 0xd6, 0x50, 0x46 };
 
     // For OFB_mode there is no option of get exact output bytes before full decryption
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5AS", DES_cipher_type, sizeof(input), CFB_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_7, 7, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_8, DES_cipher_type, sizeof(input), CFB_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_7, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, DesCTRsingle) {
     uint8_t input[] = { 0xe2, 0x4a, 0x3e, 0x6a, 0xa8, 0xd6, 0x50, 0x46 };
 
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5AS", DES_cipher_type, 7, CTR_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_7, 7, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_8, DES_cipher_type, 7, CTR_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_7, Decryption_mode);
 }
 
 // DES Multi
@@ -79,8 +78,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesECBmulti) {
                         0xad, 0x0c, 0x7d, 0x08, 0x5e, 0x69, 0x88, 0xe4, 0xe0, 0xfc, 0xd0, 0xfd, 0x2e, 0xc2, 0x70, 0xe5, 
                         0x5c, 0x5a, 0xc9, 0x11, 0x21, 0x64, 0x2e, 0xd5 };
 
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5AS", DES_cipher_type, 128, ECB_mode, nullptr
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_8, DES_cipher_type, 128, ECB_mode, nullptr
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, DesCBCmulti) {
@@ -94,8 +93,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesCBCmulti) {
                         0x07, 0xa2, 0x9d, 0x6f, 0x0c, 0x7a, 0x6c, 0xda, 0x7c, 0x53, 0x27, 0x91, 0xee, 0x97, 0x58, 0x48, 
                         0xc2, 0xa3, 0xc1, 0x4f, 0xfd, 0x61, 0xf9, 0x53 };
 
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5AS", DES_cipher_type, 128, CBC_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_8, DES_cipher_type, 128, CBC_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, DesCFBmulti) {
@@ -109,8 +108,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesCFBmulti) {
                         0x83, 0xcc, 0xe4, 0xf6, 0x7e, 0xef, 0xaf, 0x75, 0xd9, 0xc6, 0x7d, 0xa4, 0x99, 0xc3, 0x90, 0x22, 
                         0x8a, 0xd8, 0x46, 0x29, 0xaf, 0xc2, 0x06, 0xf3 };
 
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5AS", DES_cipher_type, 128, CFB_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_8, DES_cipher_type, 128, CFB_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, DesOFBmulti) {
@@ -125,8 +124,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesOFBmulti) {
                         0x34, 0x1b, 0xd4, 0x1a, 0xdd, 0x02, 0xe4, 0x9f };
 
     // For OFB_mode there is no option of get exact output bytes before full decryption
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5AS", DES_cipher_type, sizeof(input), OFB_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_8, DES_cipher_type, sizeof(input), OFB_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, DesCTRmulti) {
@@ -140,8 +139,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesCTRmulti) {
                         0x36, 0xa5, 0x9d, 0x27, 0xc5, 0xf6, 0xd7, 0xe0, 0x81, 0x11, 0x53, 0xb1, 0x4d, 0x2e, 0x0c, 0xc9, 
                         0x8b, 0x06, 0xa7, 0xd4, 0x9d, 0x29, 0xc3, 0x19 };
 
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5AS", DES_cipher_type, 128, CTR_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_8, DES_cipher_type, 128, CTR_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 // DES Multi in Place
@@ -157,8 +156,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesECBmultiinplace) {
                         0xad, 0x0c, 0x7d, 0x08, 0x5e, 0x69, 0x88, 0xe4, 0xe0, 0xfc, 0xd0, 0xfd, 0x2e, 0xc2, 0x70, 0xe5,
                         0x5c, 0x5a, 0xc9, 0x11, 0x21, 0x64, 0x2e, 0xd5 };
 
-    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5AS", DES_cipher_type, sizeof(input), ECB_mode, nullptr
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, KEY_8, DES_cipher_type, sizeof(input), ECB_mode, nullptr
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, DesCBCmultiinplace) {
@@ -172,8 +171,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesCBCmultiinplace) {
                         0x07, 0xa2, 0x9d, 0x6f, 0x0c, 0x7a, 0x6c, 0xda, 0x7c, 0x53, 0x27, 0x91, 0xee, 0x97, 0x58, 0x48,
                         0xc2, 0xa3, 0xc1, 0x4f, 0xfd, 0x61, 0xf9, 0x53 };
 
-    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5AS", DES_cipher_type, sizeof(input), CBC_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, KEY_8, DES_cipher_type, sizeof(input), CBC_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, DesCFBmultiinplace) {
@@ -187,8 +186,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesCFBmultiinplace) {
                         0x83, 0xcc, 0xe4, 0xf6, 0x7e, 0xef, 0xaf, 0x75, 0xd9, 0xc6, 0x7d, 0xa4, 0x99, 0xc3, 0x90, 0x22,
                         0x8a, 0xd8, 0x46, 0x29, 0xaf, 0xc2, 0x06, 0xf3 };
 
-    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5AS", DES_cipher_type, sizeof(input), CFB_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, KEY_8, DES_cipher_type, sizeof(input), CFB_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, DesOFBmultiinplace) {
@@ -202,8 +201,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesOFBmultiinplace) {
                         0x73, 0x2e, 0x35, 0x08, 0x7f, 0xcc, 0xa1, 0xd7, 0x3f, 0x13, 0x95, 0x26, 0x78, 0xe3, 0xb5, 0x7c,
                         0x34, 0x1b, 0xd4, 0x1a, 0xdd, 0x02, 0xe4, 0x9f };
 
-    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5AS", DES_cipher_type, sizeof(input), OFB_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, KEY_8, DES_cipher_type, sizeof(input), OFB_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, DesCTRmultiinplace) {
@@ -217,8 +216,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesCTRmultiinplace) {
                         0x36, 0xa5, 0x9d, 0x27, 0xc5, 0xf6, 0xd7, 0xe0, 0x81, 0x11, 0x53, 0xb1, 0x4d, 0x2e, 0x0c, 0xc9,
                         0x8b, 0x06, 0xa7, 0xd4, 0x9d, 0x29, 0xc3, 0x19 };
 
-    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5AS", DES_cipher_type, sizeof(input), CTR_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, KEY_8, DES_cipher_type, sizeof(input), CTR_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 // DES Multipart (first part is single block size)
@@ -226,35 +225,35 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesCTRmultiinplace) {
 TEST(ProcessingByBlockCipherDecryptionTest, DesECBmultipart) {
     uint8_t input[] = { 0xb6, 0x22, 0x57, 0x19, 0x88, 0xbf, 0x23, 0x47, 0xb9, 0xe9, 0x8a, 0x3c, 0x77, 0xa5, 0x10, 0x86 };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, "81cav5AS", DES_cipher_type, ECB_mode, nullptr
+    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, KEY_8, DES_cipher_type, ECB_mode, nullptr
         , TEST_STRING_8_7, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, DesCBCmultipart) {
     uint8_t input[] = { 0xa7, 0x0f, 0x16, 0x36, 0x6e, 0xa7, 0xf3, 0x46, 0xbf, 0x1b, 0x15, 0xda, 0x24, 0x29, 0xa7, 0x72 };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, "81cav5AS", DES_cipher_type, CBC_mode, TEST_STRING_8
+    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, KEY_8, DES_cipher_type, CBC_mode, TEST_STRING_8
         , TEST_STRING_8_7, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, DesCFBmultipart) {
     uint8_t input[] = { 0xc5, 0x4d, 0x3a, 0x7c, 0xe3, 0xd6, 0x4d, 0x23, 0xf9, 0xc9, 0x75, 0xae, 0x80, 0x97, 0x80, 0x5a };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, "81cav5AS", DES_cipher_type, CFB_mode, TEST_STRING_8
+    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, KEY_8, DES_cipher_type, CFB_mode, TEST_STRING_8
         , TEST_STRING_8_7, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, DesOFBmultipart) {
     uint8_t input[] = { 0xc5, 0x4d, 0x3a, 0x7c, 0xe3, 0xd6, 0x4d, 0x23, 0x90, 0xe8, 0xb6, 0xbc, 0x97, 0x69, 0xe6, 0x73 };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, "81cav5AS", DES_cipher_type, OFB_mode, TEST_STRING_8
+    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, KEY_8, DES_cipher_type, OFB_mode, TEST_STRING_8
         , TEST_STRING_8_7, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, DesCTRmultipart) {
     uint8_t input[] = { 0xc5, 0x4d, 0x3a, 0x7c, 0xe3, 0xd6, 0x4d, 0x23, 0xe4, 0xb0, 0x81, 0xf7, 0x19, 0x0a, 0x97, 0x75 };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, "81cav5AS", DES_cipher_type, CTR_mode, TEST_STRING_8
+    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, KEY_8, DES_cipher_type, CTR_mode, TEST_STRING_8
         , TEST_STRING_8_7, Decryption_mode);
 }
 
@@ -267,7 +266,7 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesECBmultipart2) {
                         0x3d, 0x3d, 0x33, 0xaa, 0x2f, 0x23, 0xfa, 0xa6, 0x0a, 0xe7, 0x0c, 0xcd, 0x1c, 0x50, 0xad, 0xea, 
                         0xb9, 0xe9, 0x8a, 0x3c, 0x77, 0xa5, 0x10, 0x86 };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, "81cav5AS", DES_cipher_type, ECB_mode, nullptr
+    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, KEY_8, DES_cipher_type, ECB_mode, nullptr
         , TEST_STRING_64_7, Decryption_mode);
 }
 
@@ -278,7 +277,7 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesCBCmultipart2) {
                         0xce, 0xb5, 0xee, 0x44, 0xf9, 0x1e, 0x75, 0xb4, 0x7d, 0xe9, 0x48, 0x1a, 0x9f, 0xb2, 0xdf, 0xc4, 
                         0xa1, 0x22, 0x99, 0xfd, 0x9a, 0x80, 0x22, 0xc0 };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, "81cav5AS", DES_cipher_type, CBC_mode, TEST_STRING_8
+    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, KEY_8, DES_cipher_type, CBC_mode, TEST_STRING_8
         , TEST_STRING_64_7, Decryption_mode);
 }
 
@@ -289,7 +288,7 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesCFBmultipart2) {
                         0x3a, 0x35, 0x2c, 0xad, 0xf8, 0xbd, 0xa7, 0x25, 0xd8, 0x4a, 0x42, 0x7e, 0xc8, 0x38, 0x49, 0xff, 
                         0x30, 0xc2, 0xc1, 0x8c, 0xd8, 0x01, 0x80, 0xc6 };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, "81cav5AS", DES_cipher_type, CFB_mode, TEST_STRING_8
+    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, KEY_8, DES_cipher_type, CFB_mode, TEST_STRING_8
         , TEST_STRING_64_7, Decryption_mode);
 }
 
@@ -300,7 +299,7 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesOFBmultipart2) {
                         0x7a, 0x0e, 0x81, 0xc9, 0xf3, 0x2e, 0x70, 0xd8, 0x0c, 0x5a, 0x48, 0x9f, 0xc5, 0x9c, 0x6c, 0xe8, 
                         0x16, 0x1c, 0x6e, 0xa9, 0x49, 0xf8, 0xdb, 0xd4 };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, "81cav5AS", DES_cipher_type, OFB_mode, TEST_STRING_8
+    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, KEY_8, DES_cipher_type, OFB_mode, TEST_STRING_8
         , TEST_STRING_64_7, Decryption_mode);
 }
 
@@ -311,7 +310,7 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesCTRmultipart2) {
                         0x1f, 0x0c, 0xb7, 0x33, 0xa5, 0x8d, 0x94, 0x60, 0x83, 0xae, 0xe9, 0x90, 0xcd, 0x79, 0xc8, 0x47, 
                         0x1b, 0xdf, 0xfe, 0xee, 0x33, 0xeb, 0x05, 0xfe };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, "81cav5AS", DES_cipher_type, CTR_mode, TEST_STRING_8
+    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, KEY_8, DES_cipher_type, CTR_mode, TEST_STRING_8
         , TEST_STRING_64_7, Decryption_mode);
 }
 
@@ -320,37 +319,37 @@ TEST(ProcessingByBlockCipherDecryptionTest, DesCTRmultipart2) {
 TEST(ProcessingByBlockCipherDecryptionTest, TdesECBsingle) {
     uint8_t input[] = { 0xd8, 0xa2, 0x72, 0x1a, 0xb3, 0xf5, 0x42, 0xcb };
 
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, 7, ECB_mode, nullptr
-        , NO_ERROR, TEST_STRING_7, 7, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_24, TDES_cipher_type, 7, ECB_mode, nullptr
+        , NO_ERROR, TEST_STRING_7, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, TdesCBCsingle) {
     uint8_t input[] = { 0x07, 0x5e, 0x74, 0x32, 0x36, 0x68, 0x64, 0x2d };
 
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, 7, CBC_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_7, 7, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_24, TDES_cipher_type, 7, CBC_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_7, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, TdesCFBsingle) {
     uint8_t input[] = { 0x22, 0x63, 0xe2, 0x6f, 0x84, 0xa9, 0x16, 0x5f };
 
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, 7, CFB_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_7, 7, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_24, TDES_cipher_type, 7, CFB_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_7, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, TdesOFBsingle) {
     uint8_t input[] = { 0x22, 0x63, 0xe2, 0x6f, 0x84, 0xa9, 0x16, 0x5f };
 
     // For OFB_mode there is no option of get exact output bytes before full decryption
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, sizeof(input), OFB_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_7, 7, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_24, TDES_cipher_type, sizeof(input), OFB_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_7, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, TdesCTRsingle) {
     uint8_t input[] = { 0x22, 0x63, 0xe2, 0x6f, 0x84, 0xa9, 0x16, 0x5f };
 
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, 7, CTR_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_7, 7, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_24, TDES_cipher_type, 7, CTR_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_7, Decryption_mode);
 }
 
 // 3DES Multi
@@ -366,8 +365,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesECBmulti) {
                         0x55, 0x0c, 0xf1, 0x51, 0x9b, 0xdb, 0x3c, 0xfa, 0x14, 0x66, 0xde, 0x5e, 0x81, 0x78, 0xa7, 0x58, 
                         0xad, 0xff, 0x94, 0x06, 0xfb, 0x2a, 0xa6, 0xd7 };
 
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, 128, ECB_mode, nullptr
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_24, TDES_cipher_type, 128, ECB_mode, nullptr
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, TdesCBCmulti) {
@@ -381,8 +380,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesCBCmulti) {
                         0x40, 0xe2, 0x7d, 0xd4, 0x57, 0x1e, 0xc5, 0xa4, 0xf6, 0x51, 0x3f, 0xa9, 0x5e, 0xae, 0xd8, 0xce, 
                         0xc5, 0xff, 0x7d, 0x1b, 0x60, 0xd8, 0xf9, 0x63, };
 
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, 128, CBC_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_24, TDES_cipher_type, 128, CBC_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, TdesCFBmulti) {
@@ -396,8 +395,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesCFBmulti) {
                         0xc1, 0x44, 0xa9, 0x00, 0x82, 0x87, 0x79, 0x25, 0x10, 0xe9, 0xcc, 0xf4, 0xa4, 0xa0, 0x26, 0x40, 
                         0x40, 0x2f, 0xf0, 0xe6, 0x8d, 0xd5, 0x5c, 0x92, };
 
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, 128, CFB_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_24, TDES_cipher_type, 128, CFB_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, TdesOFBmulti) {
@@ -412,8 +411,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesOFBmulti) {
                         0x04, 0x26, 0xcb, 0x61, 0x8b, 0x5d, 0xb4, 0x3c, };
 
     // For OFB_mode there is no option of get exact output bytes before full decryption
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, sizeof(input), OFB_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_24, TDES_cipher_type, sizeof(input), OFB_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, TdesCTRmulti) {
@@ -427,8 +426,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesCTRmulti) {
                         0xe9, 0x84, 0xc6, 0x04, 0x5a, 0x1a, 0x7a, 0x8d, 0xfb, 0xe2, 0xb8, 0xc3, 0x33, 0xf2, 0x50, 0x83, 
                         0x01, 0xd1, 0xbf, 0xd0, 0x28, 0x7b, 0x3b, 0x0c, };
 
-    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, 128, CTR_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_24, TDES_cipher_type, 128, CTR_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 // 3DES Multi in Place
@@ -444,8 +443,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesECBmultiinplace) {
                         0x55, 0x0c, 0xf1, 0x51, 0x9b, 0xdb, 0x3c, 0xfa, 0x14, 0x66, 0xde, 0x5e, 0x81, 0x78, 0xa7, 0x58,
                         0xad, 0xff, 0x94, 0x06, 0xfb, 0x2a, 0xa6, 0xd7 };
 
-    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, sizeof(input), ECB_mode, nullptr
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, KEY_24, TDES_cipher_type, sizeof(input), ECB_mode, nullptr
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, TdesCBCmultiinplace) {
@@ -459,8 +458,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesCBCmultiinplace) {
                         0x40, 0xe2, 0x7d, 0xd4, 0x57, 0x1e, 0xc5, 0xa4, 0xf6, 0x51, 0x3f, 0xa9, 0x5e, 0xae, 0xd8, 0xce,
                         0xc5, 0xff, 0x7d, 0x1b, 0x60, 0xd8, 0xf9, 0x63, };
 
-    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, sizeof(input), CBC_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, KEY_24, TDES_cipher_type, sizeof(input), CBC_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, TdesCFBmultiinplace) {
@@ -474,8 +473,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesCFBmultiinplace) {
                         0xc1, 0x44, 0xa9, 0x00, 0x82, 0x87, 0x79, 0x25, 0x10, 0xe9, 0xcc, 0xf4, 0xa4, 0xa0, 0x26, 0x40,
                         0x40, 0x2f, 0xf0, 0xe6, 0x8d, 0xd5, 0x5c, 0x92, };
 
-    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, sizeof(input), CFB_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, KEY_24, TDES_cipher_type, sizeof(input), CFB_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, TdesOFBmultiinplace) {
@@ -489,8 +488,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesOFBmultiinplace) {
                         0xe2, 0xe1, 0x08, 0x58, 0xc8, 0x2e, 0x2e, 0xb3, 0x3d, 0xf5, 0x9c, 0x3e, 0x06, 0x5b, 0x25, 0x6b,
                         0x04, 0x26, 0xcb, 0x61, 0x8b, 0x5d, 0xb4, 0x3c, };
 
-    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, sizeof(input), OFB_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, KEY_24, TDES_cipher_type, sizeof(input), OFB_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, TdesCTRmultiinplace) {
@@ -504,8 +503,8 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesCTRmultiinplace) {
                         0xe9, 0x84, 0xc6, 0x04, 0x5a, 0x1a, 0x7a, 0x8d, 0xfb, 0xe2, 0xb8, 0xc3, 0x33, 0xf2, 0x50, 0x83,
                         0x01, 0xd1, 0xbf, 0xd0, 0x28, 0x7b, 0x3b, 0x0c, };
 
-    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, sizeof(input), CTR_mode, TEST_STRING_8
-        , NO_ERROR, TEST_STRING_128, 128, Decryption_mode);
+    ProcessingByBlockCipherInPlaceTestFunc(input, sizeof(input), PKCSN7_padding, KEY_24, TDES_cipher_type, sizeof(input), CTR_mode, TEST_STRING_8
+        , NO_ERROR, TEST_STRING_128, Decryption_mode);
 }
 
 // 3DES Multipart
@@ -513,35 +512,35 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesCTRmultiinplace) {
 TEST(ProcessingByBlockCipherDecryptionTest, TdesECBmultipart) {
     uint8_t input[] = { 0x76, 0x0b, 0x8b, 0x1c, 0xa4, 0xc0, 0x65, 0x5e, 0xd8, 0xa2, 0x72, 0x1a, 0xb3, 0xf5, 0x42, 0xcb };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, ECB_mode, nullptr
+    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, KEY_24, TDES_cipher_type, ECB_mode, nullptr
         , TEST_STRING_8_7, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, TdesCBCmultipart) {
     uint8_t input[] = { 0x94, 0x24, 0xeb, 0xd9, 0xf5, 0x94, 0x2c, 0x84, 0x51, 0x11, 0xf2, 0x37, 0xa9, 0x76, 0x20, 0x73 };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, CBC_mode, TEST_STRING_8
+    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, KEY_24, TDES_cipher_type, CBC_mode, TEST_STRING_8
         , TEST_STRING_8_7, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, TdesCFBmultipart) {
     uint8_t input[] = { 0x05, 0x64, 0xe6, 0x79, 0xcf, 0xa9, 0x0b, 0x3a, 0x2d, 0xea, 0xc3, 0x3c, 0x78, 0xbd, 0x4e, 0xc3 };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, CFB_mode, TEST_STRING_8
+    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, KEY_24, TDES_cipher_type, CFB_mode, TEST_STRING_8
         , TEST_STRING_8_7, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, TdesOFBmultipart) {
     uint8_t input[] = { 0x05, 0x64, 0xe6, 0x79, 0xcf, 0xa9, 0x0b, 0x3a, 0xa6, 0x64, 0xd7, 0x48, 0xf7, 0x65, 0xf2, 0xce };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, OFB_mode, TEST_STRING_8
+    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, KEY_24, TDES_cipher_type, OFB_mode, TEST_STRING_8
         , TEST_STRING_8_7, Decryption_mode);
 }
 
 TEST(ProcessingByBlockCipherDecryptionTest, TdesCTRmultipart) {
     uint8_t input[] = { 0x05, 0x64, 0xe6, 0x79, 0xcf, 0xa9, 0x0b, 0x3a, 0xdc, 0x8e, 0x23, 0x4a, 0x33, 0x4d, 0xb3, 0x39 };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, CTR_mode, TEST_STRING_8
+    ProcessingByBlockCipherMultipartTestFunc(input, 8, input + 8, 8, PKCSN7_padding, KEY_24, TDES_cipher_type, CTR_mode, TEST_STRING_8
         , TEST_STRING_8_7, Decryption_mode);
 }
 
@@ -554,7 +553,7 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesECBmultipart2) {
                         0xc4, 0x87, 0x04, 0xd8, 0x5d, 0x4b, 0x9a, 0x80, 0x49, 0x61, 0x1c, 0xb0, 0xa1, 0x12, 0xfa, 0xaa, 
                         0xd8, 0xa2, 0x72, 0x1a, 0xb3, 0xf5, 0x42, 0xcb };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, ECB_mode, nullptr
+    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, KEY_24, TDES_cipher_type, ECB_mode, nullptr
         , TEST_STRING_64_7, Decryption_mode);
 }
 
@@ -565,7 +564,7 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesCBCmultipart2) {
                         0x12, 0x36, 0x43, 0x49, 0x3d, 0x80, 0x11, 0x0c, 0x79, 0xce, 0xeb, 0x32, 0xf5, 0x7f, 0x46, 0xf8, 
                         0x42, 0x3b, 0xa8, 0xba, 0xdd, 0x36, 0x7a, 0xd5 };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, CBC_mode, TEST_STRING_8
+    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, KEY_24, TDES_cipher_type, CBC_mode, TEST_STRING_8
         , TEST_STRING_64_7, Decryption_mode);
 }
 
@@ -576,7 +575,7 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesCFBmultipart2) {
                         0xfb, 0x94, 0x59, 0x1d, 0x02, 0x81, 0xca, 0xe1, 0xbb, 0x0d, 0xe4, 0x15, 0x8b, 0xd9, 0x2b, 0xce, 
                         0x0b, 0xa5, 0x30, 0x9b, 0x52, 0x08, 0xc6, 0x42 };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, CFB_mode, TEST_STRING_8
+    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, KEY_24, TDES_cipher_type, CFB_mode, TEST_STRING_8
         , TEST_STRING_64_7, Decryption_mode);
 }
 
@@ -587,7 +586,7 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesOFBmultipart2) {
                         0xa8, 0x92, 0x2a, 0xe2, 0x74, 0x60, 0x6a, 0x10, 0x03, 0x97, 0xad, 0x95, 0x2c, 0x65, 0x71, 0x8c, 
                         0x31, 0x0e, 0x5d, 0x0f, 0xae, 0x17, 0x3b, 0xc4 };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, OFB_mode, TEST_STRING_8
+    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, KEY_24, TDES_cipher_type, OFB_mode, TEST_STRING_8
         , TEST_STRING_64_7, Decryption_mode);
 }
 
@@ -598,6 +597,6 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesCTRmultipart2) {
                         0x9a, 0x77, 0xaf, 0xb9, 0x94, 0x66, 0x19, 0xae, 0x41, 0x90, 0x2f, 0x85, 0x96, 0x23, 0x93, 0x90, 
                         0x72, 0xce, 0x5b, 0x62, 0x3e, 0x36, 0x40, 0x57 };
 
-    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, "81cav5ASkv8vwel0ve8hve40", TDES_cipher_type, CTR_mode, TEST_STRING_8
+    ProcessingByBlockCipherMultipartTestFunc(input, 64, input + 64, 8, PKCSN7_padding, KEY_24, TDES_cipher_type, CTR_mode, TEST_STRING_8
         , TEST_STRING_64_7, Decryption_mode);
 }

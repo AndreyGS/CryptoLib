@@ -9,6 +9,7 @@
 
 const char TEST_STRING_7[] = "This is";
 const char TEST_STRING_8[] = "somekind";
+const char TEST_STRING_15[] = "The code that e";
 const char TEST_STRING_16[] = "following tables";
 const char TEST_STRING_16_2[] = "precedence and a";
 const char TEST_STRING_24[] = "which is listed on somer";
@@ -43,6 +44,11 @@ const char TEST_STRING_513[] = "In early 2013 NIST announced they would select d
 
 const char TEST_STRING_8_7[] = "somekindThis is";
 const char TEST_STRING_64_7[] = "here I don't really now. Maybe it should be something clever or This is";
+
+const char KEY_8[]           = "81cav5AS";
+const char KEY_16[]          = "81cav5ASkv8vwel0";
+const char KEY_24[]          = "81cav5ASkv8vwel0ve8hve40";
+const char KEY_32[]          = "81cav5ASkv8vwel0ve8hve40V$E$Bbff";
 
 char GetHexSymbol(uint8_t input);
 
