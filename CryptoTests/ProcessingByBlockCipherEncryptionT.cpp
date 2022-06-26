@@ -25,6 +25,35 @@ exit:
     delete[] buffer;
 }
 
+// Inverted keys tests (here placed test with keys that have inverted bits against those that would participate in main encryption/decryption tests later)
+// This tests are for extra ensurance that key schedule functions works correctly
+
+TEST(ProcessingByBlockCipherEncryptionTest, DesKeyInverted) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_7, 7, PKCSN7_padding, KEY_8_INV, DES_cipher_type, DES_BLOCK_SIZE, ECB_mode, nullptr
+        , NO_ERROR, "70f106b69f1effd3", Encryption_mode);
+
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, TdesKeyInverted) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_7, 7, PKCSN7_padding, KEY_24_INV, TDES_cipher_type, DES_BLOCK_SIZE, ECB_mode, nullptr
+        , NO_ERROR, "c9d5984e1d35a152", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes128KeyInverted) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_15, 15, PKCSN7_padding, KEY_16_INV, AES128_cipher_type, AES_BLOCK_SIZE, ECB_mode, nullptr
+        , NO_ERROR, "833c96d035a83ffba33891b328203a26", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192KeyInverted) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_15, 15, PKCSN7_padding, KEY_24_INV, AES192_cipher_type, AES_BLOCK_SIZE, ECB_mode, nullptr
+        , NO_ERROR, "7d5f09915fd9e23aef433f205a66bbcf", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256KeyInverted) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_15, 15, PKCSN7_padding, KEY_32_INV, AES256_cipher_type, AES_BLOCK_SIZE, ECB_mode, nullptr
+        , NO_ERROR, "ed6bd2df4b4c61580ac9996d53d123a9", Encryption_mode);
+}
+
 // Main test
 
 // DES Single
@@ -380,4 +409,240 @@ TEST(ProcessingByBlockCipherEncryptionTest, Aes128OFBmultipart) {
 TEST(ProcessingByBlockCipherEncryptionTest, Aes128CTRmultipart) {
     ProcessingByBlockCipherMultipartTestFunc(TEST_STRING_16, 16, TEST_STRING_15, 15, PKCSN7_padding, KEY_16, AES128_cipher_type, CTR_mode, TEST_STRING_16_2
         , "c7c1f5eed4aaa93ac1654bc0e47d0652fca796d915ccd44eca17580d1adb5877", Encryption_mode);
+}
+
+// AES192 Single
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192ECBsingle) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_15, 15, PKCSN7_padding, KEY_24, AES192_cipher_type, AES_BLOCK_SIZE, ECB_mode, nullptr
+        , NO_ERROR, "0e8b800c41e6e7147634138384570db8", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192CBCsingle) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_15, 15, PKCSN7_padding, KEY_24, AES192_cipher_type, AES_BLOCK_SIZE, CBC_mode, TEST_STRING_16
+        , NO_ERROR, "39db63a8436c73d22f18a1cc0646eacf", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192CFBsingle) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_15, 15, PKCSN7_padding, KEY_24, AES192_cipher_type, AES_BLOCK_SIZE, CFB_mode, TEST_STRING_16
+        , NO_ERROR, "e703a757698b347a8a7d38763b8ded39", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192OFBsingle) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_15, 15, PKCSN7_padding, KEY_24, AES192_cipher_type, AES_BLOCK_SIZE, OFB_mode, TEST_STRING_16
+        , NO_ERROR, "e703a757698b347a8a7d38763b8ded39", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192CTRsingle) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_15, 15, PKCSN7_padding, KEY_24, AES192_cipher_type, AES_BLOCK_SIZE, CTR_mode, TEST_STRING_16
+        , NO_ERROR, "e703a757698b347a8a7d38763b8ded39", Encryption_mode);
+}
+
+// AES192 Multi
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192ECBmulti) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_24, AES192_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, ECB_mode, nullptr
+        , NO_ERROR, "ebf97bc7e4ce2ba704408d55933424d4f81aeb2194a88af9b128195a1fd598dc4ed9d2b4743430f626602ef4c983825448a2573b60efc60d5c23f21723e1867e232f8b031abd46f3"
+                    "85230fa4f37bdb66ebc654cba30131d0b838f9110f063ad9590def898943bbe66d55e6e91bcce95dbee7bea6c4849176a85970001c1bb28bbc40cd263785341f837aba3c181a6da8", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192CBCmulti) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_24, AES192_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, CBC_mode, TEST_STRING_16
+        , NO_ERROR, "37bbc62288b61c2e6cc0edc07f5d612310326bfb301ac9c41efc9971c39197678e331629ebf64a338266cf77dc17bbd63c5d63557650f13a8becfbf640ddbba7c3199d780e5cca4a"
+                    "226e42783691bf1ebe3bf84b5ecb364fd74a29565fe0ae26c13c7adf5cddf74de4472135459af5a7ca5b1ddce3b8a107e59c5fb6f73d81238c6a96a587015be5f3144ecf54c53c7d", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192CFBmulti) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_24, AES192_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, CFB_mode, TEST_STRING_16
+        , NO_ERROR, "e703a7574c81347ad8683c3706c3ee57bc2321e6e9fc9547eb37e7e57502953bbe9201127ba1ebebef957a3eca726abd0a31cb1207e1f9854318988546e8cad7f7084ca7b3d173b9"
+                    "be7b2b2d841c9a7a79e46559d328558b94756de4c21617a29ff35ae0eefc7444e9f1781f6a79862cc69fdd5d521e313ad534a9e96b3e8d79a71b601ca03da98db4ab76b72e8ed2df", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192OFBmulti) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_24, AES192_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, OFB_mode, TEST_STRING_16
+        , NO_ERROR, "e703a7574c81347ad8683c3706c3ee57a6d78597da8ad0bccdb6d0020c8f964070c6ae0183d5899c9baa12e559f57badaa15ec399928c1fb771862334151ccadd46c85ca7482ce76"
+                    "1b526c0127bf66c043e33b5afc75a6c33628531f4aa00901a527d3bd8c29d962dce0275baf233229208a3313fb49b0b4dc9c61aef6078d2ee9945e89193d80987755b4aafaad8fb3", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192CTRmulti) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_24, AES192_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, CTR_mode, TEST_STRING_16
+        , NO_ERROR, "e703a7574c81347ad8683c3706c3ee57ebb0c505e32952c6da27962c69b64e10ad6ced9682e8b16b0f4ba0057a4322d639d3acee9eee2450e86536bbe0e2b233d4de6a8b1fa133f1"
+                    "dc263e2fe99a8635af16c6bb5f18cb4ccaadcd8279e7d8b34bdf2f7cdde286d17be897b6059976aeece0b7ecc560ef9016e11806d6a1ba4e8efac034fc963bd327bca222d2fc86fe", Encryption_mode);
+}
+
+// AES192 Multi in Place
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192ECBmultiinplace) {
+    ProcessingByBlockCipherInPlaceTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_24, AES192_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, ECB_mode, nullptr
+        , NO_ERROR, "ebf97bc7e4ce2ba704408d55933424d4f81aeb2194a88af9b128195a1fd598dc4ed9d2b4743430f626602ef4c983825448a2573b60efc60d5c23f21723e1867e232f8b031abd46f3"
+                    "85230fa4f37bdb66ebc654cba30131d0b838f9110f063ad9590def898943bbe66d55e6e91bcce95dbee7bea6c4849176a85970001c1bb28bbc40cd263785341f837aba3c181a6da8", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192CBCmultiinplace) {
+    ProcessingByBlockCipherInPlaceTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_24, AES192_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, CBC_mode, TEST_STRING_16
+        , NO_ERROR, "37bbc62288b61c2e6cc0edc07f5d612310326bfb301ac9c41efc9971c39197678e331629ebf64a338266cf77dc17bbd63c5d63557650f13a8becfbf640ddbba7c3199d780e5cca4a"
+                    "226e42783691bf1ebe3bf84b5ecb364fd74a29565fe0ae26c13c7adf5cddf74de4472135459af5a7ca5b1ddce3b8a107e59c5fb6f73d81238c6a96a587015be5f3144ecf54c53c7d", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192CFBmultiinplace) {
+    ProcessingByBlockCipherInPlaceTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_24, AES192_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, CFB_mode, TEST_STRING_16
+       , NO_ERROR, "e703a7574c81347ad8683c3706c3ee57bc2321e6e9fc9547eb37e7e57502953bbe9201127ba1ebebef957a3eca726abd0a31cb1207e1f9854318988546e8cad7f7084ca7b3d173b9"
+                    "be7b2b2d841c9a7a79e46559d328558b94756de4c21617a29ff35ae0eefc7444e9f1781f6a79862cc69fdd5d521e313ad534a9e96b3e8d79a71b601ca03da98db4ab76b72e8ed2df", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192OFBmultiinplace) {
+    ProcessingByBlockCipherInPlaceTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_24, AES192_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, OFB_mode, TEST_STRING_16
+        , NO_ERROR, "e703a7574c81347ad8683c3706c3ee57a6d78597da8ad0bccdb6d0020c8f964070c6ae0183d5899c9baa12e559f57badaa15ec399928c1fb771862334151ccadd46c85ca7482ce76"
+                    "1b526c0127bf66c043e33b5afc75a6c33628531f4aa00901a527d3bd8c29d962dce0275baf233229208a3313fb49b0b4dc9c61aef6078d2ee9945e89193d80987755b4aafaad8fb3", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192CTRmultiinplace) {
+    ProcessingByBlockCipherInPlaceTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_24, AES192_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, CTR_mode, TEST_STRING_16
+        , NO_ERROR, "e703a7574c81347ad8683c3706c3ee57ebb0c505e32952c6da27962c69b64e10ad6ced9682e8b16b0f4ba0057a4322d639d3acee9eee2450e86536bbe0e2b233d4de6a8b1fa133f1"
+                    "dc263e2fe99a8635af16c6bb5f18cb4ccaadcd8279e7d8b34bdf2f7cdde286d17be897b6059976aeece0b7ecc560ef9016e11806d6a1ba4e8efac034fc963bd327bca222d2fc86fe", Encryption_mode);
+}
+
+// AES192 Multipart
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192ECBmultipart) {
+    ProcessingByBlockCipherMultipartTestFunc(TEST_STRING_16, 16, TEST_STRING_15, 15, PKCSN7_padding, KEY_24, AES192_cipher_type, ECB_mode, nullptr
+        , "b36bc2770ae4501faa0950174fad88380e8b800c41e6e7147634138384570db8", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192CBCmultipart) {
+    ProcessingByBlockCipherMultipartTestFunc(TEST_STRING_16, 16, TEST_STRING_15, 15, PKCSN7_padding, KEY_24, AES192_cipher_type, CBC_mode, TEST_STRING_16_2
+        , "e64c923a1c453890cb3347ca95e2f1ad0d8d97e4e2ec763c4cb0a81b4e67547f", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192CFBmultipart) {
+    ProcessingByBlockCipherMultipartTestFunc(TEST_STRING_16, 16, TEST_STRING_15, 15, PKCSN7_padding, KEY_24, AES192_cipher_type, CFB_mode, TEST_STRING_16_2
+        , "11df26573ef1d3f1f3b6d0acff5e48b5c0790646b68c28e533faee206179556c", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192OFBmultipart) {
+    ProcessingByBlockCipherMultipartTestFunc(TEST_STRING_16, 16, TEST_STRING_15, 15, PKCSN7_padding, KEY_24, AES192_cipher_type, OFB_mode, TEST_STRING_16_2
+        , "11df26573ef1d3f1f3b6d0acff5e48b58c7a464fbaebf94800535b1234885fc7", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes192CTRmultipart) {
+    ProcessingByBlockCipherMultipartTestFunc(TEST_STRING_16, 16, TEST_STRING_15, 15, PKCSN7_padding, KEY_24, AES192_cipher_type, CTR_mode, TEST_STRING_16_2
+        , "11df26573ef1d3f1f3b6d0acff5e48b5b4b931c2f7063960a8b601b4a18ddf7e", Encryption_mode);
+}
+
+// AES256 Single
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256ECBsingle) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_15, 15, PKCSN7_padding, KEY_32, AES256_cipher_type, AES_BLOCK_SIZE, ECB_mode, nullptr
+        , NO_ERROR, "ac444a6e4054b256f9c7224d83a310aa", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256CBCsingle) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_15, 15, PKCSN7_padding, KEY_32, AES256_cipher_type, AES_BLOCK_SIZE, CBC_mode, TEST_STRING_16
+        , NO_ERROR, "9e84fb9df38f19afb63c13be8f3a7dd5", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256CFBsingle) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_15, 15, PKCSN7_padding, KEY_32, AES256_cipher_type, AES_BLOCK_SIZE, CFB_mode, TEST_STRING_16
+        , NO_ERROR, "16af34eca2292bf29fb0454fc01111dc", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256OFBsingle) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_15, 15, PKCSN7_padding, KEY_32, AES256_cipher_type, AES_BLOCK_SIZE, OFB_mode, TEST_STRING_16
+        , NO_ERROR, "16af34eca2292bf29fb0454fc01111dc", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256CTRsingle) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_15, 15, PKCSN7_padding, KEY_32, AES256_cipher_type, AES_BLOCK_SIZE, CTR_mode, TEST_STRING_16
+        , NO_ERROR, "16af34eca2292bf29fb0454fc01111dc", Encryption_mode);
+}
+
+// AES256 Multi
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256ECBmulti) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_32, AES256_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, ECB_mode, nullptr
+        , NO_ERROR, "68198f49dc83ada7289ad1be03a79d3543849198fb7338da52f09870bafd7e16e40aca4e716c2b8b84c92f04dbdd63ccd0c126cb23e3ea35e198742dc9a827e11a3a34340c7c4262"
+                    "a4d2b5c7066bca719c45e74c79524720d79c9356602d36471913c6ff2944086a063267ae57daee32395e635dc356ef12a3de21fa904c6e18b8e6d22f011a876aa298aaf24f1043dc", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256CBCmulti) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_32, AES256_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, CBC_mode, TEST_STRING_16
+        , NO_ERROR, "60f767e626b7fb89dcb0b4be3a96c3a51e9b02d2c2156d9809a5869f393b5bf5c6c9523fbd5ae251e341d224f34f8dd09c28f459522ecaa15737d7200bafb0bc3bb2e8a8efd7be56"
+                    "47ebd4d8d652866ee16a3a047a82c39871aeebf62c6c0c3cb38377d4e45b5c6c057bae4dd799b5329cdb5bd8387ea720e7a873a0b6e25d7a5ffa9322c0168afee635491501776bd7", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256CFBmulti) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_32, AES256_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, CFB_mode, TEST_STRING_16
+        , NO_ERROR, "16af34ec87232bf2cda5410efd5f12b2d5e906061bd4d88d684340239cd106a64e8c2d64c6a3cbdf55a4ba35bea776545d25141f74020aeed861d982585ab9cd5af0c91959be5216"
+                    "859d184a7bb849fd5119152f42f16be2d46dfe51275edbafaca0b10aee34383dce2d2b448b43d9a360f1b8afbf3b05a3e2167cd2a44b3c0011e913759f1238462c48f981e45ca0f6", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256OFBmulti) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_32, AES256_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, OFB_mode, TEST_STRING_16
+        , NO_ERROR, "16af34ec87232bf2cda5410efd5f12b2f41f3eaaccf9c6d9896507a70f85c4e760b22c13cad9a051dd865520aa4fc5d50f15296b095cb8ebc79a4efdf0022b22552b5d690df6418b"
+                    "b3a4f38837a4c569bc41612f0c4023b83617170043b076dcb6c2f99a968963f87c5516ab3795afca2d27021b542af5ebac4711208b8e9d33698f0771eb6ebc54502b7923080b2b8e", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256CTRmulti) {
+    ProcessingByBlockCipherTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_32, AES256_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, CTR_mode, TEST_STRING_16
+        , NO_ERROR, "16af34ec87232bf2cda5410efd5f12b20b2fb7be4ba3b2615924396db75867840a458bc30ce526b4adbaa94964df445b675384b3def20d748b6e53aaee67466e9cda26aa54dbfd9c"
+                    "74bfab9c52fbd11f5d0e2f8eb12d57e5048ddf5aa543912bbca8031da9deced560983d51c17c7ae54a4ee47e59b324e9a94c338fea399b98b19c40de36db631c91714d7465ba0379", Encryption_mode);
+}
+
+// AES256 Multi in Place
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256ECBmultiinplace) {
+    ProcessingByBlockCipherInPlaceTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_32, AES256_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, ECB_mode, nullptr
+        , NO_ERROR, "68198f49dc83ada7289ad1be03a79d3543849198fb7338da52f09870bafd7e16e40aca4e716c2b8b84c92f04dbdd63ccd0c126cb23e3ea35e198742dc9a827e11a3a34340c7c4262"
+                    "a4d2b5c7066bca719c45e74c79524720d79c9356602d36471913c6ff2944086a063267ae57daee32395e635dc356ef12a3de21fa904c6e18b8e6d22f011a876aa298aaf24f1043dc", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256CBCmultiinplace) {
+    ProcessingByBlockCipherInPlaceTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_32, AES256_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, CBC_mode, TEST_STRING_16
+        , NO_ERROR, "60f767e626b7fb89dcb0b4be3a96c3a51e9b02d2c2156d9809a5869f393b5bf5c6c9523fbd5ae251e341d224f34f8dd09c28f459522ecaa15737d7200bafb0bc3bb2e8a8efd7be56"
+                    "47ebd4d8d652866ee16a3a047a82c39871aeebf62c6c0c3cb38377d4e45b5c6c057bae4dd799b5329cdb5bd8387ea720e7a873a0b6e25d7a5ffa9322c0168afee635491501776bd7", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256CFBmultiinplace) {
+    ProcessingByBlockCipherInPlaceTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_32, AES256_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, CFB_mode, TEST_STRING_16
+        , NO_ERROR, "16af34ec87232bf2cda5410efd5f12b2d5e906061bd4d88d684340239cd106a64e8c2d64c6a3cbdf55a4ba35bea776545d25141f74020aeed861d982585ab9cd5af0c91959be5216"
+                    "859d184a7bb849fd5119152f42f16be2d46dfe51275edbafaca0b10aee34383dce2d2b448b43d9a360f1b8afbf3b05a3e2167cd2a44b3c0011e913759f1238462c48f981e45ca0f6", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256OFBmultiinplace) {
+    ProcessingByBlockCipherInPlaceTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_32, AES256_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, OFB_mode, TEST_STRING_16
+        , NO_ERROR, "16af34ec87232bf2cda5410efd5f12b2f41f3eaaccf9c6d9896507a70f85c4e760b22c13cad9a051dd865520aa4fc5d50f15296b095cb8ebc79a4efdf0022b22552b5d690df6418b"
+                    "b3a4f38837a4c569bc41612f0c4023b83617170043b076dcb6c2f99a968963f87c5516ab3795afca2d27021b542af5ebac4711208b8e9d33698f0771eb6ebc54502b7923080b2b8e", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256CTRmultiinplace) {
+    ProcessingByBlockCipherInPlaceTestFunc(TEST_STRING_128, 128, PKCSN7_padding, KEY_32, AES256_cipher_type, sizeof(TEST_STRING_128) - 1 + AES_BLOCK_SIZE, CTR_mode, TEST_STRING_16
+        , NO_ERROR, "16af34ec87232bf2cda5410efd5f12b20b2fb7be4ba3b2615924396db75867840a458bc30ce526b4adbaa94964df445b675384b3def20d748b6e53aaee67466e9cda26aa54dbfd9c"
+                    "74bfab9c52fbd11f5d0e2f8eb12d57e5048ddf5aa543912bbca8031da9deced560983d51c17c7ae54a4ee47e59b324e9a94c338fea399b98b19c40de36db631c91714d7465ba0379", Encryption_mode);
+}
+
+// AES256 Multipart
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256ECBmultipart) {
+    ProcessingByBlockCipherMultipartTestFunc(TEST_STRING_16, 16, TEST_STRING_15, 15, PKCSN7_padding, KEY_32, AES256_cipher_type, ECB_mode, nullptr
+        , "42c751ccc1464f97bfc42d2eb43174ddac444a6e4054b256f9c7224d83a310aa", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256CBCmultipart) {
+    ProcessingByBlockCipherMultipartTestFunc(TEST_STRING_16, 16, TEST_STRING_15, 15, PKCSN7_padding, KEY_32, AES256_cipher_type, CBC_mode, TEST_STRING_16_2
+        , "85305bb57c3e53de4cb8916d2867d04cfd651f507bcf6f50489ffd88d8b90096", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256CFBmultipart) {
+    ProcessingByBlockCipherMultipartTestFunc(TEST_STRING_16, 16, TEST_STRING_15, 15, PKCSN7_padding, KEY_32, AES256_cipher_type, CFB_mode, TEST_STRING_16_2
+        , "f8eab5a3b091586b3ce3e40fbe7479726ff463258c5e12aaf2e1736e9613043b", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256OFBmultipart) {
+    ProcessingByBlockCipherMultipartTestFunc(TEST_STRING_16, 16, TEST_STRING_15, 15, PKCSN7_padding, KEY_32, AES256_cipher_type, OFB_mode, TEST_STRING_16_2
+        , "f8eab5a3b091586b3ce3e40fbe747972aa004e0fc3ae503f2bdf55c5a98a9810", Encryption_mode);
+}
+
+TEST(ProcessingByBlockCipherEncryptionTest, Aes256CTRmultipart) {
+    ProcessingByBlockCipherMultipartTestFunc(TEST_STRING_16, 16, TEST_STRING_15, 15, PKCSN7_padding, KEY_32, AES256_cipher_type, CTR_mode, TEST_STRING_16_2
+        , "f8eab5a3b091586b3ce3e40fbe747972c22cfff7545545d6f0a7d62ab2ac051c", Encryption_mode);
 }

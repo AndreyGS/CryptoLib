@@ -89,10 +89,12 @@ TEST(PrfStateFuncsTest, FreePrfStateMain) {
     EVAL(FreePrfState(handle));
 
     {
-        std::unique_ptr<uint8_t> test(new uint8_t[g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize]);
-        memset(test.get(), 0, g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize);
+        std::unique_ptr<uint8_t> test_1(new uint8_t[g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize]);
+        std::unique_ptr<uint8_t> test_2(new uint8_t[g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize]);
+        memset(test_1.get(), 0, g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize);
+        memset(test_2.get(), 0xdd, g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize);
 
-        EXPECT_TRUE(memcmp(handle, test.get(), g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize) == 0);
+        EXPECT_TRUE(memcmp(handle, test_1.get(), g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize) == 0 || memcmp(handle, test_2.get(), g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize) == 0);
     }
 
     allOk = true;
