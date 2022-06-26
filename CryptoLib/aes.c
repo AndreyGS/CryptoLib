@@ -417,21 +417,33 @@ int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     case CFB_mode: {
         --input; // for speeding
 
+        // inputCopy needed to apply "in place" encryption
+        uint64_t inputCopy[2] = { 0 };
+
         while (--blocksNumber) {
+            inputCopy[0] = *++input,
+            inputCopy[1] = *++input;
             AesEncryptBlock(roundsKeys, fullRoundsNum, iv, output);
-            iv[0] = *output++ ^= *++input,
-            iv[1] = *output++ ^= *++input;
+            iv[0] = *output++ ^= inputCopy[0],
+            iv[1] = *output++ ^= inputCopy[1];
         }
 
         if (finalize) {
-            uint64_t tempOutput[2] = { output[0], output[1] };
-            AesEncryptBlock(roundsKeys, fullRoundsNum, iv, tempOutput);
-            output[0] ^= tempOutput[0], output[1] ^= tempOutput[1];
+            inputCopy[0] = output[0],
+            inputCopy[1] = output[1];
         }
         else {
-            AesEncryptBlock(roundsKeys, fullRoundsNum, iv, output);
-            iv[0] = *output++ ^= *++input,
-            iv[1] = *output   ^= *++input;
+            inputCopy[0] = *++input,
+            inputCopy[1] = *++input;
+        }
+
+        AesEncryptBlock(roundsKeys, fullRoundsNum, iv, output);
+        output[0] ^= inputCopy[0],
+        output[1] ^= inputCopy[1];
+
+        if (!finalize) {
+            iv[0] = output[0],
+            iv[1] = output[1];
         }
 
         break;
@@ -455,7 +467,7 @@ int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
         }
         else {
             *++output = iv[0] ^ *++input,
-            *output   = iv[1] ^ *++input;
+            *++output = iv[1] ^ *++input;
         }
 
         break;
@@ -464,9 +476,14 @@ int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     case CTR_mode: {
         --input;    // for speeding
 
+        // inputCopy needed to apply "in place" encryption
+        uint64_t inputCopy[2] = { 0 };
+
         while (--blocksNumber) {
+            inputCopy[0] = *++input,
+            inputCopy[1] = *++input;
             AesEncryptBlock(roundsKeys, fullRoundsNum, iv, output);
-            *output++ ^= *++input, * output++ ^= *++input;
+            *output++ ^= inputCopy[0], * output++ ^= inputCopy[1];
 
             iv[1] = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv[1]) + 1);    // I'm not sure that approach with Big Endian counter is necessary
                                                                                                 // but the other working examplse of AES with ctr with which I can compare the result
@@ -474,16 +491,19 @@ int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
         }
 
         if (finalize) {
-            uint64_t tempOutput[2] = { output[0], output[1] };
-            AesEncryptBlock(roundsKeys, fullRoundsNum, iv, tempOutput);
-            output[0] ^= tempOutput[0], output[1] ^= tempOutput[1];
+            inputCopy[0] = output[0],
+            inputCopy[1] = output[1];
         }
         else {
-            AesEncryptBlock(roundsKeys, fullRoundsNum, iv, output);
-            *output++ ^= *++input, *output ^= *++input;
-
-            iv[1] = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv[1]) + 1);
+            inputCopy[0] = *++input,
+            inputCopy[1] = *++input;
         }
+
+        AesEncryptBlock(roundsKeys, fullRoundsNum, iv, output);
+        output[0] ^= inputCopy[0], output[1] ^= inputCopy[1];
+
+        if (!finalize)
+            iv[1] = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv[1]) + 1);
 
         break;
     }
@@ -577,8 +597,10 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
                 *++output = iv[1] ^ *++input;
             }
 
-            lastOutputBlock[0] ^= output[-1],
-            lastOutputBlock[1] ^= *output,
+            --output;
+
+            lastOutputBlock[0] ^= output[0],
+            lastOutputBlock[1] ^= output[1],
             lastIvBlock[0] = iv[0],
             lastIvBlock[1] = iv[1];
         }
@@ -665,13 +687,17 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
         break;
 
     case CTR_mode: {
-        --input,
-        output;
+        --input;
+        
+        // inputCopy needed to apply "in place" encryption
+        uint64_t inputCopy[2] = { 0 };
 
         while (--blocksNumber) {
+            inputCopy[0] = *++input,
+            inputCopy[1] = *++input;
             AesEncryptBlock(roundsKeys, fullRoundsNum, iv, output);
-            *output++ ^= *++input,
-            *output++ ^= *++input;
+            *output++ ^= inputCopy[0],
+            *output++ ^= inputCopy[1];
             iv[1] = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv[1]) + 1);
         }
 

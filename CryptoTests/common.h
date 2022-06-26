@@ -43,6 +43,7 @@ const char TEST_STRING_513[] = "In early 2013 NIST announced they would select d
                                "Keccak's security proof allows an";
 
 const char TEST_STRING_8_7[] = "somekindThis is";
+const char TEST_STRING_16_15[] = "following tablesThe code that e";
 const char TEST_STRING_64_7[] = "here I don't really now. Maybe it should be something clever or This is";
 
 const char KEY_8[]           = "81cav5AS";

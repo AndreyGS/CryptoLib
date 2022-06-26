@@ -6,7 +6,7 @@
 #include "ProcessingByBlockCipherTestSupportFunctions.h"
 
 void ProcessingByBlockCipherMainTestFunc(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
-    , __inout uint64_t outputSize, __in BlockCipherOpMode mode, __in_opt const void* cIv
+    , __inout uint64_t outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv
     , __in int expectedStatus, __in_opt const char* expectedRes, bool inPlace, __in CryptoMode enMode
 )
 {
@@ -35,16 +35,9 @@ void ProcessingByBlockCipherMainTestFunc(__in const void* input, __in uint64_t i
         break;
     }
 
-    std::unique_ptr<uint8_t> iv(nullptr);
-
-    if (cIv) {
-        iv = std::unique_ptr<uint8_t>(new uint8_t[blockSize]);
-        memcpy(iv.get(), cIv, blockSize);
-    }
-
     BlockCipherHandle handle = nullptr;
 
-    EVAL(InitBlockCipherState(&handle, cipherType, enMode, mode, padding, key, iv.get()));
+    EVAL(InitBlockCipherState(&handle, cipherType, enMode, mode, padding, key, iv));
 
     EVAL(ProcessingByBlockCipher(handle, input, inputSize, true, buffer.get(), &outputSize));
 
@@ -84,7 +77,7 @@ void ProcessingByBlockCipherInPlaceTestFunc(__in const void* input, __in uint64_
 }
 
 void ProcessingByBlockCipherMultipartTestFunc(__in const void* input_1, __in uint64_t inputSize_1, __in const void* input_2, __in uint64_t inputSize_2, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
-    , __in BlockCipherOpMode mode, __in_opt const void* cIv
+    , __in BlockCipherOpMode mode, __in_opt const void* iv
     , __in_opt const char* expectedRes, __in CryptoMode enMode)
 {
     uint64_t blockSize = 0;
@@ -92,6 +85,11 @@ void ProcessingByBlockCipherMultipartTestFunc(__in const void* input_1, __in uin
     case DES_cipher_type:
     case TDES_cipher_type:
         blockSize = DES_BLOCK_SIZE;
+        break;
+    case AES128_cipher_type:
+    case AES192_cipher_type:
+    case AES256_cipher_type:
+        blockSize = AES_BLOCK_SIZE;
         break;
     default:
         blockSize = 0;
@@ -102,20 +100,13 @@ void ProcessingByBlockCipherMultipartTestFunc(__in const void* input_1, __in uin
 
     std::unique_ptr<uint8_t> buffer(new uint8_t[inputSize_1 + inputSize_2 + (lastBlockAddition ? lastBlockAddition : blockSize)]);
 
-    std::unique_ptr<uint8_t> iv(nullptr);
-
-    if (cIv) {
-        iv = std::unique_ptr<uint8_t>(new uint8_t[blockSize]);
-        memcpy(iv.get(), cIv, blockSize);
-    }
-
     int status = NO_ERROR;
 
     uint64_t outputSize = inputSize_1;
 
     BlockCipherHandle handle = nullptr;
 
-    EVAL(InitBlockCipherState(&handle, cipherType, enMode, mode, padding, key, iv.get()));
+    EVAL(InitBlockCipherState(&handle, cipherType, enMode, mode, padding, key, iv));
 
     if (NO_ERROR == (status = ProcessingByBlockCipher(handle, input_1, inputSize_1, false, buffer.get(), &outputSize))) {
         uint64_t totalSize = outputSize;
