@@ -33,24 +33,24 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>..\CryptoLib;$(IncludePath)</IncludePath>
-    <LibraryPath>..\CryptoLib\Debug;$(LibraryPath)</LibraryPath>
-    <OutDir>$(ProjectName)$(Configuration)\</OutDir>
+    <IncludePath>..\CryptoLib;..\ThirdParty_Zip_for_tests_only;$(IncludePath)</IncludePath>
+    <LibraryPath>..\CryptoLib\$(Configuration);..\ThirdParty_Zip_for_tests_only\$(Configuration);$(LibraryPath)</LibraryPath>
+    <OutDir>$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>..\CryptoLib;$(IncludePath)</IncludePath>
-    <LibraryPath>..\CryptoLib\Release;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
-    <OutDir>$(ProjectName)$(Configuration)\</OutDir>
+    <IncludePath>..\CryptoLib;..\ThirdParty_Zip_for_tests_only;$(IncludePath)</IncludePath>
+    <LibraryPath>..\CryptoLib\$(Configuration);..\ThirdParty_Zip_for_tests_only\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
+    <OutDir>$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>..\CryptoLib;$(IncludePath)</IncludePath>
-    <LibraryPath>..\CryptoLib\x64\Debug;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
-    <OutDir>$(ProjectName)$(Configuration)\</OutDir>
+    <IncludePath>..\CryptoLib;..\ThirdParty_Zip_for_tests_only;$(IncludePath)</IncludePath>
+    <LibraryPath>..\CryptoLib\$(Platform)\$(Configuration);..\ThirdParty_Zip_for_tests_only\$(Platform)\$(Configuration);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>..\CryptoLib;$(IncludePath)</IncludePath>
-    <LibraryPath>..\CryptoLib\x64\Release;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
-    <OutDir>$(ProjectName)$(Configuration)\</OutDir>
+    <IncludePath>..\CryptoLib;..\ThirdParty_Zip_for_tests_only;$(IncludePath)</IncludePath>
+    <LibraryPath>..\CryptoLib\$(Platform)\$(Configuration);..\ThirdParty_Zip_for_tests_only\$(Platform)\$(Configuration);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemGroup>
     <ClInclude Include="common.h" />
@@ -89,6 +89,7 @@
     </ClCompile>
     <ClCompile Include="GetXofT.cpp" />
     <ClCompile Include="HashStateFuncsT.cpp" />
+    <ClCompile Include="ProcessingByBlockCipherKAT_AES.cpp" />
     <ClCompile Include="ProcessingByBlockCipherTestSupportFunctions.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -124,7 +125,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>CryptoLib.lib;$(MSBuildThisFileDirectory)packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\lib\native\v140\windesktop\msvcstl\static\rt-static\x86\Debug\gtest_maind.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CryptoLib.lib;ThirdParty_Zip_for_tests_only.lib;$(MSBuildThisFileDirectory)packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\lib\native\v140\windesktop\msvcstl\static\rt-static\x86\Debug\gtest_maind.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -140,7 +141,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>CryptoLib.lib;$(MSBuildThisFileDirectory)packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\lib\native\v140\windesktop\msvcstl\static\rt-static\x64\Debug\gtest_maind.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CryptoLib.lib;ThirdParty_Zip_for_tests_only.lib;$(MSBuildThisFileDirectory)packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\lib\native\v140\windesktop\msvcstl\static\rt-static\x64\Debug\gtest_maind.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -157,7 +158,7 @@
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalDependencies>CryptoLib.lib;$(MSBuildThisFileDirectory)packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\lib\native\v140\windesktop\msvcstl\static\rt-static\x86\Release\gtest_main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CryptoLib.lib;ThirdParty_Zip_for_tests_only.lib;$(MSBuildThisFileDirectory)packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\lib\native\v140\windesktop\msvcstl\static\rt-static\x86\Release\gtest_main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -174,7 +175,7 @@
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalDependencies>CryptoLib.lib;$(MSBuildThisFileDirectory)packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\lib\native\v140\windesktop\msvcstl\static\rt-static\x64\Release\gtest_main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CryptoLib.lib;ThirdParty_Zip_for_tests_only.lib;$(MSBuildThisFileDirectory)packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.4\lib\native\v140\windesktop\msvcstl\static\rt-static\x64\Release\gtest_main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

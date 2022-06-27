@@ -39,6 +39,9 @@
     <ClCompile Include="GetPbkdf2T.cpp">
       <Filter>Pbkdf2Tests</Filter>
     </ClCompile>
+    <ClCompile Include="ProcessingByBlockCipherKAT_AES.cpp">
+      <Filter>BlockCiphersTests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h" />

@@ -2,12 +2,14 @@
 //
 
 #include "pch.h"
-
 #include "ProcessingByBlockCipherTestSupportFunctions.h"
+#if defined _MSC_VER
+#include "windows.h"
+#endif
 
 void ProcessingByBlockCipherMainTestFunc(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
     , __inout uint64_t outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv
-    , __in int expectedStatus, __in_opt const char* expectedRes, bool inPlace, __in CryptoMode enMode
+    , __in int expectedStatus, __in_opt const char* expectedRes, bool inPlace, __in CryptoMode enMode, int expLength, const char* fileName, int testNum
 )
 {
     int status = NO_ERROR;
@@ -50,7 +52,20 @@ void ProcessingByBlockCipherMainTestFunc(__in const void* input, __in uint64_t i
 
         std::string expRes(expectedRes);
 
-        EXPECT_EQ(result, expRes);
+        if (expLength) {
+            bool check = memcmp(result.c_str(), expectedRes, expLength) == 0;
+            EXPECT_TRUE(check);
+            if (!check) {
+                std::cout << "Assert in FileName: " << fileName << "; TestNum: " << testNum << "\n";
+#if defined _MSC_VER
+                char sprintf[200] = { 0 };
+                sprintf_s(sprintf, 200, "Assert in FileName : %s; TestNum: %d\n", fileName, testNum);
+                OutputDebugStringA(sprintf);
+#endif
+            }
+        }
+        else
+            EXPECT_EQ(result, expRes);
     }
 
 exit:
@@ -65,7 +80,15 @@ void ProcessingByBlockCipherTestFunc(__in const void* input, __in uint64_t input
     , __in int expectedStatus, __in_opt const char* expectedRes, __in CryptoMode enMode
 )
 {
-    ProcessingByBlockCipherMainTestFunc(input, inputSize, padding, key, cipherType, outputSize, mode, cIv, expectedStatus, expectedRes, false, enMode);
+    ProcessingByBlockCipherMainTestFunc(input, inputSize, padding, key, cipherType, outputSize, mode, cIv, expectedStatus, expectedRes, false, enMode, 0, nullptr, 0);
+}
+
+void ProcessingByBlockCipherTestKAT_AESFunc(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
+    , __inout uint64_t outputSize, __in BlockCipherOpMode mode, __in_opt const void* cIv
+    , __in int expectedStatus, __in_opt const char* expectedRes, __in CryptoMode enMode, int expLength, const char* fileName, int testNum
+)
+{
+    ProcessingByBlockCipherMainTestFunc(input, inputSize, padding, key, cipherType, outputSize, mode, cIv, expectedStatus, expectedRes, false, enMode, expLength, fileName, testNum);
 }
 
 void ProcessingByBlockCipherInPlaceTestFunc(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
@@ -73,7 +96,7 @@ void ProcessingByBlockCipherInPlaceTestFunc(__in const void* input, __in uint64_
     , __in int expectedStatus, __in_opt const char* expectedRes, __in CryptoMode enMode
 )
 {
-    ProcessingByBlockCipherMainTestFunc(input, inputSize, padding, key, cipherType, outputSize, mode, cIv, expectedStatus, expectedRes, true, enMode);
+    ProcessingByBlockCipherMainTestFunc(input, inputSize, padding, key, cipherType, outputSize, mode, cIv, expectedStatus, expectedRes, true, enMode, 0, nullptr, 0);
 }
 
 void ProcessingByBlockCipherMultipartTestFunc(__in const void* input_1, __in uint64_t inputSize_1, __in const void* input_2, __in uint64_t inputSize_2, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType

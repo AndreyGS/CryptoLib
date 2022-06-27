@@ -59,3 +59,4 @@ const char KEY_32_INV[]      = { 0xc7, 0xce, 0x9c, 0x9e, 0x89, 0xca, 0xbe, 0xac,
 char GetHexSymbol(uint8_t input);
 
 std::string GetHexResult(const uint8_t* input, uint64_t inputSize);
+void ConvertHexStrToBin(const char* input, char* output);

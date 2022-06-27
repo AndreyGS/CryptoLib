@@ -5,14 +5,14 @@
 
 #include "common.h"
 
-void ProcessingByBlockCipherMainTestFunc(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
-    , __inout uint64_t outputSize, __in BlockCipherOpMode mode, __in_opt const void* cIv
-    , __in int expectedStatus, __in_opt const char* expectedRes, bool inPlace, __in CryptoMode enMode
-);
-
 void ProcessingByBlockCipherTestFunc(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
     , __inout uint64_t outputSize, __in BlockCipherOpMode mode, __in_opt const void* cIv
     , __in int expectedStatus, __in_opt const char* expectedRes, __in CryptoMode enMode
+);
+
+void ProcessingByBlockCipherTestKAT_AESFunc(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
+    , __inout uint64_t outputSize, __in BlockCipherOpMode mode, __in_opt const void* cIv
+    , __in int expectedStatus, __in_opt const char* expectedRes, __in CryptoMode enMode, int expLength, const char* fileName, int testNum
 );
 
 void ProcessingByBlockCipherInPlaceTestFunc(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType

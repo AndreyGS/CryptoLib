@@ -38,3 +38,41 @@ std::string GetHexResult(const uint8_t* input, uint64_t inputSize)
 
     return str;
 }
+
+void ConvertHexStrToBin(const char* input, char* output)
+{
+    while ((input[0] >= '0' && input[0] <= '9') || (input[0] >= 'a' && input[0] <= 'f') || (input[0] >= 'A' && input[0] <= 'F')) {
+        if (input[0] >= '0' && input[0] <= '9')
+            *output = (input[0] - '0') << 4;
+        else if (input[0] == 'a' || input[0] <= 'A')
+            *output = 160;
+        else if (input[0] == 'b' || input[0] <= 'B')
+            *output = 176;
+        else if (input[0] == 'c' || input[0] <= 'C')
+            *output = 192;
+        else if (input[0] == 'd' || input[0] <= 'D')
+            *output = 208;
+        else if (input[0] == 'e' || input[0] <= 'E')
+            *output = 224;
+        else if (input[0] == 'f' || input[0] <= 'F')
+            *output = 240;
+
+        if (input[1] >= '0' && input[1] <= '9')
+            *output += input[1] - '0';
+        else if (input[1] == 'a' || input[1] <= 'A')
+            *output += 10;
+        else if (input[1] == 'b' || input[1] <= 'B')
+            *output += 11;
+        else if (input[1] == 'c' || input[1] <= 'C')
+            *output += 12;
+        else if (input[1] == 'd' || input[1] <= 'D')
+            *output += 13;
+        else if (input[1] == 'e' || input[1] <= 'E')
+            *output += 14;
+        else if (input[1] == 'f' || input[1] <= 'F')
+            *output += 15;
+
+        ++output;
+        input += 2;
+    }
+}
