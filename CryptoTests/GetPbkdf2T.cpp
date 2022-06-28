@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 //  GetPbkdf2T.cpp
 //
 
@@ -8,7 +10,7 @@
 void GetPbkdf2MainTestFunc(__in_opt const void* salt, __in size_t saltSize, __in_opt const void* password, __in size_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __in size_t outputSize, __in int expectedStatus, __in_opt const void* expectedRes)
 {
     int status = NO_ERROR;
-    std::unique_ptr<uint8_t> buffer(new uint8_t[outputSize]);
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(outputSize);
     EVAL(GetPbkdf2(salt, saltSize, password, passwordSize, func, iterationsNum, buffer.get(), outputSize));
 
 exit:

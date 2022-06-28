@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 //  GetPrfT.cpp
 //
 
@@ -14,7 +16,7 @@ void GetPrfMainTestFunc(__in const void* input, __in size_t inputSize, __in cons
     if (func >= HMAC_SHA1 && func <= HMAC_SHA3_512)
         outputSize = g_hashFuncsSizesMapping[g_PrfSizesMapping[func].hashFunc].didgestSize;
 
-    std::unique_ptr<uint8_t> buffer(new uint8_t[outputSize]);
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(outputSize);
     PrfHandle handle = NULL;
     EVAL(InitPrfState(&handle, func));
     EVAL(GetPrf(handle, input, inputSize, key, keySize, true, buffer.get(), outputSize));
@@ -42,7 +44,7 @@ void GetPrfMultipleTestFunc(__in const void* input1, __in size_t inputSize1, __i
     if (func >= HMAC_SHA1 && func <= HMAC_SHA3_512)
         outputSize = g_hashFuncsSizesMapping[g_PrfSizesMapping[func].hashFunc].didgestSize;
 
-    std::unique_ptr<uint8_t> buffer(new uint8_t[outputSize]);
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(outputSize);
     PrfHandle handle = NULL;
     EVAL(InitPrfState(&handle, func));
     EVAL(GetPrf(handle, input1, inputSize1, key, keySize, false, buffer.get(), outputSize));
@@ -65,7 +67,7 @@ exit:
 
 TEST(GetPrfTest, WrongState) {
     size_t outputSize = g_hashFuncsSizesMapping[SHA1].didgestSize;
-    std::unique_ptr<uint8_t> buffer(new uint8_t[outputSize]);
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(1);
     EXPECT_TRUE(GetPrf(nullptr, TEST_STRING_8, 8, TEST_STRING_65, 64, true, buffer.get(), outputSize) == ERROR_NULL_STATE_HANDLE);
 }
 
@@ -95,7 +97,7 @@ exit:
 TEST(GetPrfTest, WrongOutput) {
     int status = NO_ERROR;
     size_t outputSize = g_hashFuncsSizesMapping[SHA1].didgestSize;
-    std::unique_ptr<uint8_t> buffer(new uint8_t[outputSize]);
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(1);
     PrfHandle handle = NULL;
     EVAL(InitPrfState(&handle, HMAC_SHA1));
 

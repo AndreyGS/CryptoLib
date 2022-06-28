@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 //  BlockCipherStateFuncsT.cpp
 //
 
@@ -275,8 +277,8 @@ TEST(BlockCipherStateFuncsTest, FreeBlockCipherStateMain) {
     EVAL(FreeBlockCipherState(handle));
     
     {
-        std::unique_ptr<uint8_t> test_1(new uint8_t[sizeof(DesState)]);
-        std::unique_ptr<uint8_t> test_2(new uint8_t[sizeof(DesState)]);
+        std::unique_ptr<uint8_t[]> test_1 = std::make_unique<uint8_t[]>(sizeof(DesState));
+        std::unique_ptr<uint8_t[]> test_2 = std::make_unique<uint8_t[]>(sizeof(DesState));
         memset(test_1.get(), 0, sizeof(DesState));
         memset(test_2.get(), 0xdd, sizeof(DesState));
 
@@ -284,8 +286,8 @@ TEST(BlockCipherStateFuncsTest, FreeBlockCipherStateMain) {
     }
 
     {
-        std::unique_ptr<BlockCipherState> test_1(new BlockCipherState);
-        std::unique_ptr<BlockCipherState> test_2(new BlockCipherState);
+        std::unique_ptr<uint8_t[]> test_1 = std::make_unique<uint8_t[]>(sizeof(BlockCipherState));
+        std::unique_ptr<uint8_t[]> test_2 = std::make_unique<uint8_t[]>(sizeof(BlockCipherState));
         memset(test_1.get(), 0, sizeof(BlockCipherState));
         memset(test_1.get(), 0xdd, sizeof(BlockCipherState));
 

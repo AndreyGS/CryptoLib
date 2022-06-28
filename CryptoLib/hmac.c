@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 /**
  * @file hmac.c
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
@@ -20,8 +22,6 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
- // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
- // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 
 #include "pch.h"
 #include "hmac.h"

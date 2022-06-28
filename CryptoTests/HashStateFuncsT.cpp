@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 //  HashStateFuncsT.cpp
 //
 
@@ -29,7 +31,7 @@ TEST(HashStateFuncsTest, InitHashStateMain) {
     EXPECT_EQ(*(HashFunc*)handle, SHA3_224);
 
     {
-        std::unique_ptr<uint8_t> test(new uint8_t[g_hashFuncsSizesMapping[SHA3_224].stateSize]);
+        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_hashFuncsSizesMapping[SHA3_224].stateSize);
         memset(test.get(), 0, g_hashFuncsSizesMapping[SHA3_224].stateSize);
 
         EXPECT_TRUE(memcmp(((HashState*)handle)->state, test.get(), g_hashFuncsSizesMapping[SHA3_224].stateSize) == 0);
@@ -57,7 +59,7 @@ TEST(HashStateFuncsTest, ResetHashStateMain) {
     EXPECT_EQ(*(HashFunc*)handle, SHA3_224);
 
     {
-        std::unique_ptr<uint8_t> test(new uint8_t[g_hashFuncsSizesMapping[SHA3_224].stateSize]);
+        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_hashFuncsSizesMapping[SHA3_224].stateSize);
         memset(test.get(), 0, g_hashFuncsSizesMapping[SHA3_224].stateSize);
 
         EXPECT_TRUE(memcmp(((HashState*)handle)->state, test.get(), g_hashFuncsSizesMapping[SHA3_224].stateSize) == 0);
@@ -89,7 +91,7 @@ TEST(HashStateFuncsTest, FreeHashStateMain) {
     EVAL(FreeHashState(handle));
 
     {
-        std::unique_ptr<uint8_t> test(new uint8_t[g_hashFuncsSizesMapping[HashFunc_max - 1].stateAndHeaderSize]);
+        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_hashFuncsSizesMapping[HashFunc_max - 1].stateAndHeaderSize);
         memset(test.get(), 0, g_hashFuncsSizesMapping[HashFunc_max - 1].stateAndHeaderSize);
 
         EXPECT_TRUE(memcmp(handle, test.get(), g_hashFuncsSizesMapping[HashFunc_max - 1].stateAndHeaderSize) == 0);

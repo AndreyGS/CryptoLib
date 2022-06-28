@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 //  GetHashT.cpp
 //
 
@@ -9,7 +11,7 @@ void GetHashMainTestFunc(__in const void* input, __in size_t inputSize, __in Has
 {
     int status = NO_ERROR;
     size_t outputSize = g_hashFuncsSizesMapping[func].didgestSize;
-    std::unique_ptr<uint8_t> buffer(new uint8_t[outputSize]);
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(outputSize);
     HashHandle handle = NULL;
     EVAL(InitHashState(&handle, func));
     EVAL(GetHash(handle, input, inputSize, true, buffer.get()));
@@ -32,7 +34,7 @@ void GetHashMultipleTestFunc(__in const void* input1, __in size_t inputSize1, __
 {
     int status = NO_ERROR;
     size_t outputSize = g_hashFuncsSizesMapping[func].didgestSize;
-    std::unique_ptr<uint8_t> buffer(new uint8_t[outputSize]);
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(outputSize);
     HashHandle handle = NULL;
     EVAL(InitHashState(&handle, func));
     EVAL(GetHash(handle, input1, inputSize1, false, nullptr));
@@ -47,7 +49,6 @@ exit:
         std::string expRes((const char*)expectedRes);
         EXPECT_EQ(result, expRes);
     }
-    else
 
     EXPECT_TRUE(status == expectedStatus);
 }
@@ -56,7 +57,7 @@ exit:
 
 TEST(GetHashTest, WrongState) {
     int status = NO_ERROR;
-    std::unique_ptr<uint8_t> buffer(nullptr);
+    std::unique_ptr<uint8_t> buffer = std::make_unique<uint8_t>();
     status = GetHash(nullptr, "", 0, true, buffer.get());
     EXPECT_TRUE(status == ERROR_NULL_STATE_HANDLE);
 }
@@ -77,7 +78,7 @@ TEST(GetHashTest, WrongInput) {
 TEST(GetHashTest, WrongInputSize) {
     int status = NO_ERROR;
     HashHandle handle = nullptr;
-    std::unique_ptr<uint8_t> buffer(new uint8_t[1]);
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(1);
 
     InitHashState(&handle, SHA1);
     status = GetHash(handle, "", 55, false, buffer.get());

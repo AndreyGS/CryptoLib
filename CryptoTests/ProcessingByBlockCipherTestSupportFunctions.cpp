@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 //  ProcessingByBlockCipherTestSupportFunctions.cpp
 //
 
@@ -14,7 +16,7 @@ void ProcessingByBlockCipherMainTestFunc(__in const void* input, __in size_t inp
 {
     int status = NO_ERROR;
 
-    std::unique_ptr<uint8_t> buffer(new uint8_t[outputSize]);
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(outputSize);
 
     if (inPlace) {
         memcpy(buffer.get(), input, inputSize);
@@ -121,7 +123,7 @@ void ProcessingByBlockCipherMultipartTestFunc(__in const void* input_1, __in siz
 
     size_t lastBlockAddition = blockSize - inputSize_2 % blockSize;
 
-    std::unique_ptr<uint8_t> buffer(new uint8_t[inputSize_1 + inputSize_2 + (lastBlockAddition ? lastBlockAddition : blockSize)]);
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(inputSize_1 + inputSize_2 + (lastBlockAddition ? lastBlockAddition : blockSize));
 
     int status = NO_ERROR;
 

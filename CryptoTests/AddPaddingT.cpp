@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 //  AddPaddingT.cpp
 //
 
@@ -9,7 +11,7 @@
 TEST(AddPaddingTest, NullInput) {
     int status = NO_ERROR;
     size_t outputSize = 16;
-    std::unique_ptr<uint8_t> output(new uint8_t[outputSize]);
+    std::unique_ptr<uint8_t[]> output = std::make_unique<uint8_t[]>(outputSize);
     EVAL(AddPadding(nullptr, 1, No_padding, 8, output.get(), &outputSize, false));
 
 exit:
@@ -19,8 +21,8 @@ exit:
 TEST(AddPaddingTest, NullWrongInputSize) {
     int status = NO_ERROR;
     size_t outputSize = 16;
-    std::unique_ptr<uint8_t> input(new uint8_t[outputSize]);
-    std::unique_ptr<uint8_t> output(new uint8_t[outputSize]);
+    std::unique_ptr<uint8_t[]> input = std::make_unique<uint8_t[]>(outputSize);
+    std::unique_ptr<uint8_t[]> output = std::make_unique<uint8_t[]>(outputSize);
 
     EVAL(AddPadding(input.get(), 0, No_padding, 8, output.get(), &outputSize, false));
 
@@ -31,7 +33,7 @@ exit:
 TEST(AddPaddingTest, NullOutput) {
     int status = NO_ERROR;
     size_t outputSize = 16;
-    std::unique_ptr<uint8_t> input(new uint8_t[outputSize]);
+    std::unique_ptr<uint8_t[]> input = std::make_unique<uint8_t[]>(outputSize);
 
     EVAL(AddPadding(input.get(), outputSize, No_padding, 8, nullptr, &outputSize, false));
 
@@ -42,8 +44,8 @@ exit:
 TEST(AddPaddingTest, NullOutputSize) {
     int status = NO_ERROR;
     size_t outputSize = 16;
-    std::unique_ptr<uint8_t> input(new uint8_t[outputSize]);
-    std::unique_ptr<uint8_t> output(new uint8_t[outputSize]);
+    std::unique_ptr<uint8_t[]> input = std::make_unique<uint8_t[]>(outputSize);
+    std::unique_ptr<uint8_t[]> output = std::make_unique<uint8_t[]>(outputSize);
 
     EVAL(AddPadding(input.get(), outputSize, No_padding, 8, output.get(), nullptr, false));
 
@@ -54,8 +56,8 @@ exit:
 TEST(AddPaddingTest, TooSmallBlockSize) {
     int status = NO_ERROR;
     size_t outputSize = 16;
-    std::unique_ptr<uint8_t> input(new uint8_t[outputSize]);
-    std::unique_ptr<uint8_t> output(new uint8_t[outputSize]);
+    std::unique_ptr<uint8_t[]> input = std::make_unique<uint8_t[]>(outputSize);
+    std::unique_ptr<uint8_t[]> output = std::make_unique<uint8_t[]>(outputSize);
 
     EVAL(AddPadding(input.get(), outputSize, No_padding, 0, output.get(), &outputSize, false));
 
@@ -66,8 +68,8 @@ exit:
 TEST(AddPaddingTest, TooBigBlockSize) {
     int status = NO_ERROR;
     size_t outputSize = 16;
-    std::unique_ptr<uint8_t> input(new uint8_t[outputSize]);
-    std::unique_ptr<uint8_t> output(new uint8_t[outputSize]);
+    std::unique_ptr<uint8_t[]> input = std::make_unique<uint8_t[]>(outputSize);
+    std::unique_ptr<uint8_t[]> output = std::make_unique<uint8_t[]>(outputSize);
 
     EVAL(AddPadding(input.get(), 7, PKCSN7_padding, 256, output.get(), &outputSize, false));
 
@@ -84,7 +86,7 @@ TEST(AddPaddingTest, MainTest) {
     std::vector<unsigned char> result;
     size_t blockSize = 8;
     size_t outputSize = blockSize << 1;
-    std::unique_ptr<unsigned char> output(new unsigned char[outputSize]);
+    std::unique_ptr<uint8_t[]> output = std::make_unique<uint8_t[]>(outputSize);
     memset(output.get(), 0xff, outputSize);
 
     // For every padding type except No_padding there is 4 main test
@@ -163,8 +165,8 @@ TEST(AddPaddingTest, MainTest) {
     EXPECT_TRUE(memcmp(result.data(), output.get(), blockSize) == 0 && outputSize == 16);
 
     // Two extra PKCSN7 tests
-    status = AddPadding(input_2, 8, type, 256, output.get(), &outputSize, false);
     outputSize = blockSize << 1;
+    status = AddPadding(input_2, 8, type, 256, output.get(), &outputSize, false);
     memset(output.get(), 0xff, outputSize);
     result.assign(outputSize, 0xff);
     EXPECT_TRUE(memcmp(result.data(), output.get(), outputSize) == 0 && outputSize == 16 && status == ERROR_TOO_BIG_BLOCK_SIZE);

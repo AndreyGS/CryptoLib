@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 //  XofStateFuncsT.cpp
 //
 
@@ -29,7 +31,7 @@ TEST(XofStateFuncsTest, InitXofStateMain) {
     EXPECT_EQ(*(Xof*)handle, SHAKE256);
 
     {
-        std::unique_ptr<uint8_t> test(new uint8_t[g_XofSizesMapping[SHAKE256].stateSize]);
+        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_XofSizesMapping[SHAKE256].stateSize);
         memset(test.get(), 0, g_XofSizesMapping[SHAKE256].stateSize);
 
         EXPECT_TRUE(memcmp(((HashState*)handle)->state, test.get(), g_XofSizesMapping[SHAKE256].stateSize) == 0);
@@ -57,7 +59,7 @@ TEST(XofStateFuncsTest, ResetXofStateMain) {
     EXPECT_EQ(*(Xof*)handle, SHAKE256);
 
     {
-        std::unique_ptr<uint8_t> test(new uint8_t[g_XofSizesMapping[SHAKE256].stateSize]);
+        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_XofSizesMapping[SHAKE256].stateSize);
         memset(test.get(), 0, g_XofSizesMapping[SHAKE256].stateSize);
 
         EXPECT_TRUE(memcmp(((HashState*)handle)->state, test.get(), g_XofSizesMapping[SHAKE256].stateSize) == 0);
@@ -89,7 +91,7 @@ TEST(XofStateFuncsTest, FreeXofStateMain) {
     EVAL(FreeXofState(handle));
 
     {
-        std::unique_ptr<uint8_t> test(new uint8_t[g_XofSizesMapping[SHAKE256].stateAndHeaderSize]);
+        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_XofSizesMapping[SHAKE256].stateAndHeaderSize);
         memset(test.get(), 0, g_XofSizesMapping[SHAKE256].stateAndHeaderSize);
 
         EXPECT_TRUE(memcmp(handle, test.get(), g_XofSizesMapping[SHAKE256].stateAndHeaderSize) == 0);

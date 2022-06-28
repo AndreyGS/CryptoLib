@@ -45,18 +45,12 @@
     <ClCompile Include="AddPaddingT.cpp">
       <Filter>PaddingsTests</Filter>
     </ClCompile>
-    <ClCompile Include="PaddingsTestSupportFunctions.cpp">
-      <Filter>PaddingsTests</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ProcessingByBlockCipherTestSupportFunctions.h">
       <Filter>BlockCiphersTests</Filter>
-    </ClInclude>
-    <ClInclude Include="PaddingsTestSupportFunctions.h">
-      <Filter>PaddingsTests</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

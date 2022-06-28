@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 //  ProcessingByBlockCipherKAT_AES.cpp
 //
 
@@ -45,7 +47,7 @@ TEST(ProcessingByBlockCipherKAT_AES, MainTest) {
                 enMode = Decryption_mode;
 
             size_t fileSize = (size_t)zip_entry_size(zip);
-            std::unique_ptr<const char> contents(new char[fileSize]);
+            std::unique_ptr<const char[]> contents = std::make_unique<const char[]>(fileSize);
             zip_entry_noallocread(zip, (void*)contents.get(), fileSize);
 
             const char* cursor = contents.get();
@@ -63,7 +65,7 @@ TEST(ProcessingByBlockCipherKAT_AES, MainTest) {
 
                 ConvertHexStrToBin(cursor, key);
                 
-                if (!opMode == ECB_mode) {
+                if (!(opMode == ECB_mode)) {
                     // Get IV
                     cursor = strstr(cursor, "IV");
                     cursor += 5; // "IV = "

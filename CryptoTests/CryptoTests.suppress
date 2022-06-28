@@ -1,0 +1,498 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true">
+      <xs:complexType>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element name="SuppressVersion">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="CurrentVersion" type="xs:int" minOccurs="0" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="CryptoTests">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="FileName" type="xs:string" default="" />
+                <xs:element name="ErrorCode" type="xs:string" default="" />
+                <xs:element name="Message" type="xs:string" default="" />
+                <xs:element name="CodePrev" type="xs:unsignedInt" default="0" />
+                <xs:element name="CodeCurrent" type="xs:unsignedInt" default="0" />
+                <xs:element name="CodeNext" type="xs:unsignedInt" default="0" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+      <xs:unique name="Constraint1" msdata:PrimaryKey="true">
+        <xs:selector xpath=".//CryptoTests" />
+        <xs:field xpath="FileName" />
+        <xs:field xpath="ErrorCode" />
+        <xs:field xpath="Message" />
+        <xs:field xpath="CodePrev" />
+        <xs:field xpath="CodeCurrent" />
+        <xs:field xpath="CodeNext" />
+      </xs:unique>
+    </xs:element>
+  </xs:schema>
+  <SuppressVersion>
+    <CurrentVersion>2</CurrentVersion>
+  </SuppressVersion>
+  <CryptoTests>
+    <FileName>common.cpp</FileName>
+    <ErrorCode>V560</ErrorCode>
+    <Message>A part of conditional expression is always true: input[_] &gt;= '_'.</Message>
+    <CodePrev>1518518009</CodePrev>
+    <CodeCurrent>2531306887</CodeCurrent>
+    <CodeNext>379418547</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>common.cpp</FileName>
+    <ErrorCode>V560</ErrorCode>
+    <Message>A part of conditional expression is always true: input[_] == 'F'.</Message>
+    <CodePrev>23323</CodePrev>
+    <CodeCurrent>2521247296</CodeCurrent>
+    <CodeNext>23307</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>ProcessingByBlockCipherKAT_AES.cpp</FileName>
+    <ErrorCode>V769</ErrorCode>
+    <Message>The 'cursor' pointer in the 'cursor += _' expression could be nullptr. In such case, resulting value will be senseless and it should not be used.</Message>
+    <CodePrev>958949760</CodePrev>
+    <CodeCurrent>5173704</CodeCurrent>
+    <CodeNext>2700392501</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-port.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty destructor body.</Message>
+    <CodePrev>125</CodePrev>
+    <CodeCurrent>1468207006</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-message.h</FileName>
+    <ErrorCode>V835</ErrorCode>
+    <Message>Passing cheap-to-copy argument by reference may lead to decreased performance. To avoid this, replace the first argument 'T*const &amp; pointer' with 'T*const pointer'.</Message>
+    <CodePrev>22807034</CodePrev>
+    <CodeCurrent>1342768986</CodeCurrent>
+    <CodeNext>11892265</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-filepath.h</FileName>
+    <ErrorCode>V815</ErrorCode>
+    <Message>Decreased performance. Consider replacing the expression 'pathname_("")' with 'pathname_()'.</Message>
+    <CodePrev>5816</CodePrev>
+    <CodeCurrent>3290502239</CodeCurrent>
+    <CodeNext>3033756023</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-internal.h</FileName>
+    <ErrorCode>V835</ErrorCode>
+    <Message>Passing cheap-to-copy argument by reference may lead to decreased performance. To avoid this, pass the first argument by value.</Message>
+    <CodePrev>2137407176</CodePrev>
+    <CodeCurrent>4106798960</CodeCurrent>
+    <CodeNext>94626085</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-internal.h</FileName>
+    <ErrorCode>V835</ErrorCode>
+    <Message>Passing cheap-to-copy argument by reference may lead to decreased performance. To avoid this, pass the first argument by value.</Message>
+    <CodePrev>541323562</CodePrev>
+    <CodeCurrent>511077253</CodeCurrent>
+    <CodeNext>2262521</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-internal.h</FileName>
+    <ErrorCode>V835</ErrorCode>
+    <Message>Passing cheap-to-copy argument by reference may lead to decreased performance. To avoid this, pass the second argument by value.</Message>
+    <CodePrev>511077253</CodePrev>
+    <CodeCurrent>2262521</CodeCurrent>
+    <CodeNext>3940067955</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-internal.h</FileName>
+    <ErrorCode>V823</ErrorCode>
+    <Message>Decreased performance. Object may be created in-place in the 'registered_tests_' container. Consider replacing methods: 'insert' -&gt; 'emplace'.</Message>
+    <CodePrev>125</CodePrev>
+    <CodeCurrent>1372251280</CodeCurrent>
+    <CodeNext>2754236110</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-internal.h</FileName>
+    <ErrorCode>V783</ErrorCode>
+    <Message>Dereferencing of the invalid iterator 'it' might take place.</Message>
+    <CodePrev>3754558910</CodePrev>
+    <CodeCurrent>5642851</CodeCurrent>
+    <CodeNext>125</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-death-test.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'ExitedWithCode' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>2313610667</CodePrev>
+    <CodeCurrent>4064336353</CodeCurrent>
+    <CodeNext>5816</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty destructor body.</Message>
+    <CodePrev>5816</CodePrev>
+    <CodeCurrent>3286771892</CodeCurrent>
+    <CodeNext>529769070</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty destructor body.</Message>
+    <CodePrev>0</CodePrev>
+    <CodeCurrent>2268604744</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty destructor body.</Message>
+    <CodePrev>1010800809</CodePrev>
+    <CodeCurrent>2882084399</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'RangeGenerator' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>238248038</CodePrev>
+    <CodeCurrent>3678498360</CodeCurrent>
+    <CodeNext>5816</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy constructor is declared as private in the 'Iterator' class, but the default copy assignment operator will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>0</CodePrev>
+    <CodeCurrent>4024486712</CodeCurrent>
+    <CodeNext>5816</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty destructor body.</Message>
+    <CodePrev>209548879</CodePrev>
+    <CodeCurrent>3778131433</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'ValuesInIteratorRangeGenerator' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>22807034</CodePrev>
+    <CodeCurrent>1735682626</CodeCurrent>
+    <CodeNext>5816</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty destructor body.</Message>
+    <CodePrev>5816</CodePrev>
+    <CodeCurrent>2039718154</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty constructor body.</Message>
+    <CodePrev>0</CodePrev>
+    <CodeCurrent>29964415</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util.h</FileName>
+    <ErrorCode>V823</ErrorCode>
+    <Message>Decreased performance. Object may be created in-place in the 'tests_' container. Consider replacing methods: 'push_back' -&gt; 'emplace_back'.</Message>
+    <CodePrev>288000645</CodePrev>
+    <CodeCurrent>4113343726</CodeCurrent>
+    <CodeNext>1361562</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util.h</FileName>
+    <ErrorCode>V823</ErrorCode>
+    <Message>Decreased performance. Object may be created in-place in the 'instantiations_' container. Consider replacing methods: 'push_back' -&gt; 'emplace_back'.</Message>
+    <CodePrev>571881181</CodePrev>
+    <CodeCurrent>2429897018</CodeCurrent>
+    <CodeNext>3402826082</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty constructor body.</Message>
+    <CodePrev>5816</CodePrev>
+    <CodeCurrent>2473885515</CodeCurrent>
+    <CodeNext>1236942821</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty destructor body.</Message>
+    <CodePrev>1978127</CodePrev>
+    <CodeCurrent>800159345</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductGenerator_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>3223274439</CodePrev>
+    <CodeCurrent>3472562123</CodeCurrent>
+    <CodeNext>482377701</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty destructor body.</Message>
+    <CodePrev>506443655</CodePrev>
+    <CodeCurrent>800159329</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductGenerator_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>4196392400</CodePrev>
+    <CodeCurrent>3472562122</CodeCurrent>
+    <CodeNext>3859020151</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty destructor body.</Message>
+    <CodePrev>800537633</CodePrev>
+    <CodeCurrent>800159249</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductGenerator_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>4277101582</CodePrev>
+    <CodeCurrent>3472562125</CodeCurrent>
+    <CodeNext>807390680</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty destructor body.</Message>
+    <CodePrev>3074202264</CodePrev>
+    <CodeCurrent>800159233</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductGenerator_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>2065798187</CodePrev>
+    <CodeCurrent>3472562124</CodeCurrent>
+    <CodeNext>2164156590</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty destructor body.</Message>
+    <CodePrev>1016734360</CodePrev>
+    <CodeCurrent>800159281</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductGenerator_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>95194</CodePrev>
+    <CodeCurrent>3472562127</CodeCurrent>
+    <CodeNext>1614780984</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty destructor body.</Message>
+    <CodePrev>2585928347</CodePrev>
+    <CodeCurrent>800159265</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductGenerator_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>194982872</CodePrev>
+    <CodeCurrent>3472562126</CodeCurrent>
+    <CodeNext>33345747</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty destructor body.</Message>
+    <CodePrev>28255</CodePrev>
+    <CodeCurrent>800159441</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductGenerator_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>4187956122</CodePrev>
+    <CodeCurrent>3472562113</CodeCurrent>
+    <CodeNext>33345747</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty destructor body.</Message>
+    <CodePrev>28375</CodePrev>
+    <CodeCurrent>800159425</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductGenerator_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>4179440648</CodePrev>
+    <CodeCurrent>3472562112</CodeCurrent>
+    <CodeNext>33345747</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty destructor body.</Message>
+    <CodePrev>28964319</CodePrev>
+    <CodeCurrent>1600318515</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductGenerator_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>3544401947</CodePrev>
+    <CodeCurrent>2650156961</CodeCurrent>
+    <CodeNext>33345747</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductHolder_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>2545795207</CodePrev>
+    <CodeCurrent>1941881083</CodeCurrent>
+    <CodeNext>5816</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductHolder_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>3233153077</CodePrev>
+    <CodeCurrent>1941881081</CodeCurrent>
+    <CodeNext>5816</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductHolder_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>2332550</CodePrev>
+    <CodeCurrent>1941881079</CodeCurrent>
+    <CodeNext>5816</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductHolder_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>2545391527</CodePrev>
+    <CodeCurrent>1941881077</CodeCurrent>
+    <CodeNext>5816</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductHolder_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>2543190069</CodePrev>
+    <CodeCurrent>1941881075</CodeCurrent>
+    <CodeNext>5816</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductHolder_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>262166</CodePrev>
+    <CodeCurrent>1941881073</CodeCurrent>
+    <CodeNext>5816</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductHolder_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>2332574</CodePrev>
+    <CodeCurrent>1941881071</CodeCurrent>
+    <CodeNext>5816</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductHolder_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>2544867263</CodePrev>
+    <CodeCurrent>1941881069</CodeCurrent>
+    <CodeNext>5816</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-param-util-generated.h</FileName>
+    <ErrorCode>V690</ErrorCode>
+    <Message>The copy assignment operator is declared as private in the 'CartesianProductHolder_' class, but the default copy constructor will still be generated by compiler. It is dangerous to use such a class.</Message>
+    <CodePrev>790364261</CodePrev>
+    <CodeCurrent>3883761943</CodeCurrent>
+    <CodeNext>5816</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-test-part.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty constructor body.</Message>
+    <CodePrev>5816</CodePrev>
+    <CodeCurrent>484937311</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest.h</FileName>
+    <ErrorCode>V832</ErrorCode>
+    <Message>It's better to use '= default;' syntax instead of empty destructor body.</Message>
+    <CodePrev>12065369</CodePrev>
+    <CodeCurrent>3155904533</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-port.h</FileName>
+    <ErrorCode>V730</ErrorCode>
+    <Message>Not all members of a class are initialized inside the constructor. Consider inspecting: owner_thread_id_, type_, critical_section_init_phase_, critical_section_.</Message>
+    <CodePrev>2708246785</CodePrev>
+    <CodeCurrent>3186006058</CodeCurrent>
+    <CodeNext>0</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-internal.h</FileName>
+    <ErrorCode>V730</ErrorCode>
+    <Message>Not all members of a class are initialized inside the constructor. Consider inspecting: array_, size_, clone_.</Message>
+    <CodePrev>4257734</CodePrev>
+    <CodeCurrent>2872005971</CodeCurrent>
+    <CodeNext>3774586723</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-linked_ptr.h</FileName>
+    <ErrorCode>V730</ErrorCode>
+    <Message>It is possible that not all members of a class are initialized inside the constructor. Consider inspecting: link_.</Message>
+    <CodePrev>3456326715</CodePrev>
+    <CodeCurrent>426117651</CodeCurrent>
+    <CodeNext>766697903</CodeNext>
+  </CryptoTests>
+  <CryptoTests>
+    <FileName>gtest-internal.h</FileName>
+    <ErrorCode>V1071</ErrorCode>
+    <Message>Consider inspecting the 'MakeAndRegisterTestInfo' function. The return value is not always used. Total calls: _, discarded results: _.</Message>
+    <CodePrev>569498567</CodePrev>
+    <CodeCurrent>2063086422</CodeCurrent>
+    <CodeNext>1143587994</CodeNext>
+  </CryptoTests>
+</NewDataSet>

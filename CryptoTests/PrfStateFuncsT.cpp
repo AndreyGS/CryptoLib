@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 //  PrfStateFuncsT.cpp
 //
 
@@ -29,7 +31,7 @@ TEST(PrfStateFuncsTest, InitPrfStateMain) {
     EXPECT_EQ(*(Prf*)handle, HMAC_SHA3_224);
 
     {
-        std::unique_ptr<uint8_t> test(new uint8_t[g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize]);
+        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize);
         memset(test.get(), 0, g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize);
 
         EXPECT_TRUE(memcmp(((PrfState*)handle)->state, test.get(), g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize) == 0);
@@ -57,7 +59,7 @@ TEST(PrfStateFuncsTest, ResetPrfStateMain) {
     EXPECT_EQ(*(HashFunc*)handle, HMAC_SHA3_224);
 
     {
-        std::unique_ptr<uint8_t> test(new uint8_t[g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize]);
+        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize);
         memset(test.get(), 0, g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize);
 
         EXPECT_TRUE(memcmp(((HashState*)handle)->state, test.get(), g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize) == 0);
@@ -89,8 +91,8 @@ TEST(PrfStateFuncsTest, FreePrfStateMain) {
     EVAL(FreePrfState(handle));
 
     {
-        std::unique_ptr<uint8_t> test_1(new uint8_t[g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize]);
-        std::unique_ptr<uint8_t> test_2(new uint8_t[g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize]);
+        std::unique_ptr<uint8_t[]> test_1 = std::make_unique<uint8_t[]>(g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize);
+        std::unique_ptr<uint8_t[]> test_2 = std::make_unique<uint8_t[]>(g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize);
         memset(test_1.get(), 0, g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize);
         memset(test_2.get(), 0xdd, g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize);
 

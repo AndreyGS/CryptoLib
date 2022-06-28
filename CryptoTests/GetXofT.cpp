@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 //  GetXofT.cpp
 //
 
@@ -8,7 +10,7 @@
 void GetXofMainTestFunc(__in const void* input, __in size_t inputSize, __in Xof func, __in size_t outputSize, __in int expectedStatus, __in_opt const void* expectedRes)
 {
     int status = NO_ERROR;
-    std::unique_ptr<uint8_t> buffer(new uint8_t[outputSize]);
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(outputSize);
     XofHandle handle = NULL;
     EVAL(InitXofState(&handle, func));
     EVAL(GetXof(handle, input, inputSize, true, buffer.get(), outputSize));
@@ -30,7 +32,7 @@ void GetXofMultipleTestFunc(__in const void* input1, __in size_t inputSize1, __i
     __in int expectedStatus, __in_opt const void* expectedRes)
 {
     int status = NO_ERROR;
-    std::unique_ptr<uint8_t> buffer(new uint8_t[outputSize]);
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(outputSize);
     XofHandle handle = NULL;
     EVAL(InitXofState(&handle, func));
     EVAL(GetXof(handle, input1, inputSize1, false, nullptr, outputSize));
@@ -53,7 +55,7 @@ exit:
 
 TEST(GetXofTest, WrongState) {
     int status = NO_ERROR;
-    std::unique_ptr<uint8_t> buffer(nullptr);
+    std::unique_ptr<uint8_t> buffer = std::make_unique<uint8_t>();
     status = GetXof(nullptr, "", 0, true, buffer.get(), 0);
     EXPECT_TRUE(status == ERROR_NULL_STATE_HANDLE);
 }
@@ -77,7 +79,7 @@ TEST(GetXofTest, WrongInput) {
 
 TEST(GetXofTest, WrongInputSize) {
     int status = NO_ERROR;
-    std::unique_ptr<uint8_t> buffer(nullptr);
+    std::unique_ptr<uint8_t> buffer = std::make_unique<uint8_t>();
     XofHandle handle = nullptr;
 
     InitXofState(&handle, SHAKE128);
