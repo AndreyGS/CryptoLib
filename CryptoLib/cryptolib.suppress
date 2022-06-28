@@ -279,4 +279,28 @@
     <CodeCurrent>4237847515</CodeCurrent>
     <CodeNext>352761</CodeNext>
   </CryptoLib>
+  <CryptoLib>
+    <FileName>paddings.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>43364935</CodePrev>
+    <CodeCurrent>625207123</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>paddings.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>88650311</CodePrev>
+    <CodeCurrent>1260382016</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>paddings.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>43364935</CodePrev>
+    <CodeCurrent>603684731</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
 </NewDataSet>

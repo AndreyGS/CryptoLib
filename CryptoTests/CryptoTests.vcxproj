@@ -54,12 +54,15 @@
   </PropertyGroup>
   <ItemGroup>
     <ClInclude Include="common.h" />
+    <ClInclude Include="PaddingsTestSupportFunctions.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ProcessingByBlockCipherTestSupportFunctions.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AddPaddingT.cpp" />
     <ClCompile Include="BlockCipherStateFuncsT.cpp" />
     <ClCompile Include="common.cpp" />
+    <ClCompile Include="PaddingsTestSupportFunctions.cpp" />
     <ClCompile Include="PrfStateFuncsT.cpp" />
     <ClCompile Include="ProcessingByBlockCipherCommonT.cpp" />
     <ClCompile Include="ProcessingByBlockCipherDecryptionT.cpp">

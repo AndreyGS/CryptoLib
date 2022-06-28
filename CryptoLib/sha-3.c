@@ -29,7 +29,7 @@
 #include "crypto_internal.h"
 #include "paddings.h"
 
-void Sha3Get(__inout StateHandle state, __in_opt const void* input, __in uint64_t inputSize, __in Sha3Func func, __in bool finalize, __out_opt uint64_t* output, __in_opt uint64_t outputSize);
+void Sha3Get(__inout StateHandle state, __in_opt const void* input, __in size_t inputSize, __in Sha3Func func, __in bool finalize, __out_opt uint64_t* output, __in_opt size_t outputSize);
 
 const uint64_t RC[] =
 {
@@ -63,6 +63,8 @@ inline uint16_t GetSha3Capacity(Sha3Func func)
 
 void Keccak_p_Rnds(__inout uint64_t* state)
 {
+    assert(state);
+
     uint64_t buffer[5];
     
     for (int r = 0; r < 24; ++r) {
@@ -116,6 +118,8 @@ void Keccak_p_Rnds(__inout uint64_t* state)
 
 inline void Sha3StateXor(__in const uint64_t* input, __in Sha3Func func, __inout uint64_t* state)
 {
+    assert(input && state);
+
     uint64_t x = 1;
     switch (func) {
     case Sha3Func_SHAKE128:
@@ -150,18 +154,24 @@ inline void Sha3StateXor(__in const uint64_t* input, __in Sha3Func func, __inout
     }  
 }
 
-void Sha3GetHash(__inout void* state, __in_opt const void* input, __in uint64_t inputSize, __in HashFunc func, __in bool finalize, __out_opt uint64_t* output)
+void Sha3GetHash(__inout void* state, __in_opt const void* input, __in size_t inputSize, __in HashFunc func, __in bool finalize, __out_opt uint64_t* output)
 {
+    assert(state && (input || !inputSize) && (!finalize || output));
+
     Sha3Get(state, input, inputSize, func - SHA3_224, finalize, output, 0);
 }
 
-void Sha3GetXof(__inout void* state, __in_opt const void* input, __in uint64_t inputSize, __in Xof func, __in bool finalize, __out_opt uint64_t* output, __in uint64_t outputSize)
+void Sha3GetXof(__inout void* state, __in_opt const void* input, __in size_t inputSize, __in Xof func, __in bool finalize, __out_opt uint64_t* output, __in size_t outputSize)
 {
+    assert(state && (input || !inputSize) && (!finalize || output));
+
     Sha3Get(state, input, inputSize, func + Sha3Func_SHA3_512 + 1, finalize, output, outputSize);
 }
 
-void Sha3Get(__inout StateHandle state, __in_opt const void* input, __in uint64_t inputSize, __in Sha3Func func, __in bool finalize, __out_opt uint64_t* output, __in_opt uint64_t outputSize)
+void Sha3Get(__inout StateHandle state, __in_opt const void* input, __in size_t inputSize, __in Sha3Func func, __in bool finalize, __out_opt uint64_t* output, __in_opt size_t outputSize)
 {
+    assert(state && (input || !inputSize) && (!finalize || output));
+
     uint16_t blockSize = func == Sha3Func_SHAKE128 || func == Sha3Func_SHAKE256
                        ? g_XofSizesMapping[func - Sha3Func_SHAKE128].blockSize
                        : g_hashFuncsSizesMapping[func + SHA3_224].blockSize;
@@ -178,7 +188,7 @@ void Sha3Get(__inout StateHandle state, __in_opt const void* input, __in uint64_
     if (finalize) {
         uint8_t* tailBlocks = (uint8_t*)((Sha3_224State*)state)->tailBlocks;
 
-        AddSha3PaddingInternal(input, inputSize, func, tailBlocks);
+        AddSha3Padding(input, inputSize, func, tailBlocks);
 
         Sha3StateXor((uint64_t*)tailBlocks, func, mainState);
         Keccak_p_Rnds(mainState);

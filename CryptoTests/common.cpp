@@ -26,12 +26,12 @@ char GetHexSymbol(uint8_t input)
     }
 }
 
-std::string GetHexResult(const uint8_t* input, uint64_t inputSize)
+std::string GetHexResult(const uint8_t* input, size_t inputSize)
 {
     std::string str;
     str.resize(inputSize << 1);
 
-    for (uint64_t i = 0, j = 0; i < inputSize; ++i) {
+    for (size_t i = 0, j = 0; i < inputSize; ++i) {
         str[j++] = GetHexSymbol(input[i] >> 4);
         str[j++] = GetHexSymbol(input[i] & 0x0f);
     }
@@ -39,7 +39,7 @@ std::string GetHexResult(const uint8_t* input, uint64_t inputSize)
     return str;
 }
 
-void ConvertHexStrToBin(const char* input, char* output)
+void ConvertHexStrToBin(const char* input, unsigned char* output)
 {
     while ((input[0] >= '0' && input[0] <= '9') || (input[0] >= 'a' && input[0] <= 'f') || (input[0] >= 'A' && input[0] <= 'F')) {
         if (input[0] >= '0' && input[0] <= '9')

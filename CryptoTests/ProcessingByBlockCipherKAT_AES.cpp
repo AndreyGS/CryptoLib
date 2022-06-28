@@ -7,8 +7,8 @@
 
 TEST(ProcessingByBlockCipherKAT_AES, MainTest) {
     struct zip_t* zip = zip_open("../NIST_KAT_AES.zip", 0, 'r');
-    int i, n = zip_entries_total(zip);
-    for (i = 0; i < n; ++i) {
+
+    for (ssize_t i = 0, n = zip_entries_total(zip); i < n; ++i) {
         zip_entry_openbyindex(zip, i);
         if (!zip_entry_isdir(zip)) {
             const char* name = zip_entry_name(zip);
@@ -44,16 +44,16 @@ TEST(ProcessingByBlockCipherKAT_AES, MainTest) {
             if (strstr(name, "d."))
                 enMode = Decryption_mode;
 
-            unsigned fileSize = zip_entry_size(zip);
+            size_t fileSize = (size_t)zip_entry_size(zip);
             std::unique_ptr<const char> contents(new char[fileSize]);
             zip_entry_noallocread(zip, (void*)contents.get(), fileSize);
 
             const char* cursor = contents.get();
 
             while (cursor) {
-                char key[32] = { 0 };
-                char iv[16] = { 0 };
-                char input[16] = { 0 };
+                unsigned char key[32] = { 0 };
+                unsigned char iv[16] = { 0 };
+                unsigned char input[16] = { 0 };
 
                 // Get key
                 cursor = strstr(cursor, "KEY");
@@ -95,7 +95,7 @@ TEST(ProcessingByBlockCipherKAT_AES, MainTest) {
                     cursor = strstr(cursor, "PLAINTEXT");
                     cursor += 12; // "PLAINTEXT = "
 
-                    ConvertHexStrToBin(cursor, (char*)result.c_str());
+                    ConvertHexStrToBin(cursor, (unsigned char*)result.c_str());
                 }
 
                 ProcessingByBlockCipherTestKAT_AESFunc(input, 16, No_padding, key, cipher, 16, opMode, iv, NO_ERROR, result.c_str(), enMode, enMode == Encryption_mode ? 32 : 16, name, i);

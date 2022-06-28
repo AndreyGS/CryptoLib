@@ -197,6 +197,8 @@ inline uint64_t DesGetRoundKey(CDBlocks cdBlocks)
 
 void SingleDesKeySchedule(__in uint64_t extendedKey, __out uint64_t* roundsKeys)
 {
+    assert(roundsKeys);
+
     CDBlocks cdBlocks = DesGetZeroCDBlocks(DesGetExtendedKeyPermutation(extendedKey));
     roundsKeys[0] = DesGetRoundKey(cdBlocks = DesGetRoundCDBlocksOne(cdBlocks));
     roundsKeys[1] = DesGetRoundKey(cdBlocks = DesGetRoundCDBlocksOne(cdBlocks));
@@ -218,6 +220,8 @@ void SingleDesKeySchedule(__in uint64_t extendedKey, __out uint64_t* roundsKeys)
 
 void TripleDesKeySchedule(__in const uint64_t* extendedKeys, __out uint64_t* roundsKeys)
 {
+    assert(roundsKeys);
+
     SingleDesKeySchedule(*extendedKeys++, roundsKeys);
     SingleDesKeySchedule(*extendedKeys++, roundsKeys + 16);
     SingleDesKeySchedule(*extendedKeys, roundsKeys + 32);
@@ -531,6 +535,8 @@ inline uint64_t DesFinalPermutation(uint64_t encryptedBlock)
 
 uint64_t DesEncryptBlock(const uint64_t* roundsKeys, const uint64_t input)
 {
+    assert(roundsKeys);
+
     uint64_t permInput = DesInitialPermutation(input);
 
     for (int i = 0; i < 16; ++i)
@@ -543,6 +549,8 @@ uint64_t DesEncryptBlock(const uint64_t* roundsKeys, const uint64_t input)
 
 uint64_t DesDecryptBlock(const uint64_t* roundsKeys, const uint64_t input)
 {
+    assert(roundsKeys);
+
     uint64_t permInput = DesInitialPermutation(input);
 
     permInput = permInput >> 32 | permInput << 32;
@@ -555,17 +563,23 @@ uint64_t DesDecryptBlock(const uint64_t* roundsKeys, const uint64_t input)
 
 uint64_t TdesEncryptBlock(const uint64_t* roundsKeys, const uint64_t input)
 {
+    assert(roundsKeys);
+
     return DesEncryptBlock(roundsKeys + 32, DesDecryptBlock(roundsKeys + 16, DesEncryptBlock(roundsKeys, input)));
 }
 
 uint64_t TdesDecryptBlock(const uint64_t* roundsKeys, const uint64_t input)
 {
+    assert(roundsKeys);
+
     return DesDecryptBlock(roundsKeys, DesEncryptBlock(roundsKeys + 16, DesDecryptBlock(roundsKeys + 32, input)));
 }
 
-int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in uint64_t inputSize
-    , __in bool finalize, __out_opt uint64_t* output, __inout uint64_t* outputSize)
+int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in size_t inputSize
+    , __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize)
 {
+    assert(input && output && outputSize);
+
     int status = NO_ERROR;
 
     if (!finalize) {
@@ -661,9 +675,11 @@ int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     return NO_ERROR;
 }
 
-int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in uint64_t inputSize
-    , __in bool finalize, __out_opt uint64_t* output, __inout uint64_t* outputSize)
+int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in size_t inputSize
+    , __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize)
 {
+    assert(input && output && outputSize);
+
     int status = NO_ERROR;
 
     if (inputSize & 7) // (7 == DES_BLOCK_SIZE - 1)

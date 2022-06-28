@@ -62,10 +62,11 @@ extern "C" {
 #define ERROR_UNSUPPORTED_PRF_FUNC          0x80000107
 
 #define ERROR_WRONG_INPUT_SIZE              0x80000201
-#define ERROR_TOO_SMALL_OUTPUT_SIZE         0x80000202
-#define ERROR_TOO_SMALL_BLOCK_SIZE          0x80000203
-#define ERROR_TOO_SMALL_ITERATIONS_NUMBER   0x80000204
-#define ERROR_TOO_BIG_BLOCK_SIZE            0x80000205
+#define ERROR_TOO_SMALL_INPUT_SIZE          0x80000202
+#define ERROR_TOO_SMALL_OUTPUT_SIZE         0x80000203
+#define ERROR_TOO_SMALL_BLOCK_SIZE          0x80000204
+#define ERROR_TOO_SMALL_ITERATIONS_NUMBER   0x80000205
+#define ERROR_TOO_BIG_BLOCK_SIZE            0x80000206
 
 #define ERROR_INAPPLICABLE_PADDING_TYPE     0x80000301
 #define ERROR_PADDING_CORRUPTED             0x80000302
@@ -196,7 +197,7 @@ typedef enum _Prf {
  * If for some reason you wish to add some padding to your data this function may help you.
  * It adds padding to output with offset by inputSize, that is start of padding will be (uint8_t*)offset + inputSize,
  * so you can add padding inplace passing to input and output the same pointer.
- * Also if you use different pointers you may use fillAllBlock flag, that fills start of last block by input data if it (last block) not fully filled.
+ * Also if you use different pointers you may use fillLastBlock flag, that fills start of last block by input data if it (last block) not fully filled.
  * If outputSize is not enough to contain all padding, the function will return ERROR_TOO_SMALL_OUTPUT_SIZE and outputSize variable will contain required size.
  * 
  * @param input data to pad
@@ -205,12 +206,12 @@ typedef enum _Prf {
  * @param blockSize size of block to pad
  * @param output buffer that will be filled by pad
  * @param outputSize inputSize + padSize
- * @param fillAllBlock see description of function work
+ * @param fillLastBlock see description of function work
  * 
  * @return status
  * 
 */
-int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock);
+int AddPadding(__in const void* input, __in size_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout size_t* outputSize, __in bool fillLastBlock);
 
 /**
  * Inits state for block cipher
@@ -294,7 +295,7 @@ int ReInitBlockCipherIv(__inout BlockCipherHandle handle, __in const void* iv);
  *
  * @return status
  */
-int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize);
+int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output, __inout size_t* outputSize);
 
 /**
  * Frees block cipher state
@@ -352,7 +353,7 @@ int ResetHashState(__inout HashHandle handle);
  *
  * @return status
  */
-int GetHash(__inout HashHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output);
+int GetHash(__inout HashHandle handle, __in_opt const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output);
 
 /**
  * Frees hash function state
@@ -409,7 +410,7 @@ int ResetXofState(__inout XofHandle handle);
  *
  * @return status
  */
-int GetXof(__inout XofHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __in uint64_t outputSize);
+int GetXof(__inout XofHandle handle, __in_opt const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output, __in size_t outputSize);
 
 /**
  * Frees XOF state
@@ -469,7 +470,7 @@ int ResetPrfState(__inout PrfHandle handle);
  *
  * @return status
  */
-int GetPrf(__inout PrfHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in_opt const void* key, __in uint64_t keySize, __in bool finalize, __out_opt void* output, __in_opt uint64_t outputSize);
+int GetPrf(__inout PrfHandle handle, __in_opt const void* input, __in size_t inputSize, __in_opt const void* key, __in size_t keySize, __in bool finalize, __out_opt void* output, __in_opt size_t outputSize);
 
 /**
  * Frees PRF state
@@ -494,7 +495,7 @@ int FreePrfState(__inout PrfHandle handle);
  *
  * @return status
  */
-int GetPbkdf2(__in_opt const void* salt, __in uint64_t saltSize, __in_opt const void* password, __in uint64_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize);
+int GetPbkdf2(__in_opt const void* salt, __in size_t saltSize, __in_opt const void* password, __in size_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in size_t outputSize);
 
 #ifdef __cplusplus
 }

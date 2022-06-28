@@ -69,6 +69,6 @@ typedef struct _Shake256State {
 #define HASH_STATE_SHA3_384_SIZE         HASH_STATE_HEADER_SIZE + sizeof(Sha3_384State)
 #define HASH_STATE_SHA3_512_SIZE         HASH_STATE_HEADER_SIZE + sizeof(Sha3_512State)
 
-void Sha3GetHash(__inout void* state, __in_opt const void* input, __in uint64_t inputSize, __in HashFunc func, __in bool finalize, __out_opt uint64_t* output);
-void Sha3GetXof(__inout void* state, __in_opt const void* input, __in uint64_t inputSize, __in Xof func, __in bool finalize, __out_opt uint64_t* output, __in uint64_t outputSize);
+void Sha3GetHash(__inout void* state, __in_opt const void* input, __in size_t inputSize, __in HashFunc func, __in bool finalize, __out_opt uint64_t* output);
+void Sha3GetXof(__inout void* state, __in_opt const void* input, __in size_t inputSize, __in Xof func, __in bool finalize, __out_opt uint64_t* output, __in size_t outputSize);
 

@@ -42,12 +42,21 @@
     <ClCompile Include="ProcessingByBlockCipherKAT_AES.cpp">
       <Filter>BlockCiphersTests</Filter>
     </ClCompile>
+    <ClCompile Include="AddPaddingT.cpp">
+      <Filter>PaddingsTests</Filter>
+    </ClCompile>
+    <ClCompile Include="PaddingsTestSupportFunctions.cpp">
+      <Filter>PaddingsTests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ProcessingByBlockCipherTestSupportFunctions.h">
       <Filter>BlockCiphersTests</Filter>
+    </ClInclude>
+    <ClInclude Include="PaddingsTestSupportFunctions.h">
+      <Filter>PaddingsTests</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -68,6 +77,9 @@
     </Filter>
     <Filter Include="Pbkdf2Tests">
       <UniqueIdentifier>{61c7395f-f000-4b29-a362-700b498e201e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PaddingsTests">
+      <UniqueIdentifier>{f5924db8-e85e-49ac-ba76-9f7f7a7c57e0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

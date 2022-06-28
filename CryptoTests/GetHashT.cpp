@@ -5,7 +5,7 @@
 
 #include "common.h"
 
-void GetHashMainTestFunc(__in const void* input, __in uint64_t inputSize, __in HashFunc func, __in int expectedStatus, __in_opt const void* expectedRes)
+void GetHashMainTestFunc(__in const void* input, __in size_t inputSize, __in HashFunc func, __in int expectedStatus, __in_opt const void* expectedRes)
 {
     int status = NO_ERROR;
     size_t outputSize = g_hashFuncsSizesMapping[func].didgestSize;
@@ -27,7 +27,7 @@ exit:
     EXPECT_TRUE(status == expectedStatus);
 }
 
-void GetHashMultipleTestFunc(__in const void* input1, __in uint64_t inputSize1, __in const void* input2, __in uint64_t inputSize2, __in HashFunc func,
+void GetHashMultipleTestFunc(__in const void* input1, __in size_t inputSize1, __in const void* input2, __in size_t inputSize2, __in HashFunc func,
     __in int expectedStatus, __in_opt const void* expectedRes)
 {
     int status = NO_ERROR;

@@ -40,7 +40,7 @@ typedef struct _TdesState {
 
 extern inline void DesKeySchedule(__in BlockCipherType cipher, __in const uint64_t* key, __out uint64_t* roundsKeys);
 
-int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in uint64_t inputSize
-    , __in bool finalize, __out_opt uint64_t* output, __inout uint64_t* outputSize);
-int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in uint64_t inputSize
-    , __in bool finalize, __out_opt uint64_t* output, __inout uint64_t* outputSize);
+int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in size_t inputSize
+    , __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize);
+int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in size_t inputSize
+    , __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize);

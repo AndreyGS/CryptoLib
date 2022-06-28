@@ -126,6 +126,8 @@ const uint64_t K_64[80] = {
 
 void Sha2_32InitState(__in HashFunc func, __out uint32_t* state)
 {
+    assert(state);
+
     const uint32_t* pH = NULL;
 
     if (func == SHA_224)
@@ -139,6 +141,8 @@ void Sha2_32InitState(__in HashFunc func, __out uint32_t* state)
 
 void Sha2_64InitState(__in HashFunc func, __out uint64_t* state)
 {
+    assert(state);
+
     const uint64_t* pH = NULL;
 
     switch (func) {
@@ -162,6 +166,8 @@ void Sha2_64InitState(__in HashFunc func, __out uint64_t* state)
 
 void Sha2_32ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* output)
 {
+    assert(input && words && output);
+
     for (int i = 0; i < 16; ++i)
         words[i] = Uint32LittleEndianToBigEndian(*input++);
 
@@ -211,8 +217,10 @@ void Sha2_32ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* outpu
     output[7] += h;
 }
 
-void Sha2_32Get(__inout Sha2_32State* state, __in_opt const void* input, __in uint64_t inputSize, __in HashFunc func, __in bool finalize, __out_opt uint32_t* output)
+void Sha2_32Get(__inout Sha2_32State* state, __in_opt const void* input, __in size_t inputSize, __in HashFunc func, __in bool finalize, __out_opt uint32_t* output)
 {
+    assert(state && (input || !inputSize) && (!finalize || output));
+
     uint64_t blocksNum = (inputSize >> 6) + 1; // inputSize / SHA1_BLOCK_SIZE + 1
     uint32_t* mainState = state->state;
     uint32_t* wordsBuffer = state->words;
@@ -226,7 +234,7 @@ void Sha2_32Get(__inout Sha2_32State* state, __in_opt const void* input, __in ui
 
     if (finalize) {
         uint8_t* tailBlocks = (uint8_t*)state->tailBlocks;
-        AddShaPaddingInternal(input, state->size, tailBlocks, &blocksNum);
+        AddShaPadding(input, state->size, tailBlocks, &blocksNum);
 
         while (blocksNum--) {
             Sha2_32ProcessBlock((uint32_t*)tailBlocks, wordsBuffer, mainState);
@@ -248,6 +256,8 @@ void Sha2_32Get(__inout Sha2_32State* state, __in_opt const void* input, __in ui
 
 void Sha2_64ProcessBlock(const uint64_t* input, uint64_t* words, uint64_t* output)
 {
+    assert(input && words && output);
+
     for (int i = 0; i < 16; ++i)
         words[i] = Uint64LittleEndianToBigEndian(*input++);
 
@@ -297,8 +307,10 @@ void Sha2_64ProcessBlock(const uint64_t* input, uint64_t* words, uint64_t* outpu
     output[7] += h;
 }
 
-void Sha2_64Get(__inout Sha2_64State* state, __in_opt const void* input, __in uint64_t inputSize, __in HashFunc func, __in bool finalize, __out_opt uint64_t* output)
+void Sha2_64Get(__inout Sha2_64State* state, __in_opt const void* input, __in size_t inputSize, __in HashFunc func, __in bool finalize, __out_opt uint64_t* output)
 {
+    assert(state && (input || !inputSize) && (!finalize || output));
+
     uint64_t blocksNum = (inputSize >> 7) + 1;
     uint64_t* mainState = state->state;
     uint64_t* wordsBuffer = state->words;
@@ -313,7 +325,7 @@ void Sha2_64Get(__inout Sha2_64State* state, __in_opt const void* input, __in ui
 
     if (finalize) {
         uint8_t* tailBlocks = (uint8_t*)state->tailBlocks;
-        AddSha2_64PaddingInternal(input, state->sizeLow, state->sizeHigh, tailBlocks, &blocksNum);
+        AddSha2_64Padding(input, state->sizeLow, state->sizeHigh, tailBlocks, &blocksNum);
 
         while (blocksNum--) {
             Sha2_64ProcessBlock((uint64_t*)tailBlocks, wordsBuffer, mainState);

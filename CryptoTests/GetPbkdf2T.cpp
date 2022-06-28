@@ -5,7 +5,7 @@
 
 #include "common.h"
 
-void GetPbkdf2MainTestFunc(__in_opt const void* salt, __in uint64_t saltSize, __in_opt const void* password, __in uint64_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __in uint64_t outputSize, __in int expectedStatus, __in_opt const void* expectedRes)
+void GetPbkdf2MainTestFunc(__in_opt const void* salt, __in size_t saltSize, __in_opt const void* password, __in size_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __in size_t outputSize, __in int expectedStatus, __in_opt const void* expectedRes)
 {
     int status = NO_ERROR;
     std::unique_ptr<uint8_t> buffer(new uint8_t[outputSize]);

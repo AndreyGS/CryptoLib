@@ -26,8 +26,10 @@
 #include "pch.h"
 #include "hmac.h"
 
-void GetHmac(__inout HmacStateHandle state, __in_opt const void* input, __in uint64_t inputSize, __in_opt const void* key, __in uint64_t keySize, __in Prf func, __in bool finalize, __out_opt void* output)
+void GetHmac(__inout HmacStateHandle state, __in_opt const void* input, __in size_t inputSize, __in_opt const void* key, __in size_t keySize, __in Prf func, __in bool finalize, __out_opt void* output)
 {
+    assert(state && (input || !inputSize) && (key || !keySize) && (!finalize || output));
+
     int status = NO_ERROR;
 
     uint16_t blockSize = 0;

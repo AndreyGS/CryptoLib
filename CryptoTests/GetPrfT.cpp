@@ -5,7 +5,7 @@
 
 #include "common.h"
 
-void GetPrfMainTestFunc(__in const void* input, __in uint64_t inputSize, __in const void* key, __in uint64_t keySize, __in uint64_t outputSize, __in Prf func, __in int expectedStatus, __in_opt const void* expectedRes)
+void GetPrfMainTestFunc(__in const void* input, __in size_t inputSize, __in const void* key, __in size_t keySize, __in size_t outputSize, __in Prf func, __in int expectedStatus, __in_opt const void* expectedRes)
 {
     int status = NO_ERROR;
 
@@ -32,8 +32,8 @@ exit:
     EXPECT_TRUE(status == expectedStatus);
 }
 
-void GetPrfMultipleTestFunc(__in const void* input1, __in uint64_t inputSize1, __in const void* input2, __in uint64_t inputSize2, __in const void* key, __in uint64_t keySize, 
-    __in uint64_t outputSize, __in Prf func, __in int expectedStatus, __in_opt const void* expectedRes)
+void GetPrfMultipleTestFunc(__in const void* input1, __in size_t inputSize1, __in const void* input2, __in size_t inputSize2, __in const void* key, __in size_t keySize,
+    __in size_t outputSize, __in Prf func, __in int expectedStatus, __in_opt const void* expectedRes)
 {
     int status = NO_ERROR;
 
@@ -64,7 +64,7 @@ exit:
 // Wrong arguments
 
 TEST(GetPrfTest, WrongState) {
-    uint64_t outputSize = g_hashFuncsSizesMapping[SHA1].didgestSize;
+    size_t outputSize = g_hashFuncsSizesMapping[SHA1].didgestSize;
     std::unique_ptr<uint8_t> buffer(new uint8_t[outputSize]);
     EXPECT_TRUE(GetPrf(nullptr, TEST_STRING_8, 8, TEST_STRING_65, 64, true, buffer.get(), outputSize) == ERROR_NULL_STATE_HANDLE);
 }
@@ -79,7 +79,7 @@ TEST(GetPrfTest, WrongKey) {
 
 TEST(GetPrfTest, WrongInputSize) {
     int status = NO_ERROR;
-    uint64_t outputSize = g_hashFuncsSizesMapping[SHA1].didgestSize;
+    size_t outputSize = g_hashFuncsSizesMapping[SHA1].didgestSize;
     PrfHandle handle = NULL;
     EVAL(InitPrfState(&handle, HMAC_SHA1));
     
@@ -94,7 +94,7 @@ exit:
 
 TEST(GetPrfTest, WrongOutput) {
     int status = NO_ERROR;
-    uint64_t outputSize = g_hashFuncsSizesMapping[SHA1].didgestSize;
+    size_t outputSize = g_hashFuncsSizesMapping[SHA1].didgestSize;
     std::unique_ptr<uint8_t> buffer(new uint8_t[outputSize]);
     PrfHandle handle = NULL;
     EVAL(InitPrfState(&handle, HMAC_SHA1));

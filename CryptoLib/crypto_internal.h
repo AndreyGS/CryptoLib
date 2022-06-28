@@ -98,6 +98,9 @@ typedef struct _PrfSizes {
 
 extern const PrfSizes g_PrfSizesMapping[11];
 
+int
+AddPaddingInternal(__in const void* input, __in size_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout size_t* outputSize, __in bool fillLastBlock);
+
 // Block Ciphers Functions
 extern inline size_t
 GetSpecificBlockCipherStateSize(__in BlockCipherType cipher);
@@ -121,7 +124,7 @@ void
 ReInitBlockCipherIvInternal(__in BlockCipherType cipher, __in const void* iv, __inout void* specificCipherState);
 
 int 
-ProcessingByBlockCipherInternal(__inout BlockCipherState* handle, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize);
+ProcessingByBlockCipherInternal(__inout BlockCipherState* handle, __in const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output, __inout size_t* outputSize);
 
 void 
 FreeBlockCipherStateInternal(__inout BlockCipherState* state);
@@ -134,7 +137,7 @@ void
 ResetHashStateInternal(__inout HashState* state);
 
 void 
-GetHashInternal(__inout HashState* state, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output);
+GetHashInternal(__inout HashState* state, __in const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output);
 
 extern inline void 
 FreeHashStateInternal(__inout HashState* state);
@@ -147,7 +150,7 @@ extern inline void
 ResetXofStateInternal(__inout XofState* state);
 
 void 
-GetXofInternal(__inout XofState* state, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __in uint64_t outputSize);
+GetXofInternal(__inout XofState* state, __in const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output, __in size_t outputSize);
 
 extern inline void 
 FreeXofStateInternal(__inout XofState* state);
@@ -160,7 +163,7 @@ extern inline void
 ResetPrfStateInternal(__inout PrfState* state);
 
 void 
-GetPrfInternal(__inout PrfState* state, __in_opt const void* input, __in uint64_t inputSize, __in_opt const void* key, __in uint64_t keySize, __in bool finalize, __out_opt void* output, __in_opt uint64_t outputSize);
+GetPrfInternal(__inout PrfState* state, __in_opt const void* input, __in size_t inputSize, __in_opt const void* key, __in size_t keySize, __in bool finalize, __out_opt void* output, __in_opt size_t outputSize);
 
 extern inline void 
 FreePrfStateInternal(__inout PrfState* state);

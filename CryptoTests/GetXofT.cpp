@@ -5,7 +5,7 @@
 
 #include "common.h"
 
-void GetXofMainTestFunc(__in const void* input, __in uint64_t inputSize, __in Xof func, __in uint64_t outputSize, __in int expectedStatus, __in_opt const void* expectedRes)
+void GetXofMainTestFunc(__in const void* input, __in size_t inputSize, __in Xof func, __in size_t outputSize, __in int expectedStatus, __in_opt const void* expectedRes)
 {
     int status = NO_ERROR;
     std::unique_ptr<uint8_t> buffer(new uint8_t[outputSize]);
@@ -26,7 +26,7 @@ exit:
     EXPECT_TRUE(status == expectedStatus);
 }
 
-void GetXofMultipleTestFunc(__in const void* input1, __in uint64_t inputSize1, __in const void* input2, __in uint64_t inputSize2, __in Xof func, __in uint64_t outputSize,
+void GetXofMultipleTestFunc(__in const void* input1, __in size_t inputSize1, __in const void* input2, __in size_t inputSize2, __in Xof func, __in size_t outputSize,
     __in int expectedStatus, __in_opt const void* expectedRes)
 {
     int status = NO_ERROR;

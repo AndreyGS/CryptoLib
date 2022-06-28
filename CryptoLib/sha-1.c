@@ -43,11 +43,15 @@ const uint32_t K4 = 0xca62c1d6;
 
 void Sha1InitState(__out uint32_t* state)
 {
+    assert(state);
+
     state[0] = H[0], state[1] = H[1], state[2] = H[2], state[3] = H[3], state[4] = H[4];
 }
 
 void Sha1ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* output)
 {
+    assert(input && words && output);
+
     for (int i = 0; i < 16; ++i)
         words[i] = Uint32LittleEndianToBigEndian(*input++);
 
@@ -99,8 +103,10 @@ void Sha1ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* output)
     output[4] += e;
 }
 
-void Sha1Get(__inout Sha1State* state, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt uint32_t* output)
+void Sha1Get(__inout Sha1State* state, __in_opt const void* input, __in size_t inputSize, __in bool finalize, __out_opt uint32_t* output)
 {
+    assert(state && (input || !inputSize) && (!finalize || output));
+
     uint64_t blocksNum = (inputSize >> 6 /* inputSize / SHA1_BLOCK_SIZE */) + 1;
     uint32_t* mainState = state->state;
 
@@ -114,7 +120,7 @@ void Sha1Get(__inout Sha1State* state, __in_opt const void* input, __in uint64_t
     if (finalize) {
         uint8_t* tailBlocks = (uint8_t*)state->tailBlocks;
 
-        AddShaPaddingInternal(input, state->size, tailBlocks, &blocksNum);
+        AddShaPadding(input, state->size, tailBlocks, &blocksNum);
 
         while (blocksNum--) {
             Sha1ProcessBlock((uint32_t*)tailBlocks, state->words, mainState);

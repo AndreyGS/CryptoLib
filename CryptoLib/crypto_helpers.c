@@ -57,52 +57,6 @@ errno_t memset_s(void* dest, rsize_t destsz, int ch, rsize_t count)
 }
 #endif // __STDC_LIB_EXT1__
 
-int CheckInput(__in const void* input, __in uint64_t inputSize)
-{
-    if (!input)
-        return ERROR_NULL_INPUT;
-    else if (!inputSize)
-        return ERROR_WRONG_INPUT_SIZE;
-    else
-        return NO_ERROR;
-}
-
-int CheckOutput(__in const void* output, __in const uint64_t* outputSize)
-{
-    if (!output && outputSize && *outputSize)
-        return ERROR_NULL_OUTPUT;
-    else if (!outputSize)
-        return ERROR_NULL_OUTPUT_SIZE;
-    else
-        return NO_ERROR;
-}
-
-int CheckInputOutput(__in const void* input, __in uint64_t inputSize, __in const void* output, __in const uint64_t* outputSize)
-{
-    int status = NO_ERROR;
-    return !(status = CheckInput(input, inputSize)) ? CheckOutput(output, outputSize) : status;
-}
-
-
-int CheckBlockCipherPrimaryArguments(const void* input, uint64_t inputSize, PaddingType padding, const uint64_t* key, BlockCipherType cipherType, const void* output, const uint64_t* outputSize, BlockCipherOpMode mode, const void* iv)
-{
-    int status = NO_ERROR;
-    if (status = CheckInputOutput(input, inputSize, output, outputSize))
-        return status;
-    else if ((unsigned)padding >= PaddingType_max)
-        return ERROR_UNSUPPORTED_PADDING_TYPE;
-    else if (!key)
-        return ERROR_NULL_KEY;
-    else if ((unsigned)cipherType >= BlockCipherType_max)
-        return ERROR_UNSUPPORTED_CIPHER_FUNC;
-    else if ((unsigned)mode >= BlockCipherOpMode_max)
-        return ERROR_UNSUPPROTED_ENCRYPTION_MODE;
-    else if (mode != ECB_mode && !iv)
-        return ERROR_NULL_INIT_VECTOR;
-    else
-        return NO_ERROR;
-}
-
 int CheckHashAndXofPrimaryArguments(const StateHandle state, const void* input, uint64_t inputSize, bool finalize, const void* output)
 {
     if (!state)
@@ -216,17 +170,17 @@ inline void AlignedFreeBuffer(void* buffer)
 #endif
 }
 
-int FillLastDecryptedBlockInternal(__in PaddingType padding, __in uint64_t blockSize, __in const void* lastOutputBlock, __in uint64_t inputSize, __out void* output, __inout uint64_t* outputSize)
+int FillLastDecryptedBlockInternal(__in PaddingType padding, __in size_t blockSize, __in const void* lastOutputBlock, __in size_t inputSize, __out void* output, __inout size_t* outputSize)
 {
     int status = NO_ERROR;
-    uint64_t paddingSize = 0;
+    size_t paddingSize = 0;
 
     if (status = PullPaddingSizeInternal(padding, lastOutputBlock, blockSize, &paddingSize))
         return status;
     else if (paddingSize > blockSize)
         return ERROR_PADDING_CORRUPTED;
 
-    uint64_t requiringSize = inputSize - paddingSize;
+    size_t requiringSize = inputSize - paddingSize;
 
     if (requiringSize > *outputSize) {
         *outputSize = requiringSize;
@@ -236,7 +190,7 @@ int FillLastDecryptedBlockInternal(__in PaddingType padding, __in uint64_t block
     *outputSize = requiringSize;
 
     // parenthesis over inputSize - DES_BLOCK_SIZE is a little integer overflow protection
-    memcpy((uint8_t*)output + (inputSize - blockSize), lastOutputBlock, (size_t)(blockSize - paddingSize));
+    memcpy((uint8_t*)output + (inputSize - blockSize), lastOutputBlock, blockSize - paddingSize);
 
     return NO_ERROR;
 }

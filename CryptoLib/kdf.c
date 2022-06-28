@@ -27,7 +27,7 @@
 #include "kdf.h"
 #include "hmac.h"
 
-int GetPbkdf2(__in_opt const void* salt, __in uint64_t saltSize, __in_opt const void* password, __in uint64_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize)
+int GetPbkdf2(__in_opt const void* salt, __in size_t saltSize, __in_opt const void* password, __in size_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in size_t outputSize)
 {
     int status = NO_ERROR;
     if (!salt && saltSize)
@@ -55,8 +55,10 @@ exit:
     return status;
 }
 
-int GetPbkdf2Internal(__in_opt const void* salt, __in uint64_t saltSize, __in_opt const void* password, __in uint64_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in uint64_t outputSize)
+int GetPbkdf2Internal(__in_opt const void* salt, __in size_t saltSize, __in_opt const void* password, __in size_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in size_t outputSize)
 {
+    assert((salt || !saltSize) && (password || !passwordSize) && output && outputSize);
+
     int status = NO_ERROR;
 
     uint16_t didgestSize = g_hashFuncsSizesMapping[func].didgestSize;
@@ -75,7 +77,7 @@ int GetPbkdf2Internal(__in_opt const void* salt, __in uint64_t saltSize, __in_op
 
     uint32_t blocksNum = (uint32_t)((outputSize + (didgestSize - 1)) / didgestSize);
     uint32_t blocksCounter = 0;
-    uint64_t saltFullSize = saltSize + 4;
+    size_t saltFullSize = saltSize + 4;
 
     while (blocksNum--) {
         *(uint32_t*)((uint8_t*)salt + saltSize) = Uint32LittleEndianToBigEndian(++blocksCounter);

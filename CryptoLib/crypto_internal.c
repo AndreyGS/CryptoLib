@@ -82,6 +82,51 @@ const PrfSizes g_PrfSizesMapping[11] = {
     { HMAC_SHA3_512,    SHA3_512,    sizeof(Hmac_Sha3_512State),    PRF_STATE_HMAC_SHA3_512_SIZE }
 };
 
+// AddPaddingInternal function adds padding and fills last block by padding directly to output with respective offset 
+// and when fillLastBlock is set and (inputSize % blockSize != 0) it also copying the begining of the last input block to output with respective offset
+int AddPaddingInternal(__in const void* input, __in size_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout size_t* outputSize, __in bool fillLastBlock)
+{
+    assert((input || !inputSize) && output && outputSize);
+
+    int status = NO_ERROR;
+
+    switch (padding) {
+    case No_padding:
+        // here we don't using '&' operator to theoretically accept blockSize that is not power of two
+        if (inputSize % blockSize)
+            status = ERROR_INAPPLICABLE_PADDING_TYPE;
+        else {
+            *outputSize = inputSize;
+
+            if (fillLastBlock) {
+                size_t offset = inputSize - blockSize;
+                memcpy((uint8_t*)output + offset, (uint8_t*)input + offset, blockSize);
+            }
+        }
+        break;
+
+    case Zero_padding:
+        status = AddZeroPadding(input, inputSize, blockSize, output, outputSize, fillLastBlock);
+        break;
+
+    case PKCSN7_padding:
+        if (blockSize > MAX_PKCSN7_BLOCK_SIZE)
+            status = ERROR_TOO_BIG_BLOCK_SIZE;
+        else
+            status = AddPKCSN7Padding(input, inputSize, (uint8_t)blockSize, output, outputSize, fillLastBlock);
+        break;
+
+    case ISO_7816_padding:
+        status = AddISO7816Padding(input, inputSize, blockSize, output, outputSize, fillLastBlock);
+        break;
+
+    default:
+        break;
+    }
+
+    return status;
+}
+
 inline size_t GetSpecificBlockCipherStateSize(__in BlockCipherType cipher)
 {
     switch (cipher) {
@@ -199,7 +244,7 @@ void ReInitBlockCipherIvInternal(__in BlockCipherType cipher, __in const void* i
     }
 }
 
-int ProcessingByBlockCipherInternal(__inout BlockCipherState* state, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize)
+int ProcessingByBlockCipherInternal(__inout BlockCipherState* state, __in const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output, __inout size_t* outputSize)
 {
     assert(state && input && outputSize && (!finalize || output));
 
@@ -292,7 +337,7 @@ void ResetHashStateInternal(__inout HashState* state)
     memset(startZeroing, 0, sizeZeroing);
 }
 
-void GetHashInternal(__inout HashState* state, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output)
+void GetHashInternal(__inout HashState* state, __in_opt const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output)
 {
     assert(state && (!finalize || output) && (input || !inputSize));
 
@@ -352,7 +397,7 @@ inline void ResetXofStateInternal(__inout XofState* state)
     memset(state->state, 0, g_XofSizesMapping[state->func].stateSize);
 }
 
-void GetXofInternal(__inout XofState* state, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __in uint64_t outputSize)
+void GetXofInternal(__inout XofState* state, __in const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output, __in size_t outputSize)
 {
     assert(state && (!finalize || output) && outputSize && (input || !inputSize));
 
@@ -399,7 +444,7 @@ inline void ResetPrfStateInternal(__inout PrfState* state)
     memset(state->state, 0, g_PrfSizesMapping[state->func].stateSize);
 }
 
-void GetPrfInternal(__inout PrfState* state, __in_opt const void* input, __in uint64_t inputSize, __in_opt const void* key, __in uint64_t keySize, __in bool finalize, __out_opt void* output, __in_opt uint64_t outputSize)
+void GetPrfInternal(__inout PrfState* state, __in_opt const void* input, __in size_t inputSize, __in_opt const void* key, __in size_t keySize, __in bool finalize, __out_opt void* output, __in_opt size_t outputSize)
 {
     assert(state && (!finalize || output) && (input || !inputSize) && (key || !keySize));
 

@@ -116,6 +116,8 @@ void AesKeySchedule(__in BlockCipherType cipher, __in const uint32_t* key, __out
 
 inline void AesSubBytes(__inout uint8_t* input)
 {
+    assert(input);
+
     input[0] =  AES_S_BOX[input[0]],  input[1] =  AES_S_BOX[input[1]],  input[2] =  AES_S_BOX[input[2]],  input[3] =  AES_S_BOX[input[3]],
     input[4] =  AES_S_BOX[input[4]],  input[5] =  AES_S_BOX[input[5]],  input[6] =  AES_S_BOX[input[6]],  input[7] =  AES_S_BOX[input[7]],
     input[8] =  AES_S_BOX[input[8]],  input[9] =  AES_S_BOX[input[9]],  input[10] = AES_S_BOX[input[10]], input[11] = AES_S_BOX[input[11]],
@@ -124,6 +126,8 @@ inline void AesSubBytes(__inout uint8_t* input)
 
 inline void AesSubBytesInv(__inout uint8_t* input)
 {
+    assert(input);
+
     input[0] =  AES_S_BOX_INV[input[0]],  input[1] =  AES_S_BOX_INV[input[1]],  input[2] =  AES_S_BOX_INV[input[2]],  input[3] =  AES_S_BOX_INV[input[3]],
     input[4] =  AES_S_BOX_INV[input[4]],  input[5] =  AES_S_BOX_INV[input[5]],  input[6] =  AES_S_BOX_INV[input[6]],  input[7] =  AES_S_BOX_INV[input[7]],
     input[8] =  AES_S_BOX_INV[input[8]],  input[9] =  AES_S_BOX_INV[input[9]],  input[10] = AES_S_BOX_INV[input[10]], input[11] = AES_S_BOX_INV[input[11]],
@@ -132,6 +136,8 @@ inline void AesSubBytesInv(__inout uint8_t* input)
 
 inline void AesShiftRows(__inout uint8_t* input)
 {
+    assert(input);
+
     uint8_t temp = input[1];
 
     input[1] = input[5], input[5] = input[9], input[9] = input[13], input[13] = temp,
@@ -141,6 +147,8 @@ inline void AesShiftRows(__inout uint8_t* input)
 
 inline void AesShiftRowsInv(__inout uint8_t* input)
 {
+    assert(input);
+
     uint8_t temp = input[1];
 
     input[1] = input[13], input[13] = input[9], input[9] = input[5], input[5] = temp,
@@ -191,6 +199,8 @@ const uint8_t AES_MC_PRECALCULETED_CONSTS_X3[256] =
 
 inline void AesMixColumns(__inout uint8_t* input)
 {
+    assert(input);
+
     uint8_t output[4] = { 0 };
 
     for (int i = 0; i < 4; ++i) {
@@ -286,6 +296,8 @@ const uint8_t AES_MC_PRECALCULETED_CONSTS_X14[256] =
 
 inline void AesMixColumnsInv(__inout uint8_t* input)
 {
+    assert(input);
+
     uint8_t output[4] = { 0 };
 
     for (int i = 0; i < 4; ++i) {
@@ -301,6 +313,8 @@ inline void AesMixColumnsInv(__inout uint8_t* input)
 // roundsNum variable is expecting real rounds num minus one (for exclusion of one additional substraction)
 void AesEncryptBlock(__in const uint64_t* roundsKeys, __in uint8_t roundsNum, __in const uint64_t* input, __out uint64_t* output)
 {
+    assert(roundsKeys && input && output);
+
     output[0] = input[0] ^ *roundsKeys++;
     output[1] = input[1] ^ *roundsKeys++;
 
@@ -321,6 +335,8 @@ void AesEncryptBlock(__in const uint64_t* roundsKeys, __in uint8_t roundsNum, __
 // roundsNum variable is expecting real rounds num minus one (for exclusion of one additional substraction)
 void AesDecryptBlock(__in const uint64_t* roundsKeys, __in uint8_t roundsNum, __in const uint64_t* input, __out uint64_t* output)
 {
+    assert(roundsKeys && input && output);
+
     roundsKeys += (roundsNum + 1) << 1;
 
     output[0] = input[0] ^ roundsKeys[0];
@@ -346,9 +362,11 @@ void AesDecryptBlock(__in const uint64_t* roundsKeys, __in uint8_t roundsNum, __
     output[1] ^= roundsKeys[1];
 }
 
-int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in uint64_t inputSize
-    , __in bool finalize, __out_opt uint64_t* output, __inout uint64_t* outputSize)
+int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in size_t inputSize
+    , __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize)
 {
+    assert(input && output && outputSize);
+
     int status = NO_ERROR;
 
     if (!finalize) {
@@ -513,9 +531,11 @@ int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     return NO_ERROR;
 }
 
-int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in uint64_t inputSize
-    , __in bool finalize, __out_opt uint64_t* output, __inout uint64_t* outputSize)
+int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in size_t inputSize
+    , __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize)
 {
+    assert(input && output && outputSize);
+
     int status = NO_ERROR;
 
     if (inputSize & 15)

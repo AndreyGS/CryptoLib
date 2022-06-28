@@ -29,13 +29,21 @@
 #include "des.h"
 #include "paddings.h"
 
-int AddPadding(__in const void* input, __in uint64_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout uint64_t* outputSize, __in bool fillAllBlock)
+int AddPadding(__in const void* input, __in size_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout size_t* outputSize, __in bool fillLastBlock)
 {
     int status = NO_ERROR;
-    if (status = CheckPaddingInputOutput(input, inputSize, blockSize, output, outputSize))
-        return status;
-    
-    return AddPaddingInternal(input, inputSize, padding, blockSize, output, outputSize, fillAllBlock);
+    if (!input)
+        return ERROR_NULL_INPUT;
+    else if (!inputSize)
+        return ERROR_TOO_SMALL_INPUT_SIZE;
+    else if (!output && outputSize && *outputSize)
+        return ERROR_NULL_OUTPUT;
+    else if (!outputSize)
+        return ERROR_NULL_OUTPUT_SIZE;
+    else if (!blockSize)
+        return ERROR_TOO_SMALL_BLOCK_SIZE;
+    else    
+        return AddPaddingInternal(input, inputSize, padding, blockSize, output, outputSize, fillLastBlock);
 }
 
 int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt const void* iv)
@@ -106,14 +114,14 @@ int ReInitBlockCipherIv(__inout BlockCipherHandle handle, __in const void* iv)
     return NO_ERROR;
 }
 
-int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __inout uint64_t* outputSize)
+int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output, __inout size_t* outputSize)
 {
     if (!handle)
         return ERROR_NULL_STATE_HANDLE;
     else if (!input)
         return ERROR_NULL_INPUT;
     else if (!inputSize)
-        return ERROR_WRONG_INPUT_SIZE;
+        return ERROR_TOO_SMALL_INPUT_SIZE;
     else if (!output && outputSize && *outputSize)
         return ERROR_NULL_OUTPUT;
     else if (!outputSize)
@@ -154,13 +162,12 @@ int ResetHashState(__inout HashHandle handle)
     return NO_ERROR;
 }
 
-int GetHash(__inout HashHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output)
+int GetHash(__inout HashHandle handle, __in_opt const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output)
 {
     int status = NO_ERROR;
     if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output))
         return status;
-
-    if (!finalize && (inputSize % g_hashFuncsSizesMapping[*(HashFunc*)handle].blockSize))
+    else if (!finalize && (inputSize % g_hashFuncsSizesMapping[*(HashFunc*)handle].blockSize))
         return ERROR_WRONG_INPUT_SIZE;
 
     GetHashInternal(handle, input, inputSize, finalize, output);
@@ -197,15 +204,14 @@ int ResetXofState(__inout XofHandle handle)
     return NO_ERROR;
 }
 
-int GetXof(__inout XofHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in bool finalize, __out_opt void* output, __in uint64_t outputSize)
+int GetXof(__inout XofHandle handle, __in_opt const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output, __in size_t outputSize)
 {
     int status = NO_ERROR;
     if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output))
         return status;
     else if (!outputSize)
         return ERROR_NULL_OUTPUT_SIZE;
-
-    if (!finalize && (inputSize % g_XofSizesMapping[*(Xof*)handle].blockSize))
+    else if (!finalize && (inputSize % g_XofSizesMapping[*(Xof*)handle].blockSize))
         return ERROR_WRONG_INPUT_SIZE;
 
     GetXofInternal(handle, input, inputSize, finalize, output, outputSize);
@@ -252,7 +258,7 @@ int FreePrfState(__inout PrfHandle handle)
     return NO_ERROR;
 }
 
-int GetPrf(__inout PrfHandle handle, __in_opt const void* input, __in uint64_t inputSize, __in_opt const void* key, __in uint64_t keySize, __in bool finalize, __out_opt void* output, __in_opt uint64_t outputSize)
+int GetPrf(__inout PrfHandle handle, __in_opt const void* input, __in size_t inputSize, __in_opt const void* key, __in size_t keySize, __in bool finalize, __out_opt void* output, __in_opt size_t outputSize)
 {
     int status = NO_ERROR;
     if (!handle)
@@ -263,10 +269,8 @@ int GetPrf(__inout PrfHandle handle, __in_opt const void* input, __in uint64_t i
         return ERROR_NULL_KEY;
     else if (finalize && !output)
         return ERROR_NULL_OUTPUT;
-
-    if (!finalize)
-        if (*(Prf*)handle >= HMAC_SHA1 && *(Prf*)handle <= HMAC_SHA3_512 && inputSize % g_hashFuncsSizesMapping[g_PrfSizesMapping[*(Prf*)handle].hashFunc].blockSize)
-            return ERROR_WRONG_INPUT_SIZE;
+    else if (!finalize && *(Prf*)handle >= HMAC_SHA1 && *(Prf*)handle <= HMAC_SHA3_512 && inputSize % g_hashFuncsSizesMapping[g_PrfSizesMapping[*(Prf*)handle].hashFunc].blockSize)
+        return ERROR_WRONG_INPUT_SIZE;
     
     GetPrfInternal(handle, input, inputSize, key, keySize, finalize, output, outputSize);
 
