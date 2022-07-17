@@ -1,8 +1,9 @@
-# Crypto library
+# Crypto Library
 
 Current library is build on pure C.\
 At the moment it under development.\
 For now it includes several types of symmetric ciphers, hashing functions, XOF's, PRF's (HMAC only) and KDF's (PBKDF2 only).
+Also there is a AddPadding functions which is adds padding to your data (Zero, PKCSZN7, ISO_7816) or check if it (data) can be applied to No_padding scheme.
 
 #### Full list of currently supported algorithms:
 * Block ciphers (list of operation modes - ECB, CBC, CFB, OFB, CTR):\
@@ -50,6 +51,11 @@ For now it includes several types of symmetric ciphers, hashing functions, XOF's
 	PBKDF2_HMAC_SHA3_256,\
 	PBKDF2_HMAC_SHA3_384,\
 	PBKDF2_HMAC_SHA3_512
+* Paddings:\
+	No_padding,\
+    Zero,\
+    PKCSN7,\
+    ISO_7816
 		
 Public interface is located in crypto.h.\
 All functions grouped by categories.
