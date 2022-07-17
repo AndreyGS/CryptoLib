@@ -29,8 +29,13 @@ int AddZeroPadding(__in const uint8_t* input, __in size_t inputSize, __in size_t
 int AddPKCSN7Padding(__in const uint8_t* input, __in size_t inputSize, __in uint8_t blockSize, __out uint8_t* output, __inout size_t* outputSize, __in bool fillLastBlock);
 int AddISO7816Padding(__in const uint8_t* input, __in size_t inputSize, __in size_t blockSize, __out uint8_t* output, __inout size_t* outputSize, __in bool fillLastBlock);
 
-int PullPaddingSizeInternal(__in PaddingType padding, __in const uint8_t* input, __in size_t blockSize, __out size_t* paddingSize);
-int CutPaddingInternal(__in PaddingType padding, __in size_t blockSize, __out uint8_t* paddedOutput, __inout size_t* outputSize);
+int PullPKCSN7PaddingSize(__in const uint8_t* input, __in size_t blockSize, __out uint8_t* paddingSize);
+int PullZeroPaddingSize(__in const uint8_t* input, __in size_t blockSize, __out size_t* paddingSize);
+int PullISO7816PaddingSize(__in const uint8_t* input, __in size_t blockSize, __out size_t* paddingSize);
+
+int CutZeroPadding(__in size_t blockSize, __in const uint8_t* output, __inout size_t* outputSize);
+int CutPKCSN7Padding(__in size_t blockSize, __in const uint8_t* output, __inout size_t* outputSize);
+int CutISO7816Padding(__in size_t blockSize, __in const uint8_t* output, __inout size_t* outputSize);
 
 void AddShaPadding(__in const uint8_t* input, __in uint64_t inputSize, __out uint8_t* output, __out uint64_t* outputBlocksNum);
 void AddSha2_64Padding(__in const uint8_t* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __out uint8_t* output, __out uint64_t* outputBlocksNum);

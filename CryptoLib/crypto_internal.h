@@ -101,6 +101,12 @@ extern const PrfSizes g_PrfSizesMapping[11];
 int
 AddPaddingInternal(__in const void* input, __in size_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout size_t* outputSize, __in bool fillLastBlock);
 
+int
+PullPaddingSizeInternal(__in PaddingType padding, __in const uint8_t* input, __in size_t blockSize, __out size_t* paddingSize);
+
+int
+CutPaddingInternal(__in PaddingType padding, __in size_t blockSize, __out uint8_t* paddedOutput, __inout size_t* outputSize);
+
 // Block Ciphers Functions
 extern inline size_t
 GetSpecificBlockCipherStateSize(__in BlockCipherType cipher);
@@ -125,6 +131,9 @@ ReInitBlockCipherIvInternal(__in BlockCipherType cipher, __in const void* iv, __
 
 int 
 ProcessingByBlockCipherInternal(__inout BlockCipherState* handle, __in const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output, __inout size_t* outputSize);
+
+int
+FillLastDecryptedBlockInternal(__in PaddingType padding, __in size_t blockSize, __in const void* lastOutputBlock, __in size_t inputSize, __out void* output, __inout size_t* outputSize);
 
 void 
 FreeBlockCipherStateInternal(__inout BlockCipherState* state);

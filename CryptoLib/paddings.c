@@ -30,16 +30,6 @@
 #define SHA_START_LENGTH_OFFSET 56
 #define SHA2_START_LENGTH_OFFSET 112
 
-/*
-    suffix Internal in function naming == Unsafe
-*/
-int PullPKCSN7PaddingSize(__in const uint8_t* input, __in size_t blockSize, __out uint8_t* paddingSize);
-int PullZeroPaddingSize(__in const uint8_t* input, __in size_t blockSize, __out size_t* paddingSize);
-int PullISO7816PaddingSize(__in const uint8_t* input, __in size_t blockSize, __out size_t* paddingSize);
-int CutZeroPadding(__in size_t blockSize, __in const uint8_t* output, __inout size_t* outputSize);
-int CutPKCSN7Padding(__in size_t blockSize, __in const uint8_t* output, __inout size_t* outputSize);
-int CutISO7816Padding(__in size_t blockSize, __in const uint8_t* output, __inout size_t* outputSize);
-
 int CheckPaddingOutput(__in size_t blockSize, __in const void* paddedOutput, __in size_t* outputSize)
 {
     if (!paddedOutput && outputSize && *outputSize)
@@ -66,34 +56,6 @@ int PullPaddingSize(__in PaddingType padding, __in void* input, __in size_t bloc
     return PullPaddingSizeInternal(padding, input, blockSize, paddingSize);
 }
 
-int PullPaddingSizeInternal(__in PaddingType padding, __in const uint8_t* input, __in size_t blockSize,  __out size_t* paddingSize)
-{
-    int status = NO_ERROR;
-
-    switch (padding) {
-    case No_padding:
-        *paddingSize = 0;
-        break;
-
-    case Zero_padding:
-        status = PullZeroPaddingSize(input, blockSize, paddingSize);
-        break;
-
-    case PKCSN7_padding:
-        status = PullPKCSN7PaddingSize(input, blockSize, (uint8_t*)paddingSize);
-        break;
-
-    case ISO_7816_padding:
-        status = PullISO7816PaddingSize(input, blockSize, paddingSize);
-        break;
-
-    default:
-        break;
-    }
-
-    return status;
-}
-
 int CutPadding(__in PaddingType padding, __in size_t blockSize, __out void* output, __inout size_t* outputSize)
 {
     int status = NO_ERROR;
@@ -101,35 +63,6 @@ int CutPadding(__in PaddingType padding, __in size_t blockSize, __out void* outp
         return status;
 
     return CutPaddingInternal(padding, blockSize, output, outputSize);
-}
-
-int CutPaddingInternal(__in PaddingType padding, __in size_t blockSize, __out uint8_t* paddedOutput, __inout size_t* outputSize)
-{
-    int status = NO_ERROR;
-
-    switch (padding) {
-    case No_padding:
-        if (*outputSize % blockSize)
-            status = ERROR_INAPPLICABLE_PADDING_TYPE;
-        break;
-
-    case Zero_padding:
-        CutZeroPadding(blockSize, paddedOutput, outputSize);
-        break;
-
-    case PKCSN7_padding:
-        CutPKCSN7Padding(blockSize, paddedOutput, outputSize);
-        break;
-
-    case ISO_7816_padding:
-        CutISO7816Padding(blockSize, paddedOutput, outputSize);
-        break;
-
-    default:
-        break;
-    }
-
-    return status;
 }
 
 bool IsWholeBlockMultiplier(size_t inputSize, size_t blockSize)

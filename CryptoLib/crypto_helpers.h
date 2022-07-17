@@ -59,8 +59,6 @@ extern inline int AlignedAllocBuffer(void** buffer, size_t size, size_t alignmen
 extern inline void FreeBuffer(void* buffer);
 extern inline void AlignedFreeBuffer(void* buffer);
 
-int FillLastDecryptedBlockInternal(__in PaddingType padding, __in size_t blockSize, __in const void* lastOutputBlock, __in size_t inputSize, __out void* output, __inout size_t* outputSize);
-
 #ifdef __cplusplus
 }
 #endif

@@ -170,27 +170,3 @@ inline void AlignedFreeBuffer(void* buffer)
 #endif
 }
 
-int FillLastDecryptedBlockInternal(__in PaddingType padding, __in size_t blockSize, __in const void* lastOutputBlock, __in size_t inputSize, __out void* output, __inout size_t* outputSize)
-{
-    int status = NO_ERROR;
-    size_t paddingSize = 0;
-
-    if (status = PullPaddingSizeInternal(padding, lastOutputBlock, blockSize, &paddingSize))
-        return status;
-    else if (paddingSize > blockSize)
-        return ERROR_PADDING_CORRUPTED;
-
-    size_t requiringSize = inputSize - paddingSize;
-
-    if (requiringSize > *outputSize) {
-        *outputSize = requiringSize;
-        return ERROR_TOO_SMALL_OUTPUT_SIZE;
-    }
-
-    *outputSize = requiringSize;
-
-    // parenthesis over inputSize - DES_BLOCK_SIZE is a little integer overflow protection
-    memcpy((uint8_t*)output + (inputSize - blockSize), lastOutputBlock, blockSize - paddingSize);
-
-    return NO_ERROR;
-}

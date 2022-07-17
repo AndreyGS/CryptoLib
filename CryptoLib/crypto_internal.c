@@ -127,6 +127,63 @@ int AddPaddingInternal(__in const void* input, __in size_t inputSize, __in Paddi
     return status;
 }
 
+int PullPaddingSizeInternal(__in PaddingType padding, __in const uint8_t* input, __in size_t blockSize, __out size_t* paddingSize)
+{
+    int status = NO_ERROR;
+
+    switch (padding) {
+    case No_padding:
+        *paddingSize = 0;
+        break;
+
+    case Zero_padding:
+        status = PullZeroPaddingSize(input, blockSize, paddingSize);
+        break;
+
+    case PKCSN7_padding:
+        status = PullPKCSN7PaddingSize(input, blockSize, (uint8_t*)paddingSize);
+        break;
+
+    case ISO_7816_padding:
+        status = PullISO7816PaddingSize(input, blockSize, paddingSize);
+        break;
+
+    default:
+        break;
+    }
+
+    return status;
+}
+
+int CutPaddingInternal(__in PaddingType padding, __in size_t blockSize, __out uint8_t* paddedOutput, __inout size_t* outputSize)
+{
+    int status = NO_ERROR;
+
+    switch (padding) {
+    case No_padding:
+        if (*outputSize % blockSize)
+            status = ERROR_INAPPLICABLE_PADDING_TYPE;
+        break;
+
+    case Zero_padding:
+        CutZeroPadding(blockSize, paddedOutput, outputSize);
+        break;
+
+    case PKCSN7_padding:
+        CutPKCSN7Padding(blockSize, paddedOutput, outputSize);
+        break;
+
+    case ISO_7816_padding:
+        CutISO7816Padding(blockSize, paddedOutput, outputSize);
+        break;
+
+    default:
+        break;
+    }
+
+    return status;
+}
+
 inline size_t GetSpecificBlockCipherStateSize(__in BlockCipherType cipher)
 {
     switch (cipher) {
@@ -265,6 +322,31 @@ int ProcessingByBlockCipherInternal(__inout BlockCipherState* state, __in const 
     default:
         return NO_ERROR;
     }
+}
+
+int FillLastDecryptedBlockInternal(__in PaddingType padding, __in size_t blockSize, __in const void* lastOutputBlock, __in size_t inputSize, __out void* output, __inout size_t* outputSize)
+{
+    int status = NO_ERROR;
+    size_t paddingSize = 0;
+
+    if (status = PullPaddingSizeInternal(padding, lastOutputBlock, blockSize, &paddingSize))
+        return status;
+    else if (paddingSize > blockSize)
+        return ERROR_PADDING_CORRUPTED;
+
+    size_t requiringSize = inputSize - paddingSize;
+
+    if (requiringSize > *outputSize) {
+        *outputSize = requiringSize;
+        return ERROR_TOO_SMALL_OUTPUT_SIZE;
+    }
+
+    *outputSize = requiringSize;
+
+    // parenthesis over inputSize - blockSize is a little integer overflow protection
+    memcpy((uint8_t*)output + (inputSize - blockSize), lastOutputBlock, blockSize - paddingSize);
+
+    return NO_ERROR;
 }
 
 void FreeBlockCipherStateInternal(__inout BlockCipherState* state)
