@@ -1,7 +1,7 @@
 # Crypto library
 
-Current library is build on pure C.
-At the moment it under development.
+Current library is build on pure C.\
+At the moment it under development.\
 For now it includes several types of symmetric ciphers, hashing functions, XOF's, PRF's (HMAC only) and KDF's (PBKDF2 only).
 
 #### Full list of currently supported algorithms:
@@ -51,19 +51,19 @@ For now it includes several types of symmetric ciphers, hashing functions, XOF's
 	PBKDF2_HMAC_SHA3_384,\
 	PBKDF2_HMAC_SHA3_512
 		
-Public interface is located in crypto.h.
+Public interface is located in crypto.h.\
 All functions grouped by categories.
 
-For block ciphers, hashing, XOF and PRF you should call functions with Init prefix first, to allocate state.
-Then you should call ProcessingByBlockCipher for block ciphers, and GetHash/GetXof/GetPrf for hashing, XOF and PRF respectively as many times as it takes.
-Final processing input is marked with finalize flag.
-If you wish to reinitialize one or the other state parameters you should call Reset prefixed functions.
+For block ciphers, hashing, XOF and PRF you should call functions with Init prefix first, to allocate state.\
+Then you should call ProcessingByBlockCipher for block ciphers, and GetHash/GetXof/GetPrf for hashing, XOF and PRF respectively as many times as it takes.\
+Final processing input is marked with finalize flag.\
+If you wish to reinitialize one or the other state parameters you should call Reset prefixed functions.\
 At the very end you call Free prefixed functions to secure clear and free current state.
 
 GetPbkdf2 and AddPadding functions are using without any required additional actions.
 
-There is a Doxygen comments in crypto.h for all of them.
-The full example of using can be found in unit tests.
+There is a Doxygen comments in crypto.h for all of them.\
+The full example of using can be found in unit tests.\
 You can test it by yourself if you wish.
 
 ## What can be done next?
