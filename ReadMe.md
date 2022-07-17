@@ -2,16 +2,16 @@
 
 Current library is build on pure C.
 At the moment it under development.
-For now it includes several types of symmetric ciphers, hashing functions, XOF's, PRF's (HMAC only) and KDF (PBKDF2 only).
+For now it includes several types of symmetric ciphers, hashing functions, XOF's, PRF's (HMAC only) and KDF's (PBKDF2 only).
 
 #### Full list of currently supported algorithms:
-* Block ciphers (list of operation modes - ECB, CBC, CFB, OFB, CTR):
+* Block ciphers (list of operation modes - ECB, CBC, CFB, OFB, CTR):\
 	DES,\
 	3DES,\
 	AES128,\
 	AES192,\
 	AES256
-* Hash functions:
+* Hash functions:\
 	SHA1,\
 	SHA_224,\
 	SHA_256,\
@@ -23,10 +23,10 @@ For now it includes several types of symmetric ciphers, hashing functions, XOF's
 	SHA3_256,\
 	SHA3_384,\
 	SHA3_512
-* XOF's:
+* XOF's:\
 	SHAKE128,\
 	SHAKE256
-* PRF's:
+* PRF's:\
 	HMAC_SHA1,\
 	HMAC_SHA_224,\
 	HMAC_SHA_256,\
@@ -38,7 +38,7 @@ For now it includes several types of symmetric ciphers, hashing functions, XOF's
 	HMAC_SHA3_256,\
 	HMAC_SHA3_384,\
 	HMAC_SHA3_512
-* KDF
+* KDF's:\
 	PBKDF2_HMAC_SHA1,\
 	PBKDF2_HMAC_SHA_224,\
 	PBKDF2_HMAC_SHA_256,\
