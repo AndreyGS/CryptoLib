@@ -578,7 +578,7 @@ uint64_t TdesDecryptBlock(const uint64_t* roundsKeys, const uint64_t input)
 int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in size_t inputSize
     , __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize)
 {
-    assert(input && output && outputSize);
+    assert(input && outputSize);
 
     int status = NO_ERROR;
 
@@ -678,7 +678,7 @@ int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
 int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in size_t inputSize
     , __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize)
 {
-    assert(input && output && outputSize);
+    assert(input && outputSize);
 
     int status = NO_ERROR;
 

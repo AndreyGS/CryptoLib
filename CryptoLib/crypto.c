@@ -126,8 +126,10 @@ int ProcessingByBlockCipher(__inout BlockCipherHandle handle, __in const void* i
         return ERROR_NULL_OUTPUT;
     else if (!outputSize)
         return ERROR_NULL_OUTPUT_SIZE;
-    else if (!finalize && inputSize > *outputSize)
+    else if (!finalize && inputSize > *outputSize) {
+        *outputSize = inputSize;
         return ERROR_TOO_SMALL_OUTPUT_SIZE;
+    }
 
     return ProcessingByBlockCipherInternal(handle, input, inputSize, finalize, output, outputSize);
 }

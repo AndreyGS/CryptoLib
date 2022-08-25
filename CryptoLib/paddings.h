@@ -25,17 +25,17 @@
 
 #include "sha-3.h"
 
-int AddZeroPadding(__in const uint8_t* input, __in size_t inputSize, __in size_t blockSize, __out uint8_t* output, __inout size_t* outputSize, __in bool fillLastBlock);
-int AddPKCSN7Padding(__in const uint8_t* input, __in size_t inputSize, __in uint8_t blockSize, __out uint8_t* output, __inout size_t* outputSize, __in bool fillLastBlock);
-int AddISO7816Padding(__in const uint8_t* input, __in size_t inputSize, __in size_t blockSize, __out uint8_t* output, __inout size_t* outputSize, __in bool fillLastBlock);
+int AddZeroPadding(__in const uint8_t* input, __in size_t inputSize, __in size_t blockSize, __out_opt uint8_t* output, __inout size_t* outputSize, __in bool fillLastBlock);
+int AddPKCSN7Padding(__in const uint8_t* input, __in size_t inputSize, __in uint8_t blockSize, __out_opt uint8_t* output, __inout size_t* outputSize, __in bool fillLastBlock);
+int AddISO7816Padding(__in const uint8_t* input, __in size_t inputSize, __in size_t blockSize, __out_opt uint8_t* output, __inout size_t* outputSize, __in bool fillLastBlock);
 
 int PullPKCSN7PaddingSize(__in const uint8_t* input, __in size_t blockSize, __out uint8_t* paddingSize);
 int PullZeroPaddingSize(__in const uint8_t* input, __in size_t blockSize, __out size_t* paddingSize);
 int PullISO7816PaddingSize(__in const uint8_t* input, __in size_t blockSize, __out size_t* paddingSize);
 
-int CutZeroPadding(__in size_t blockSize, __in const uint8_t* output, __inout size_t* outputSize);
-int CutPKCSN7Padding(__in size_t blockSize, __in const uint8_t* output, __inout size_t* outputSize);
-int CutISO7816Padding(__in size_t blockSize, __in const uint8_t* output, __inout size_t* outputSize);
+int CutZeroPadding(__in size_t blockSize, __in const uint8_t* input, __inout size_t* inputSize);
+int CutPKCSN7Padding(__in size_t blockSize, __in const uint8_t* input, __inout size_t* inputSize);
+int CutISO7816Padding(__in size_t blockSize, __in const uint8_t* input, __inout size_t* inputSize);
 
 void AddShaPadding(__in const uint8_t* input, __in uint64_t inputSize, __out uint8_t* output, __out uint64_t* outputBlocksNum);
 void AddSha2_64Padding(__in const uint8_t* input, __in uint64_t inputSizeLowPart, __in uint64_t inputSizeHighPart, __out uint8_t* output, __out uint64_t* outputBlocksNum);

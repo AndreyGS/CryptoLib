@@ -84,9 +84,9 @@ const PrfSizes g_PrfSizesMapping[11] = {
 
 // AddPaddingInternal function adds padding and fills last block by padding directly to output with respective offset 
 // and when fillLastBlock is set and (inputSize % blockSize != 0) it also copying the begining of the last input block to output with respective offset
-int AddPaddingInternal(__in const void* input, __in size_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout size_t* outputSize, __in bool fillLastBlock)
+int AddPaddingInternal(__in const void* input, __in size_t inputSize, __in PaddingType padding, __in size_t blockSize, __out_opt void* output, __inout size_t* outputSize, __in bool fillLastBlock)
 {
-    assert((input || !inputSize) && output && outputSize);
+    assert((input || !inputSize) && outputSize && (output || !*outputSize));
 
     int status = NO_ERROR;
 
@@ -155,26 +155,26 @@ int PullPaddingSizeInternal(__in PaddingType padding, __in const uint8_t* input,
     return status;
 }
 
-int CutPaddingInternal(__in PaddingType padding, __in size_t blockSize, __out uint8_t* paddedOutput, __inout size_t* outputSize)
+int CutPaddingInternal(__in PaddingType padding, __in size_t blockSize, __in uint8_t* paddedInput, __inout size_t* inputSize)
 {
     int status = NO_ERROR;
 
     switch (padding) {
     case No_padding:
-        if (*outputSize % blockSize)
+        if (*inputSize % blockSize)
             status = ERROR_INAPPLICABLE_PADDING_TYPE;
         break;
 
     case Zero_padding:
-        CutZeroPadding(blockSize, paddedOutput, outputSize);
+        CutZeroPadding(blockSize, paddedInput, inputSize);
         break;
 
     case PKCSN7_padding:
-        CutPKCSN7Padding(blockSize, paddedOutput, outputSize);
+        CutPKCSN7Padding(blockSize, paddedInput, inputSize);
         break;
 
     case ISO_7816_padding:
-        CutISO7816Padding(blockSize, paddedOutput, outputSize);
+        CutISO7816Padding(blockSize, paddedInput, inputSize);
         break;
 
     default:
@@ -303,7 +303,7 @@ void ReInitBlockCipherIvInternal(__in BlockCipherType cipher, __in const void* i
 
 int ProcessingByBlockCipherInternal(__inout BlockCipherState* state, __in const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output, __inout size_t* outputSize)
 {
-    assert(state && input && outputSize && (!finalize || output));
+    assert(state && input && outputSize && (!finalize || output || !*outputSize));
 
     switch (state->cipher) {
     case DES_cipher_type:

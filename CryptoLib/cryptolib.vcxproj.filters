@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="asm">
+      <UniqueIdentifier>{81670d27-352b-47c1-a162-f37a374d5d3c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -95,5 +98,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="aes_ni_x86.asm">
+      <Filter>asm</Filter>
+    </MASM>
+    <MASM Include="aes_ni_x64.asm">
+      <Filter>asm</Filter>
+    </MASM>
   </ItemGroup>
 </Project>

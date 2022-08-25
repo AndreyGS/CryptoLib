@@ -102,7 +102,7 @@ int GetPaddingSize(__in size_t inputSize, __in size_t blockSize, __inout size_t*
     Zero padding functions
 */
 
-int AddZeroPadding(__in const uint8_t* input, __in size_t inputSize, __in size_t blockSize, __out uint8_t* output, __inout size_t* outputSize, __in bool fillLastBlock)
+int AddZeroPadding(__in const uint8_t* input, __in size_t inputSize, __in size_t blockSize, __out_opt uint8_t* output, __inout size_t* outputSize, __in bool fillLastBlock)
 {
     int status = NO_ERROR;
     size_t paddingSize = 0;
@@ -130,21 +130,21 @@ int PullZeroPaddingSize(__in const uint8_t* input, __in size_t blockSize, __out 
         return NO_ERROR;
 }
 
-int CutZeroPadding(__in size_t blockSize, __in const uint8_t* output, __inout size_t* outputSize)
+int CutZeroPadding(__in size_t blockSize, __in const uint8_t* input, __inout size_t* inputSize)
 {
     int status = NO_ERROR;
     size_t paddingSize = 0;
-    if (status = PullZeroPaddingSize(output, blockSize, &paddingSize))
+    if (status = PullZeroPaddingSize(input, blockSize, &paddingSize))
         return status;
     else
-        return *outputSize -= paddingSize, NO_ERROR;
+        return *inputSize -= paddingSize, NO_ERROR;
 }
 
 /*
     PKCS#7 padding functions
 */
 
-int AddPKCSN7Padding(__in const uint8_t* input, __in size_t inputSize, __in uint8_t blockSize, __out uint8_t* output, __inout size_t* outputSize, __in bool fillLastBlock)
+int AddPKCSN7Padding(__in const uint8_t* input, __in size_t inputSize, __in uint8_t blockSize, __out_opt uint8_t* output, __inout size_t* outputSize, __in bool fillLastBlock)
 {
     int status = NO_ERROR;
     size_t paddingSize = 0;
@@ -169,21 +169,21 @@ int PullPKCSN7PaddingSize(__in const uint8_t* input, __in size_t blockSize, __ou
         return NO_ERROR;
 }
 
-int CutPKCSN7Padding(__in size_t blockSize, __in const uint8_t* output, __inout size_t* outputSize)
+int CutPKCSN7Padding(__in size_t blockSize, __in const uint8_t* input, __inout size_t* inputSize)
 {
     int status = NO_ERROR;
     uint8_t paddingSize = 0;
-    if (status = PullPKCSN7PaddingSize(output, blockSize, &paddingSize))
+    if (status = PullPKCSN7PaddingSize(input, blockSize, &paddingSize))
         return status;
     else
-        return *outputSize -= paddingSize, NO_ERROR;
+        return *inputSize -= paddingSize, NO_ERROR;
 }
 
 /*
     ISO/IEC 7816-4:2005 padding functions
 */
 
-int AddISO7816Padding(__in const uint8_t* input, __in size_t inputSize, __in size_t blockSize, __out uint8_t* output, __inout size_t* outputSize, __in bool fillLastBlock)
+int AddISO7816Padding(__in const uint8_t* input, __in size_t inputSize, __in size_t blockSize, __out_opt uint8_t* output, __inout size_t* outputSize, __in bool fillLastBlock)
 {
     int status = NO_ERROR;
     size_t paddingSize = 0;
@@ -214,14 +214,14 @@ int PullISO7816PaddingSize(__in const uint8_t* input, __in size_t blockSize, __o
         return ++*paddingSize, NO_ERROR;
 }
 
-int CutISO7816Padding(__in size_t blockSize, __in const uint8_t* output, __inout size_t* outputSize)
+int CutISO7816Padding(__in size_t blockSize, __in const uint8_t* input, __inout size_t* inputSize)
 {
     int status = NO_ERROR;
     size_t paddingSize = 0;
-    if (status = PullISO7816PaddingSize(output, blockSize, &paddingSize))
+    if (status = PullISO7816PaddingSize(input, blockSize, &paddingSize))
         return status;
     else
-        return *outputSize -= paddingSize, NO_ERROR;
+        return *inputSize -= paddingSize, NO_ERROR;
 }
 
 /*

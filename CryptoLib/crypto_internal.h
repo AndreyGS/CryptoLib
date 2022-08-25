@@ -99,13 +99,13 @@ typedef struct _PrfSizes {
 extern const PrfSizes g_PrfSizesMapping[11];
 
 int
-AddPaddingInternal(__in const void* input, __in size_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout size_t* outputSize, __in bool fillLastBlock);
+AddPaddingInternal(__in const void* input, __in size_t inputSize, __in PaddingType padding, __in size_t blockSize, __out_opt void* output, __inout size_t* outputSize, __in bool fillLastBlock);
 
 int
 PullPaddingSizeInternal(__in PaddingType padding, __in const uint8_t* input, __in size_t blockSize, __out size_t* paddingSize);
 
 int
-CutPaddingInternal(__in PaddingType padding, __in size_t blockSize, __out uint8_t* paddedOutput, __inout size_t* outputSize);
+CutPaddingInternal(__in PaddingType padding, __in size_t blockSize, __in uint8_t* paddedInput, __inout size_t* inputSize);
 
 // Block Ciphers Functions
 extern inline size_t

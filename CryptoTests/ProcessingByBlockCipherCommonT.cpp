@@ -74,3 +74,27 @@ exit:
     EXPECT_TRUE(status == ERROR_TOO_SMALL_OUTPUT_SIZE);
     delete[] buffer;
 }
+
+TEST(ProcessingByBlockCipherCommonT, TooSmallOutputSize2) {
+    int status = NO_ERROR;
+    BlockCipherHandle handle = nullptr;
+    size_t outputSize = 0;
+    uint8_t input[] = { 0xb9, 0xe9, 0x8a, 0x3c, 0x77, 0xa5, 0x10, 0x86 };
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Encryption_mode, ECB_mode, PKCSN7_padding, KEY_8, nullptr));
+    EVAL(ProcessingByBlockCipher(handle, TEST_STRING_8, 8, true, nullptr, &outputSize));
+
+exit:
+    EXPECT_TRUE(status == ERROR_TOO_SMALL_OUTPUT_SIZE);
+}
+
+TEST(ProcessingByBlockCipherCommonT, TooSmallOutputSize3) {
+    int status = NO_ERROR;
+    BlockCipherHandle handle = nullptr;
+    size_t outputSize = 0;
+    uint8_t input[] = { 0xb9, 0xe9, 0x8a, 0x3c, 0x77, 0xa5, 0x10, 0x86 };
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, KEY_8, nullptr));
+    EVAL(ProcessingByBlockCipher(handle, input, 8, true, nullptr, &outputSize));
+
+exit:
+    EXPECT_TRUE(status == ERROR_TOO_SMALL_OUTPUT_SIZE);
+}
