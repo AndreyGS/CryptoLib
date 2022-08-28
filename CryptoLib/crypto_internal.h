@@ -41,6 +41,7 @@ typedef struct _BlockCipherState {
     CryptoMode enMode;
     BlockCipherOpMode opMode;
     PaddingType padding;
+    HardwareFeatures hwFeatures;
     void* state;
 } BlockCipherState;
 

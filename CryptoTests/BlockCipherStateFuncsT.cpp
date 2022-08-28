@@ -270,29 +270,24 @@ TEST(BlockCipherStateFuncsTest, FreeBlockCipherStateMain) {
     uint64_t iv = 0, ivCopy = iv;
     bool allOk = false;
 
+    std::unique_ptr<uint8_t[]> test_1 = std::make_unique<uint8_t[]>(sizeof(DesState));
+    std::unique_ptr<uint8_t[]> test_2 = std::make_unique<uint8_t[]>(sizeof(DesState));
+    memset(test_1.get(), 0, sizeof(DesState));
+    memset(test_2.get(), 0xdd, sizeof(DesState));
+
+    std::unique_ptr<uint8_t[]> test_3 = std::make_unique<uint8_t[]>(sizeof(BlockCipherState));
+    std::unique_ptr<uint8_t[]> test_4 = std::make_unique<uint8_t[]>(sizeof(BlockCipherState));
+    memset(test_3.get(), 0, sizeof(BlockCipherState));
+    memset(test_4.get(), 0xdd, sizeof(BlockCipherState));
+
     EVAL(InitBlockCipherState(&handle, (BlockCipherType)0, Decryption_mode, CBC_mode, No_padding, KEY_8, &iv));
     state = (BlockCipherState*)handle;
     specificCipherState = ((BlockCipherState*)handle)->state;
 
     EVAL(FreeBlockCipherState(handle));
-    
-    {
-        std::unique_ptr<uint8_t[]> test_1 = std::make_unique<uint8_t[]>(sizeof(DesState));
-        std::unique_ptr<uint8_t[]> test_2 = std::make_unique<uint8_t[]>(sizeof(DesState));
-        memset(test_1.get(), 0, sizeof(DesState));
-        memset(test_2.get(), 0xdd, sizeof(DesState));
 
-        EXPECT_TRUE(memcmp(specificCipherState, test_1.get(), sizeof(DesState)) == 0 || memcmp(specificCipherState, test_2.get(), sizeof(DesState)) == 0);
-    }
-
-    {
-        std::unique_ptr<uint8_t[]> test_1 = std::make_unique<uint8_t[]>(sizeof(BlockCipherState));
-        std::unique_ptr<uint8_t[]> test_2 = std::make_unique<uint8_t[]>(sizeof(BlockCipherState));
-        memset(test_1.get(), 0, sizeof(BlockCipherState));
-        memset(test_1.get(), 0xdd, sizeof(BlockCipherState));
-
-        EXPECT_TRUE(memcmp(state, test_1.get(), sizeof(BlockCipherState)) == 0 || memcmp(state, test_2.get(), sizeof(BlockCipherState)) == 0);
-    }
+    EXPECT_TRUE(memcmp(specificCipherState, test_1.get(), sizeof(DesState)) == 0 || memcmp(specificCipherState, test_2.get(), sizeof(DesState)) == 0);
+    EXPECT_TRUE(memcmp(state, test_3.get(), sizeof(BlockCipherState)) == 0 || memcmp(state, test_4.get(), sizeof(BlockCipherState)) == 0);
 
     allOk = true;
 

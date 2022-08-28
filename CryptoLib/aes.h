@@ -40,6 +40,42 @@ typedef struct _Aes256State {
     uint64_t iv[2];
 } Aes256State;
 
+typedef struct _Aes128StateXmm8 {
+    void* xmmRegsBuffer[8];
+    uint32_t roundsKeys[44];
+    uint64_t iv[2];
+} Aes128StateXmm8;
+
+typedef struct _Aes192StateXmm8 {
+    void* xmmRegsBuffer[8];
+    uint32_t roundsKeys[52];
+    uint64_t iv[2];
+} Aes192StateXmm8;
+
+typedef struct _Aes256StateXmm8 {
+    void* xmmRegsBuffer[8];
+    uint32_t roundsKeys[60];
+    uint64_t iv[2];
+} Aes256StateXmm8;
+
+typedef struct _Aes128StateXmm16 {
+    void* xmmRegsBuffer[16];
+    uint32_t roundsKeys[44];
+    uint64_t iv[2];
+} Aes128StateXmm16;
+
+typedef struct _Aes192StateXmm16 {
+    void* xmmRegsBuffer[16];
+    uint32_t roundsKeys[52];
+    uint64_t iv[2];
+} Aes192StateXmm16;
+
+typedef struct _Aes256StateXmm16 {
+    void* xmmRegsBuffer[16];
+    uint32_t roundsKeys[60];
+    uint64_t iv[2];
+} Aes256StateXmm16;
+
 void AesKeySchedule(__in BlockCipherType cipher, __in const uint32_t* key, __out uint32_t* roundsKeys);
 
 int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in size_t inputSize

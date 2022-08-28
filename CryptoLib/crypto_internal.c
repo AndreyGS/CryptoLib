@@ -216,7 +216,7 @@ int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCiph
     switch (cipher) {
     case DES_cipher_type:
     case TDES_cipher_type:
-        EVAL(AllocBuffer(&(*state)->state, specificStateSize));
+        EVAL(AlignedAllocBuffer(&(*state)->state, specificStateSize, 8));
         break;
     case AES128_cipher_type:
     case AES192_cipher_type:
@@ -357,17 +357,7 @@ void FreeBlockCipherStateInternal(__inout BlockCipherState* state)
 
     memset_s(state->state, specificStateSize, 0, specificStateSize);
 
-    switch (state->cipher) {
-    case DES_cipher_type:
-    case TDES_cipher_type:
-        FreeBuffer(state->state);
-        break;
-    case AES128_cipher_type:
-    case AES192_cipher_type:
-    case AES256_cipher_type:
-        AlignedFreeBuffer(state->state);
-        break;
-    }
+    AlignedFreeBuffer(state->state);
 
     memset_s(state, sizeof(BlockCipherState), 0, sizeof(BlockCipherState));
     FreeBuffer(state);

@@ -130,6 +130,14 @@ typedef enum _PaddingType {
     PaddingType_max
 } PaddingType;
 
+typedef struct _HardwareFeatures {
+    unsigned int aesni  : 1;
+    unsigned int avx    : 1;
+    unsigned int vex_aes: 1;
+    unsigned int vaes   : 1;
+    unsigned int aeskle : 1;
+} HardwareFeatures;
+
 typedef uint32_t _HashFuncs;
 typedef enum _HashFunc {
     SHA1,
@@ -223,12 +231,28 @@ int AddPadding(__in const void* input, __in size_t inputSize, __in PaddingType p
  * @param cryptoMode encryption or decryption
  * @param opMode type of operation mode (ECB, CBC, etc)
  * @param padding type of padding that using in encryption/decryption
+ * @param hwFeatures is what type of hardware encryption support user wants to enable (only for AES)
  * @param key encryption key
  * @param iv initialization vector (for ECB is not used)
  * 
  * @return status
  */
-int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt const void* iv);
+int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode
+    , __in PaddingType padding, __in HardwareFeatures hwFeatures, __in const void* key, __in_opt const void* iv);
+
+/**
+ * Returns enabled hardware features for this handle (has sense only for AES)
+ * 
+ * User may ask to enable as many hardware features as he wants, but if some of them 
+ * are not supported by execution enviroment, and this function gives an actual info
+ * about enabled features in current handle
+ *
+ * @param handle is a state handle that inited by InitBlockCipherState
+ * @param hwFeatures struct that receives hw features enabled state for current handle
+ *
+ * @return status
+ */
+int GetHardwareFeaturesEnables(__in BlockCipherHandle handle, __out HardwareFeatures hwFeatures);
 
 /**
  * ReInits crypto mode (encryption/decryption)
@@ -269,6 +293,16 @@ int ReInitBlockCipherPaddingType(__inout BlockCipherHandle handle, __in PaddingT
  * @return status
  */
 int ReInitBlockCipherIv(__inout BlockCipherHandle handle, __in const void* iv);
+
+/**
+ * ReInits set enabled hardware features (has sense only for AES)
+ *
+ * @param handle is a state handle that inited by InitBlockCipherState
+ * @param opMode new requested hardware features
+ *
+ * @return status
+ */
+int ReInitHardwareFeatures(__inout BlockCipherHandle handle, __in HardwareFeatures hwFeatures);
 
 /**
  * Make processing by block cipher function
