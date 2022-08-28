@@ -107,7 +107,6 @@ typedef enum _BlockCipherType {
 
 #define AES_IV_SIZE                     AES_BLOCK_SIZE
 
-
 typedef enum _BlockCipherOpMode {
     ECB_mode,
     CBC_mode,
