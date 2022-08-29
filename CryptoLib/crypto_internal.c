@@ -184,7 +184,7 @@ int CutPaddingInternal(__in PaddingType padding, __in size_t blockSize, __in uin
     return status;
 }
 
-inline size_t GetSpecificBlockCipherStateSize(__in BlockCipherType cipher)
+inline size_t GetSpecificBlockCipherStateSize(__in BlockCipherType cipher, __in HardwareFeatures hwFeatures)
 {
     switch (cipher) {
     case DES_cipher_type:
@@ -192,17 +192,33 @@ inline size_t GetSpecificBlockCipherStateSize(__in BlockCipherType cipher)
     case TDES_cipher_type:
         return sizeof(TdesState);
     case AES128_cipher_type:
-        return sizeof(Aes128State);
+        if (hwFeatures.avx)
+            return sizeof(Aes128AvxState);
+        else if (hwFeatures.aesni)
+            return sizeof(Aes128NiState);
+        else
+            return sizeof(Aes128State);
     case AES192_cipher_type:
-        return sizeof(Aes192State);
+        if (hwFeatures.avx)
+            return sizeof(Aes192AvxState);
+        else if (hwFeatures.aesni)
+            return sizeof(Aes192NiState);
+        else
+            return sizeof(Aes192State);
     case AES256_cipher_type:
-        return sizeof(Aes256State);
+        if (hwFeatures.avx)
+            return sizeof(Aes256AvxState);
+        else if (hwFeatures.aesni)
+            return sizeof(Aes256NiState);
+        else
+            return sizeof(Aes256State);
     default:
         return 0;
     }
 }
 
-int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt const void* iv)
+int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode
+    , __in PaddingType padding, __in HardwareFeatures hwFeatures, __in const void* key, __in_opt const void* iv)
 {
     assert(state && key && (opMode == ECB_mode || iv));
 
@@ -211,7 +227,9 @@ int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCiph
     EVAL(AllocBuffer(state, sizeof(BlockCipherState)));
     (*state)->cipher = cipher;
 
-    size_t specificStateSize = GetSpecificBlockCipherStateSize(cipher);
+    ReInitHardwareFeaturesInternal(*state, hwFeatures);
+
+    size_t specificStateSize = GetSpecificBlockCipherStateSize(cipher, (*state)->hwFeatures);
 
     switch (cipher) {
     case DES_cipher_type:
@@ -254,6 +272,13 @@ void BlockCipherKeySchedule(__in BlockCipherType cipher, __in const void* key, _
     }
 }
 
+inline void GetActiveHardwareFeaturesInternal(__in BlockCipherState* state, __out HardwareFeatures hwFeatures)
+{
+    assert(state);
+
+    hwFeatures = state->hwFeatures;
+}
+
 inline void ReInitBlockCipherCryptoModeInternal(__inout BlockCipherState* state, __in CryptoMode cryptoMode)
 {
     assert(state);
@@ -273,6 +298,29 @@ inline void ReInitBlockCipherPaddingTypeInternal(__inout BlockCipherState* state
     assert(state);
 
     state->padding = padding;
+}
+
+void ReInitHardwareFeaturesInternal(__inout BlockCipherState* state, __in HardwareFeatures hwFeatures)
+{
+    assert(state);
+
+    HardwareFeatures emptyHwFeatures = { 0 };
+    state->hwFeatures = emptyHwFeatures;
+
+    if (state->cipher == AES128_cipher_type || state->cipher == AES192_cipher_type || state->cipher == AES256_cipher_type) {
+        HardwareFeatures supportedHwFeatures = HardwareFeaturesDetect();
+
+        // Next features are not implemented for now and should be zeroed;
+        supportedHwFeatures.vex_aes = false;
+        supportedHwFeatures.vaes = false;
+        supportedHwFeatures.aeskle = false;
+        
+        state->hwFeatures.avx = hwFeatures.avx ? supportedHwFeatures.avx : false;
+        state->hwFeatures.aesni = hwFeatures.aesni || hwFeatures.avx ? supportedHwFeatures.aesni : false;
+        state->hwFeatures.vex_aes = false;
+        state->hwFeatures.vaes = false;
+        state->hwFeatures.aeskle = false;
+    }
 }
 
 void ReInitBlockCipherIvInternal(__in BlockCipherType cipher, __in const void* iv, __inout void* specificCipherState)
@@ -316,9 +364,9 @@ int ProcessingByBlockCipherInternal(__inout BlockCipherState* state, __in const 
     case AES192_cipher_type:
     case AES256_cipher_type:
         if (state->enMode == Encryption_mode)
-            return AesEncrypt(state->state, state->cipher, state->opMode, state->padding, input, inputSize, finalize, output, outputSize);
+            return AesEncrypt(state->state, state->cipher, state->opMode, state->padding, state->hwFeatures, input, inputSize, finalize, output, outputSize);
         else
-            return AesDecrypt(state->state, state->cipher, state->opMode, state->padding, input, inputSize, finalize, output, outputSize);
+            return AesDecrypt(state->state, state->cipher, state->opMode, state->padding, state->hwFeatures, input, inputSize, finalize, output, outputSize);
     default:
         return NO_ERROR;
     }
@@ -353,7 +401,7 @@ void FreeBlockCipherStateInternal(__inout BlockCipherState* state)
 {
     assert(state && state->state);
 
-    size_t specificStateSize = GetSpecificBlockCipherStateSize(state->cipher);
+    size_t specificStateSize = GetSpecificBlockCipherStateSize(state->cipher, state->hwFeatures);
 
     memset_s(state->state, specificStateSize, 0, specificStateSize);
 

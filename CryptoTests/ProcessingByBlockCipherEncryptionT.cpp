@@ -15,7 +15,7 @@ TEST(ProcessingByBlockCipherEncryptionTest, TooSmallOutputSize) {
     size_t outputSize = 0;
     uint8_t* buffer = new uint8_t[outputSize];
     BlockCipherHandle handle = nullptr;
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Encryption_mode, ECB_mode, PKCSN7_padding, KEY_8, nullptr));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Encryption_mode, ECB_mode, PKCSN7_padding, HardwareFeatures(), KEY_8, nullptr));
     EVAL(ProcessingByBlockCipher(handle, input, 8, true, buffer, &outputSize));
 
 exit:

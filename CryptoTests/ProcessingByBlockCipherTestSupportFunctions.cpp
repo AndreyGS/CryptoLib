@@ -40,8 +40,10 @@ void ProcessingByBlockCipherMainTestFunc(__in const void* input, __in size_t inp
     }
 
     BlockCipherHandle handle = nullptr;
+    HardwareFeatures hwFeatures = { 0 };
+    hwFeatures.avx = true;
 
-    EVAL(InitBlockCipherState(&handle, cipherType, enMode, mode, padding, key, iv));
+    EVAL(InitBlockCipherState(&handle, cipherType, enMode, mode, padding, hwFeatures, key, iv));
 
     EVAL(ProcessingByBlockCipher(handle, input, inputSize, true, buffer.get(), &outputSize));
 
@@ -130,8 +132,10 @@ void ProcessingByBlockCipherMultipartTestFunc(__in const void* input_1, __in siz
     size_t outputSize = inputSize_1;
 
     BlockCipherHandle handle = nullptr;
+    HardwareFeatures hwFeatures = { 0 };
+    hwFeatures.avx = true;
 
-    EVAL(InitBlockCipherState(&handle, cipherType, enMode, mode, padding, key, iv));
+    EVAL(InitBlockCipherState(&handle, cipherType, enMode, mode, padding, hwFeatures, key, iv));
 
     if (NO_ERROR == (status = ProcessingByBlockCipher(handle, input_1, inputSize_1, false, buffer.get(), &outputSize))) {
         size_t totalSize = outputSize;

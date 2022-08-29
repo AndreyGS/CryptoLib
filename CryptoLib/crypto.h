@@ -130,12 +130,17 @@ typedef enum _PaddingType {
     PaddingType_max
 } PaddingType;
 
+/// @struct HardwareFeatures
+/// 
+/// This bit field describes enabled hardware features.
+/// Currently only AESNI and AVX flags are supported.
+/// If AVX flag is set, then AESNI is ignored, because AVX is the superset of AESNI 
 typedef struct _HardwareFeatures {
-    unsigned int aesni  : 1;
-    unsigned int avx    : 1;
-    unsigned int vex_aes: 1;
-    unsigned int vaes   : 1;
-    unsigned int aeskle : 1;
+    uint64_t aesni  : 1;
+    uint64_t avx    : 1;
+    uint64_t vex_aes: 1;
+    uint64_t vaes   : 1;
+    uint64_t aeskle : 1;
 } HardwareFeatures;
 
 typedef uint32_t _HashFuncs;
@@ -241,18 +246,18 @@ int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType
     , __in PaddingType padding, __in HardwareFeatures hwFeatures, __in const void* key, __in_opt const void* iv);
 
 /**
- * Returns enabled hardware features for this handle (has sense only for AES)
+ * Returns active set of hardware features for this handle (has sense only for AES)
  * 
  * User may ask to enable as many hardware features as he wants, but if some of them 
- * are not supported by execution enviroment, and this function gives an actual info
- * about enabled features in current handle
+ * are not supported by execution enviroment, then this function gives an actual info
+ * about active features in the current handle
  *
  * @param handle is a state handle that inited by InitBlockCipherState
  * @param hwFeatures struct that receives hw features enabled state for current handle
  *
  * @return status
  */
-int GetHardwareFeaturesEnables(__in BlockCipherHandle handle, __out HardwareFeatures hwFeatures);
+int GetActiveHardwareFeatures(__in BlockCipherHandle handle, __out HardwareFeatures hwFeatures);
 
 /**
  * ReInits crypto mode (encryption/decryption)

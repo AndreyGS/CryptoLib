@@ -40,46 +40,48 @@ typedef struct _Aes256State {
     uint64_t iv[2];
 } Aes256State;
 
-typedef struct _Aes128StateXmm8 {
-    void* xmmRegsBuffer[8];
+typedef struct _Aes128NiState {
     uint32_t roundsKeys[44];
     uint64_t iv[2];
-} Aes128StateXmm8;
+    uint64_t xmmRegsBuffer[16];
+} Aes128NiState;
 
-typedef struct _Aes192StateXmm8 {
-    void* xmmRegsBuffer[8];
+typedef struct _Aes192NiState {
     uint32_t roundsKeys[52];
     uint64_t iv[2];
-} Aes192StateXmm8;
+    uint64_t xmmRegsBuffer[16];
+} Aes192NiState;
 
-typedef struct _Aes256StateXmm8 {
-    void* xmmRegsBuffer[8];
+typedef struct _Aes256NiState {
     uint32_t roundsKeys[60];
     uint64_t iv[2];
-} Aes256StateXmm8;
+    uint64_t xmmRegsBuffer[16];
+} Aes256NiState;
 
-typedef struct _Aes128StateXmm16 {
-    void* xmmRegsBuffer[16];
+typedef struct _Aes128AvxState {
     uint32_t roundsKeys[44];
     uint64_t iv[2];
-} Aes128StateXmm16;
+    uint64_t xmmRegsBuffer[24];
+} Aes128AvxState;
 
-typedef struct _Aes192StateXmm16 {
-    void* xmmRegsBuffer[16];
+typedef struct _Aes192AvxState {
     uint32_t roundsKeys[52];
     uint64_t iv[2];
-} Aes192StateXmm16;
+    uint64_t xmmRegsBuffer[28];
+} Aes192AvxState;
 
-typedef struct _Aes256StateXmm16 {
-    void* xmmRegsBuffer[16];
+typedef struct _Aes256AvxState {
     uint32_t roundsKeys[60];
     uint64_t iv[2];
-} Aes256StateXmm16;
+    uint64_t xmmRegsBuffer[32];
+} Aes256AvxState;
+
+HardwareFeatures HardwareFeaturesDetect();
 
 void AesKeySchedule(__in BlockCipherType cipher, __in const uint32_t* key, __out uint32_t* roundsKeys);
 
-int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in size_t inputSize
-    , __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize);
+int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in HardwareFeatures hwFeatures
+    , __in const uint64_t* input, __in size_t inputSize, __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize);
 
-int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in size_t inputSize
-    , __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize);
+int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in HardwareFeatures hwFeatures
+    , __in const uint64_t* input, __in size_t inputSize, __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize);

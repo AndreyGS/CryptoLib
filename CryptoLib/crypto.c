@@ -46,7 +46,8 @@ int AddPadding(__in const void* input, __in size_t inputSize, __in PaddingType p
         return AddPaddingInternal(input, inputSize, padding, blockSize, output, outputSize, fillLastBlock);
 }
 
-int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt const void* iv)
+int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode
+    , __in PaddingType padding, __in HardwareFeatures hwFeatures, __in const void* key, __in_opt const void* iv)
 {
     if (!handle)
         return ERROR_NULL_STATE_HANDLE;
@@ -63,7 +64,15 @@ int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType
     else if (!iv && opMode != ECB_mode)
         return ERROR_NULL_INIT_VECTOR;
     else
-        return InitBlockCiperStateInternal((BlockCipherState**)handle, cipher, cryptoMode, opMode, padding, key, iv);
+        return InitBlockCiperStateInternal((BlockCipherState**)handle, cipher, cryptoMode, opMode, padding, hwFeatures, key, iv);
+}
+
+int GetActiveHardwareFeatures(__in BlockCipherHandle handle, __out HardwareFeatures hwFeatures)
+{
+    if (!handle)
+        return ERROR_NULL_STATE_HANDLE;
+
+    return NO_ERROR;
 }
 
 int ReInitBlockCipherCryptoMode(__inout BlockCipherHandle handle, __in CryptoMode cryptoMode)
@@ -98,6 +107,16 @@ int ReInitBlockCipherPaddingType(__inout BlockCipherHandle handle, __in PaddingT
         return ERROR_UNSUPPORTED_PADDING_TYPE;
 
     ReInitBlockCipherPaddingTypeInternal(handle, padding);
+
+    return NO_ERROR;
+}
+
+int ReInitHardwareFeatures(__inout BlockCipherHandle handle, __in HardwareFeatures hwFeatures)
+{
+    if (!handle)
+        return ERROR_NULL_STATE_HANDLE;
+
+    ReInitHardwareFeaturesInternal(handle, hwFeatures);
 
     return NO_ERROR;
 }

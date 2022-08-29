@@ -79,7 +79,8 @@ PrepareXmmRegistersForAes PROC
 ; rdx: cipherType: dword
 ; r8:  encryptionMode: CryptoMode
 
-movaps xmmword ptr [xmmStorage], xmm0
+	enter 0, 0
+	movaps xmmword ptr [xmmStorage], xmm0
 	movaps xmmword ptr [xmmStorage+16], xmm1
 	movaps xmmword ptr [xmmStorage+32], xmm2
 	movaps xmmword ptr [xmmStorage+48], xmm3
@@ -124,7 +125,7 @@ movaps xmmword ptr [xmmStorage], xmm0
 	aesimc xmm10, xmm10
 @@:
 	cmp dl, 2									; 2 is AES128_cipher_type
-	je @f
+	je exit
 	movaps xmm12, xmmword ptr [rcx + 176]
 	movaps xmm13, xmmword ptr [rcx + 192]
 	cmp r8b, 0
@@ -133,14 +134,15 @@ movaps xmmword ptr [xmmStorage], xmm0
 	aesimc xmm12, xmm12
 @@:
 	cmp dl, 3									; 3 is AES192_cipher_type
-	je @f
+	je exit
 	movaps xmm14, xmmword ptr [rcx + 208]
 	movaps xmm15, xmmword ptr [rcx + 224]
 	cmp r8b, 0
-	jz @f
+	jz exit
 	aesimc xmm13, xmm13
 	aesimc xmm14, xmm14
-@@:
+exit:
+	leave
 	ret
 PrepareXmmRegistersForAes ENDP
 
@@ -169,7 +171,7 @@ RestoreXmmRegistersFromAes PROC, cipherType: dword
 	ret
 RestoreXmmRegistersFromAes ENDP
 
-Aes128EncryptBlockNi PROC
+Aes128AvxEncryptBlock PROC
 ; rcx: stub
 ; rdx: input: ptr xmmword
 ; r8: output: ptr xmmword
@@ -188,9 +190,9 @@ Aes128EncryptBlockNi PROC
 	aesenclast xmm0, xmm11
 	movaps xmmword ptr [r8], xmm0
 	ret
-Aes128EncryptBlockNi ENDP
+Aes128AvxEncryptBlock ENDP
 
-Aes192EncryptBlockNi PROC
+Aes192AvxEncryptBlock PROC
 ; rcx: stub
 ; rdx: input: ptr xmmword
 ; r8: output: ptr xmmword
@@ -211,9 +213,9 @@ Aes192EncryptBlockNi PROC
 	aesenclast xmm0, xmm13
 	movaps xmmword ptr [r8], xmm0
 	ret
-Aes192EncryptBlockNi ENDP
+Aes192AvxEncryptBlock ENDP
 
-Aes256EncryptBlockNi PROC
+Aes256AvxEncryptBlock PROC
 ; rcx: stub
 ; rdx: input: ptr xmmword
 ; r8: output: ptr xmmword
@@ -236,9 +238,9 @@ Aes256EncryptBlockNi PROC
 	aesenclast xmm0, xmm15
 	movaps xmmword ptr [r8], xmm0
 	ret
-Aes256EncryptBlockNi ENDP
+Aes256AvxEncryptBlock ENDP
 
-Aes128DecryptBlockNi PROC
+Aes128AvxDecryptBlock PROC
 ; rcx: stub
 ; rdx: input: ptr xmmword
 ; r8: output: ptr xmmword
@@ -257,9 +259,9 @@ Aes128DecryptBlockNi PROC
 	aesdeclast xmm0, xmm1
 	movaps xmmword ptr [r8], xmm0
 	ret
-Aes128DecryptBlockNi ENDP
+Aes128AvxDecryptBlock ENDP
 
-Aes192DecryptBlockNi PROC
+Aes192AvxDecryptBlock PROC
 ; rcx: stub
 ; rdx: input: ptr xmmword
 ; r8: output: ptr xmmword
@@ -280,9 +282,9 @@ Aes192DecryptBlockNi PROC
 	aesdeclast xmm0, xmm1
 	movaps xmmword ptr [r8], xmm0
 	ret
-Aes192DecryptBlockNi ENDP
+Aes192AvxDecryptBlock ENDP
 
-Aes256DecryptBlockNi PROC
+Aes256AvxDecryptBlock PROC
 ; rcx: stub
 ; rdx: input: ptr xmmword
 ; r8: output: ptr xmmword
@@ -305,6 +307,33 @@ Aes256DecryptBlockNi PROC
 	aesdeclast xmm0, xmm1
 	movaps xmmword ptr [r8], xmm0
 	ret
-Aes256DecryptBlockNi ENDP
+Aes256AvxDecryptBlock ENDP
+
+
+
+Aes128NiEncryptBlock PROC
+	ret
+Aes128NiEncryptBlock ENDP
+
+Aes192NiEncryptBlock PROC
+	ret
+Aes192NiEncryptBlock ENDP
+
+Aes256NiEncryptBlock PROC
+	ret
+Aes256NiEncryptBlock ENDP
+
+
+Aes128NiDecryptBlock PROC
+	ret
+Aes128NiDecryptBlock ENDP
+
+Aes192NiDecryptBlock PROC
+	ret
+Aes192NiDecryptBlock ENDP
+
+Aes256NiDecryptBlock PROC
+	ret
+Aes256NiDecryptBlock ENDP
 
 END

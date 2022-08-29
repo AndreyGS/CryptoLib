@@ -29,15 +29,22 @@
 
 typedef void (*AesProcessingBlockFunction)(__in const uint64_t* roundsKeys, __in const uint64_t* input, __out uint64_t* output);
 
-int HardwareFeaturesDetect();
-void PrepareXmmRegistersForAes(const uint64_t* roundsKeys, BlockCipherType type, CryptoMode cryptoMode);
+void PrepareXmmRegistersForAes(__in const uint64_t* roundsKeys, __in  BlockCipherType type, __in  CryptoMode cryptoMode, __inout  uint64_t* xmmRegsBuffer, __in  bool avxActive);
 void RestoreXmmRegistersFromAes(BlockCipherType type);
-void Aes128EncryptBlockNi(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
-void Aes192EncryptBlockNi(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
-void Aes256EncryptBlockNi(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
-void Aes128DecryptBlockNi(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
-void Aes192DecryptBlockNi(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
-void Aes256DecryptBlockNi(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
+
+void Aes128NiEncryptBlock(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
+void Aes192NiEncryptBlock(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
+void Aes256NiEncryptBlock(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
+void Aes128NiDecryptBlock(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
+void Aes192NiDecryptBlock(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
+void Aes256NiDecryptBlock(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
+
+void Aes128AvxEncryptBlock(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
+void Aes192AvxEncryptBlock(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
+void Aes256AvxEncryptBlock(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
+void Aes128AvxDecryptBlock(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
+void Aes192AvxDecryptBlock(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
+void Aes256AvxDecryptBlock(__in const uint64_t* roundsKeys, __in  const uint64_t* input, __out uint64_t* output);
 
 const uint8_t AES_S_BOX[256] = 
 {
@@ -412,14 +419,12 @@ void Aes256DecryptBlock(__in const uint64_t* roundsKeys, __in const uint64_t* in
     AesDecryptBlock(roundsKeys, 14, input, output);
 }
 
-int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in size_t inputSize
-    , __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize)
+int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in HardwareFeatures hwFeatures
+    , __in const uint64_t* input, __in size_t inputSize, __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize)
 {
     assert(input && outputSize);
 
     int status = NO_ERROR;
-
-    int iii = HardwareFeaturesDetect();
 
     if (!finalize) {
         if (inputSize & 15)
@@ -433,22 +438,52 @@ int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     AesProcessingBlockFunction func = NULL;
     uint64_t* roundsKeys = state;
     uint64_t* iv = NULL;
+    uint64_t* xmmRegisters = NULL;
     uint8_t roundsNum = 0;
-
-    PrepareXmmRegistersForAes(roundsKeys, cipher, Encryption_mode);
     
     if (cipher == AES128_cipher_type) {
+        // IV will always be at this offset in AES128 encryption structures
         iv = ((Aes128State*)state)->iv;
-        func = Aes128EncryptBlockNi;
+        if (hwFeatures.avx) {
+            func = Aes128AvxEncryptBlock;
+            xmmRegisters = ((Aes128AvxState*)state)->xmmRegsBuffer;
+        }
+        else if (hwFeatures.aesni) {
+            func = Aes128NiEncryptBlock;
+            xmmRegisters = ((Aes128NiState*)state)->xmmRegsBuffer;
+        }
+        else
+            func = Aes128EncryptBlock;
     }
     else if (cipher == AES192_cipher_type) {
         iv = ((Aes192State*)state)->iv;
-        func = Aes192EncryptBlockNi;
+        if (hwFeatures.avx) {
+            func = Aes192AvxEncryptBlock;
+            xmmRegisters = ((Aes192AvxState*)state)->xmmRegsBuffer;
+        }
+        else if (hwFeatures.aesni) {
+            func = Aes192NiEncryptBlock;
+            xmmRegisters = ((Aes192NiState*)state)->xmmRegsBuffer;
+        }
+        else
+            func = Aes192EncryptBlock;
     }
     else {
         iv = ((Aes256State*)state)->iv;
-        func = Aes256EncryptBlockNi;
+        if (hwFeatures.avx) {
+            func = Aes256AvxEncryptBlock;
+            xmmRegisters = ((Aes256AvxState*)state)->xmmRegsBuffer;
+        }
+        else if (hwFeatures.aesni) {
+            func = Aes256NiEncryptBlock;
+            xmmRegisters = ((Aes256NiState*)state)->xmmRegsBuffer;
+        }
+        else
+            func = Aes256EncryptBlock;
     }
+
+    if (hwFeatures.aesni)
+        PrepareXmmRegistersForAes(roundsKeys, cipher, Encryption_mode, xmmRegisters, (bool)hwFeatures.avx);
 
     uint64_t blocksNumber = *outputSize >> 4; // (outputSize / AES_BLOCK_SIZE) outputSize must be divisible by AES_BLOCK_SIZE without remainder
 
@@ -588,8 +623,8 @@ int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     return NO_ERROR;
 }
 
-int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in size_t inputSize
-    , __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize)
+int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in HardwareFeatures hwFeatures
+    , __in const uint64_t* input, __in size_t inputSize, __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize)
 {
     assert(input && outputSize);
 
@@ -601,22 +636,52 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     AesProcessingBlockFunction func = NULL;
     uint64_t* roundsKeys = state;
     uint64_t* iv = NULL;
+    uint64_t* xmmRegisters = NULL;
     uint8_t roundsNum = 0;
-
-    PrepareXmmRegistersForAes(roundsKeys, cipher, opMode == ECB_mode || opMode == CBC_mode ? Decryption_mode : Encryption_mode);
+    bool isDecryptionFunc = opMode == ECB_mode || opMode == CBC_mode;
 
     if (cipher == AES128_cipher_type) {
         iv = ((Aes128State*)state)->iv;
-        func = opMode == ECB_mode || opMode == CBC_mode ? Aes128DecryptBlockNi : Aes128EncryptBlockNi;
+        if (hwFeatures.avx) {
+            func = isDecryptionFunc ? Aes128AvxDecryptBlock : Aes128AvxEncryptBlock;
+            xmmRegisters = ((Aes128AvxState*)state)->xmmRegsBuffer;
+        }
+        else if (hwFeatures.aesni) {
+            func = isDecryptionFunc ? Aes128NiDecryptBlock : Aes128NiEncryptBlock;
+            xmmRegisters = ((Aes128NiState*)state)->xmmRegsBuffer;
+        }
+        else
+            func = isDecryptionFunc ? Aes128DecryptBlock : Aes128EncryptBlock;;
     }
     else if (cipher == AES192_cipher_type) {
         iv = ((Aes192State*)state)->iv;
-        func = opMode == ECB_mode || opMode == CBC_mode ? Aes192DecryptBlockNi : Aes192EncryptBlockNi;
+        if (hwFeatures.avx) {
+            func = isDecryptionFunc ? Aes192AvxDecryptBlock : Aes192AvxEncryptBlock;
+            xmmRegisters = ((Aes192AvxState*)state)->xmmRegsBuffer;
+        }
+        else if (hwFeatures.aesni) {
+            func = isDecryptionFunc ? Aes192NiDecryptBlock : Aes192NiEncryptBlock;
+            xmmRegisters = ((Aes192NiState*)state)->xmmRegsBuffer;
+        }
+        else
+            func = isDecryptionFunc ? Aes192DecryptBlock : Aes192EncryptBlock;
     }
     else {
         iv = ((Aes256State*)state)->iv;
-        func = opMode == ECB_mode || opMode == CBC_mode ? Aes256DecryptBlockNi : Aes256EncryptBlockNi;
+        if (hwFeatures.avx) {
+            func = isDecryptionFunc ? Aes256AvxDecryptBlock : Aes256AvxEncryptBlock;
+            xmmRegisters = ((Aes256AvxState*)state)->xmmRegsBuffer;
+        }
+        else if (hwFeatures.aesni) {
+            func = isDecryptionFunc ? Aes256NiDecryptBlock : Aes256NiEncryptBlock;
+            xmmRegisters = ((Aes256NiState*)state)->xmmRegsBuffer;
+        }
+        else
+            func = isDecryptionFunc ? Aes256DecryptBlock : Aes256EncryptBlock;
     }
+
+    if (hwFeatures.aesni)
+        PrepareXmmRegistersForAes(roundsKeys, cipher, isDecryptionFunc ? Decryption_mode : Encryption_mode, xmmRegisters, (bool)hwFeatures.avx);
 
     uint64_t blocksNumber = inputSize >> 4; // (inputSize / AES_BLOCK_SIZE) inputSize must be divisible by AES_BLOCK_SIZE without remainder
     const uint64_t* lastInputBlock = input + ((blocksNumber - 1) << 1);
