@@ -76,8 +76,6 @@ PrepareXmmRegistersForAesAvx PROC
 	movaps xmmword ptr [r9+80], xmm5
 	movaps xmmword ptr [r9+96], xmm6
 	movaps xmmword ptr [r9+112], xmm7
-	cmp byte ptr [rsp+28h], 0					; check have we 8 xmm registers or 16 (AVX active)
-	je @f
 	movaps xmmword ptr [r9+128], xmm8
 	movaps xmmword ptr [r9+144], xmm9
 	movaps xmmword ptr [r9+160], xmm10
@@ -118,7 +116,7 @@ PrepareXmmRegistersForAesAvx PROC
 	aesimc xmm10, xmmword ptr [rcx + 144]
 @@:
 	cmp dl, 2									; 2 is AES128_cipher_type
-	je finalreg
+	je finalregister
 	cmp r8b, 1
 	jz @f
 	movaps xmm12, xmmword ptr [rcx + 176]
@@ -130,17 +128,17 @@ PrepareXmmRegistersForAesAvx PROC
 	aesimc xmm12, xmmword ptr [rcx + 176]
 @@:
 	cmp dl, 3									; 3 is AES192_cipher_type
-	je finalreg
+	je finalregister
 	cmp r8b, 1
 	jz @f
 	movaps xmm14, xmmword ptr [rcx + 208]
 	movaps xmm15, xmmword ptr [rcx + 224]
 @@:
 	cmp r8b, 0
-	jz finalreg
+	jz finalregister
 	aesimc xmm13, xmmword ptr [rcx + 192]
 	aesimc xmm14, xmmword ptr [rcx + 208]
-finalreg:
+finalregister:
 	cmp r8b, 0                                  ; if encryption - jump to exit
 	jz exit
 	cmp dl, 2                                   ; if not AES128 - jump forward
