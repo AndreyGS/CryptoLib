@@ -132,7 +132,6 @@ inline int AllocBuffer(void** buffer, size_t size)
 {
     assert(buffer);
 
-    *buffer = NULL;
 #ifndef KERNEL
     *buffer = malloc(size);
 #endif
@@ -146,7 +145,6 @@ inline int AlignedAllocBuffer(void** buffer, size_t size, size_t alignment)
 {
     assert(buffer);
 
-    *buffer = NULL;
 #ifndef KERNEL
     *buffer = AllignedAlloc(size, alignment);
 #endif

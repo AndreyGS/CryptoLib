@@ -27,8 +27,10 @@
 #include "sha-2.h"
 #include "paddings.h"
 
+#define SHA2_32_DWORD_CHUNKS_IN_BLOCK_NUMBER    16
+#define SHA2_64_QWORD_CHUNKS_IN_BLOCK_NUMBER    16
 
-const uint32_t H_224[8] = {
+const uint32_t H_224[SHA2_32_DWORDS_IN_STATE] = {
     0xc1059ed8,
     0x367cd507,
     0x3070dd17,
@@ -39,7 +41,7 @@ const uint32_t H_224[8] = {
     0xbefa4fa4
 };
 
-const uint32_t H_256[8] = {
+const uint32_t H_256[SHA2_32_DWORDS_IN_STATE] = {
     0x6a09e667,
     0xbb67ae85,
     0x3c6ef372,
@@ -50,7 +52,7 @@ const uint32_t H_256[8] = {
     0x5be0cd19
 };
 
-const uint64_t H_384[8] = {
+const uint64_t H_384[SHA2_64_QWORDS_IN_STATE] = {
     0xcbbb9d5dc1059ed8,
     0x629a292a367cd507,
     0x9159015a3070dd17,
@@ -61,7 +63,7 @@ const uint64_t H_384[8] = {
     0x47b5481dbefa4fa4
 };
 
-const uint64_t H_512_224[8] = {
+const uint64_t H_512_224[SHA2_64_QWORDS_IN_STATE] = {
     0x8c3d37c819544da2,
     0x73e1996689dcd4d6,
     0x1dfab7ae32ff9c82,
@@ -72,7 +74,7 @@ const uint64_t H_512_224[8] = {
     0x1112e6ad91d692a1
 };
 
-const uint64_t H_512_256[8] = {
+const uint64_t H_512_256[SHA2_64_QWORDS_IN_STATE] = {
     0x22312194fc2bf72c,
     0x9f555fa3c84c64c2,
     0x2393b86b6f53b151,
@@ -83,7 +85,7 @@ const uint64_t H_512_256[8] = {
     0x0eb72ddc81c52ca2
 };
 
-const uint64_t H_512[8] = {
+const uint64_t H_512[SHA2_64_QWORDS_IN_STATE] = {
     0x6a09e667f3bcc908,
     0xbb67ae8584caa73b,
     0x3c6ef372fe94f82b,
@@ -94,7 +96,7 @@ const uint64_t H_512[8] = {
     0x5be0cd19137e2179
 };
 
-const uint32_t K_32[64] = {
+const uint32_t K_32[SHA2_32_DWORDS_IN_ALOGO_NUMBER] = {
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
     0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
@@ -105,7 +107,7 @@ const uint32_t K_32[64] = {
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-const uint64_t K_64[80] = {
+const uint64_t K_64[SHA2_64_QWORDS_IN_ALOGO_NUMBER] = {
     0x428a2f98d728ae22, 0x7137449123ef65cd, 0xb5c0fbcfec4d3b2f, 0xe9b5dba58189dbbc, 0x3956c25bf348b538,
     0x59f111f1b605d019, 0x923f82a4af194f9b, 0xab1c5ed5da6d8118, 0xd807aa98a3030242, 0x12835b0145706fbe,
     0x243185be4ee4b28c, 0x550c7dc3d5ffb4e2, 0x72be5d74f27b896f, 0x80deb1fe3b1696b1, 0x9bdc06a725c71235,
@@ -168,10 +170,10 @@ void Sha2_32ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* outpu
 {
     assert(input && words && output);
 
-    for (int i = 0; i < 16; ++i)
+    for (int i = 0; i < SHA2_32_DWORD_CHUNKS_IN_BLOCK_NUMBER; ++i)
         words[i] = Uint32LittleEndianToBigEndian(*input++);
 
-    for (int i = 16; i < 64; ++i)
+    for (int i = SHA2_32_DWORD_CHUNKS_IN_BLOCK_NUMBER; i < SHA2_32_DWORDS_IN_ALOGO_NUMBER; ++i)
         words[i] = 
               (Uint32BigEndianRightRotate(words[i - 15],  7) ^ Uint32BigEndianRightRotate(words[i - 15], 18) ^ (words[i - 15] >>  3))
             + (Uint32BigEndianRightRotate(words[i -  2], 17) ^ Uint32BigEndianRightRotate(words[i -  2], 19) ^ (words[i -  2] >> 10))
@@ -187,7 +189,7 @@ void Sha2_32ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* outpu
              h = output[7],
              temp1 = 0, temp2 = 0;
 
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < SHA2_32_DWORDS_IN_ALOGO_NUMBER; ++i) {
         temp1 =
               (Uint32BigEndianRightRotate(e, 6) ^ Uint32BigEndianRightRotate(e, 11) ^ Uint32BigEndianRightRotate(e, 25))
             + (e & f ^ ~e & g)
@@ -258,10 +260,10 @@ void Sha2_64ProcessBlock(const uint64_t* input, uint64_t* words, uint64_t* outpu
 {
     assert(input && words && output);
 
-    for (int i = 0; i < 16; ++i)
+    for (int i = 0; i < SHA2_64_QWORD_CHUNKS_IN_BLOCK_NUMBER; ++i)
         words[i] = Uint64LittleEndianToBigEndian(*input++);
 
-    for (int i = 16; i < 80; ++i)
+    for (int i = SHA2_64_QWORD_CHUNKS_IN_BLOCK_NUMBER; i < SHA2_64_QWORDS_IN_ALOGO_NUMBER; ++i)
         words[i] =
               (Uint64BigEndianRightRotate(words[i - 15],  1) ^ Uint64BigEndianRightRotate(words[i - 15],  8) ^ (words[i - 15] >> 7))
             + (Uint64BigEndianRightRotate(words[i -  2], 19) ^ Uint64BigEndianRightRotate(words[i -  2], 61) ^ (words[i -  2] >> 6))
@@ -277,7 +279,7 @@ void Sha2_64ProcessBlock(const uint64_t* input, uint64_t* words, uint64_t* outpu
              h = output[7],
              temp1 = 0, temp2 = 0;
 
-    for (int i = 0; i < 80; ++i) {
+    for (int i = 0; i < SHA2_64_QWORDS_IN_ALOGO_NUMBER; ++i) {
         temp1 =
               (Uint64BigEndianRightRotate(e, 14) ^ Uint64BigEndianRightRotate(e, 18) ^ Uint64BigEndianRightRotate(e, 41))
             + (e & f ^ ~e & g)

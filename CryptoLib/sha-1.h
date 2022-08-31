@@ -23,13 +23,18 @@
 
 #pragma once
 
-#include "crypto_internal.h"
+#include "crypto_helpers.h"
+
+#define SHA1_DWORDS_IN_STATE                5
+#define SHA1_DWORDS_IN_ALOGO_NUMBER         80
+#define SHA1_QWORDS_IN_BLOCK                SHA1_BLOCK_SIZE / sizeof(uint64_t)
+#define SHA1_QWORDS_IN_TAIL_BLOCKS_BUFFER   SHA1_QWORDS_IN_BLOCK * SHA_1_2_MAX_BLOCKS_NUMBER_IN_TAIL
 
 typedef struct _Sha1State {
-    uint32_t state[5];
+    uint32_t state[SHA1_DWORDS_IN_STATE];
     uint64_t size;
-    uint32_t words[80];
-    uint64_t tailBlocks[16];
+    uint32_t words[SHA1_DWORDS_IN_ALOGO_NUMBER];
+    uint64_t tailBlocks[SHA1_QWORDS_IN_TAIL_BLOCKS_BUFFER];
 } Sha1State;
 
 #define HASH_STATE_SHA1_SIZE             HASH_STATE_HEADER_SIZE + sizeof(Sha1State)

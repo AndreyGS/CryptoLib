@@ -171,13 +171,13 @@ typedef enum _HashFunc {
 #define SHA3_384_DIGEST_SIZE            48
 #define SHA3_512_DIGEST_SIZE            64
 
-#define SHA1_BLOCK_SIZE 64
-#define SHA2_32_BLOCK_SIZE 64
-#define SHA2_64_BLOCK_SIZE 128
-#define SHA3_224_BLOCK_SIZE 144
-#define SHA3_256_BLOCK_SIZE 136
-#define SHA3_384_BLOCK_SIZE 104
-#define SHA3_512_BLOCK_SIZE 72
+#define SHA1_BLOCK_SIZE                 64
+#define SHA2_32_BLOCK_SIZE              64
+#define SHA2_64_BLOCK_SIZE              128
+#define SHA3_224_BLOCK_SIZE             144
+#define SHA3_256_BLOCK_SIZE             136
+#define SHA3_384_BLOCK_SIZE             104
+#define SHA3_512_BLOCK_SIZE             72
 
 typedef enum _Xof {
     SHAKE128,
@@ -185,8 +185,8 @@ typedef enum _Xof {
     Xof_max
 } Xof;
 
-#define SHAKE128_BLOCK_SIZE 168
-#define SHAKE256_BLOCK_SIZE 136
+#define SHAKE128_BLOCK_SIZE             168
+#define SHAKE256_BLOCK_SIZE             136
 
 typedef enum _Prf {
     HMAC_SHA1,

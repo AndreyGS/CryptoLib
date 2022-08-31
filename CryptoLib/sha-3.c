@@ -29,9 +29,11 @@
 #include "crypto_internal.h"
 #include "paddings.h"
 
+#define KECCAK_ROUNDS_NUMBER    24
+
 void Sha3Get(__inout StateHandle state, __in_opt const void* input, __in size_t inputSize, __in Sha3Func func, __in bool finalize, __out_opt uint64_t* output, __in_opt size_t outputSize);
 
-const uint64_t RC[] =
+const uint64_t ROUND_CONSTANTS[KECCAK_ROUNDS_NUMBER] =
 {
     0x0000000000000001, 0x0000000000008082, 0x800000000000808a, 0x8000000080008000,
     0x000000000000808b, 0x0000000080000001, 0x8000000080008081, 0x8000000000008009,
@@ -67,7 +69,7 @@ void Keccak_p_Rnds(__inout uint64_t* state)
 
     uint64_t buffer[5];
     
-    for (int r = 0; r < 24; ++r) {
+    for (int r = 0; r < KECCAK_ROUNDS_NUMBER; ++r) {
         // Theta
         buffer[0] = state[0] ^ state[5] ^ state[10] ^ state[15] ^ state[20],
         buffer[1] = state[1] ^ state[6] ^ state[11] ^ state[16] ^ state[21],
@@ -112,7 +114,7 @@ void Keccak_p_Rnds(__inout uint64_t* state)
         }
 
         // Iota
-        *state ^= RC[r];
+        *state ^= ROUND_CONSTANTS[r];
     }
 }
 

@@ -25,60 +25,81 @@
 
 #include "crypto_helpers.h"
 
+#define AES128_ROUNDKEYS_NUMBER         11
+#define AES192_ROUNDKEYS_NUMBER         13
+#define AES256_ROUNDKEYS_NUMBER         15
+#define AES_DWORDS_IN_ROUNDKEY          4
+
+#define AES128_TOTAL_DWORDS_IN_ROUNDKEYS AES128_ROUNDKEYS_NUMBER * AES_DWORDS_IN_ROUNDKEY
+#define AES192_TOTAL_DWORDS_IN_ROUNDKEYS AES192_ROUNDKEYS_NUMBER * AES_DWORDS_IN_ROUNDKEY
+#define AES256_TOTAL_DWORDS_IN_ROUNDKEYS AES256_ROUNDKEYS_NUMBER * AES_DWORDS_IN_ROUNDKEY
+
+#define AES_QWORDS_IN_IV                2
+
+#define AESNI_XMM_REGS_IN_ALOG_USE      8
+#define AES128AVX_XMM_REGS_IN_ALGO_USE  12
+#define AES192AVX_XMM_REGS_IN_ALGO_USE  14
+#define AES256AVX_XMM_REGS_IN_ALGO_USE  16
+
+#define AESNI_TOTAL_QWORDS_IN_XMM_REGS_IN_ALOG_USE      AESNI_XMM_REGS_IN_ALOG_USE * QWORDS_IN_XMM
+#define AES128AVX_TOTAL_QWORDS_IN_XMM_REGS_IN_ALGO_USE  AES128AVX_XMM_REGS_IN_ALGO_USE * QWORDS_IN_XMM
+#define AES192AVX_TOTAL_QWORDS_IN_XMM_REGS_IN_ALGO_USE  AES192AVX_XMM_REGS_IN_ALGO_USE * QWORDS_IN_XMM
+#define AES256AVX_TOTAL_QWORDS_IN_XMM_REGS_IN_ALGO_USE  AES256AVX_XMM_REGS_IN_ALGO_USE * QWORDS_IN_XMM
+
 typedef struct _Aes128State {
-    uint32_t roundsKeys[44];
-    uint64_t iv[2];
+    uint32_t roundKeys[AES128_TOTAL_DWORDS_IN_ROUNDKEYS];
+    uint64_t iv[AES_QWORDS_IN_IV];
 } Aes128State;
 
 typedef struct _Aes192State {
-    uint32_t roundsKeys[52];
-    uint64_t iv[2];
+    uint32_t roundKeys[AES192_TOTAL_DWORDS_IN_ROUNDKEYS];
+    uint64_t iv[AES_QWORDS_IN_IV];
 } Aes192State;
 
 typedef struct _Aes256State {
-    uint32_t roundsKeys[60];
-    uint64_t iv[2];
+    uint32_t roundKeys[AES256_TOTAL_DWORDS_IN_ROUNDKEYS];
+    uint64_t iv[AES_QWORDS_IN_IV];
 } Aes256State;
 
 typedef struct _Aes128NiState {
-    uint32_t roundsKeys[44];
-    uint64_t iv[2];
-    uint64_t xmmRegsBuffer[16];
+    uint32_t roundKeys[AES128_TOTAL_DWORDS_IN_ROUNDKEYS];
+    uint64_t iv[AES_QWORDS_IN_IV];
+    uint64_t xmmRegsBuffer[AESNI_TOTAL_QWORDS_IN_XMM_REGS_IN_ALOG_USE];
 } Aes128NiState;
 
 typedef struct _Aes192NiState {
-    uint32_t roundsKeys[52];
-    uint64_t iv[2];
-    uint64_t xmmRegsBuffer[16];
+    uint32_t roundKeys[AES192_TOTAL_DWORDS_IN_ROUNDKEYS];
+    uint64_t iv[AES_QWORDS_IN_IV];
+    uint64_t xmmRegsBuffer[AESNI_TOTAL_QWORDS_IN_XMM_REGS_IN_ALOG_USE];
 } Aes192NiState;
 
 typedef struct _Aes256NiState {
-    uint32_t roundsKeys[60];
-    uint64_t iv[2];
-    uint64_t xmmRegsBuffer[16];
+    uint32_t roundKeys[AES256_TOTAL_DWORDS_IN_ROUNDKEYS];
+    uint64_t iv[AES_QWORDS_IN_IV];
+    uint64_t xmmRegsBuffer[AESNI_TOTAL_QWORDS_IN_XMM_REGS_IN_ALOG_USE];
 } Aes256NiState;
 
 typedef struct _Aes128AvxState {
-    uint32_t roundsKeys[44];
-    uint64_t iv[2];
-    uint64_t xmmRegsBuffer[24];
+    uint32_t roundKeys[AES128_TOTAL_DWORDS_IN_ROUNDKEYS];
+    uint64_t iv[AES_QWORDS_IN_IV];
+    uint64_t xmmRegsBuffer[AES128AVX_TOTAL_QWORDS_IN_XMM_REGS_IN_ALGO_USE];
 } Aes128AvxState;
 
 typedef struct _Aes192AvxState {
-    uint32_t roundsKeys[52];
-    uint64_t iv[2];
-    uint64_t xmmRegsBuffer[28];
+    uint32_t roundKeys[AES192_TOTAL_DWORDS_IN_ROUNDKEYS];
+    uint64_t iv[AES_QWORDS_IN_IV];
+    uint64_t xmmRegsBuffer[AES192AVX_TOTAL_QWORDS_IN_XMM_REGS_IN_ALGO_USE];
 } Aes192AvxState;
 
 typedef struct _Aes256AvxState {
-    uint32_t roundsKeys[60];
-    uint64_t iv[2];
-    uint64_t xmmRegsBuffer[32];
+    uint32_t roundKeys[AES256_TOTAL_DWORDS_IN_ROUNDKEYS];
+    uint64_t iv[AES_QWORDS_IN_IV];
+    uint64_t xmmRegsBuffer[AES256AVX_TOTAL_QWORDS_IN_XMM_REGS_IN_ALGO_USE];
 } Aes256AvxState;
 
 HardwareFeatures HardwareFeaturesDetect();
 
-void AesKeySchedule(__in BlockCipherType cipher, __in const uint32_t* key, __out uint32_t* roundsKeys);
+void AesKeySchedule(__in BlockCipherType cipher, __in const uint32_t* key, __out uint32_t* roundKeys);
 
 int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in HardwareFeatures hwFeatures
     , __in const uint64_t* input, __in size_t inputSize, __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize);

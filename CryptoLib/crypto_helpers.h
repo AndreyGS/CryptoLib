@@ -29,6 +29,12 @@
 #include <stdalign.h>
 #endif // !KERNEL
 
+#define QWORDS_IN_XMM 2
+#define XMM_NUMBER_WITHOUT_AVX 8
+#define XMM_NUMBER_WITH_AVX 16
+
+#define SHA_1_2_MAX_BLOCKS_NUMBER_IN_TAIL 2
+
 #define EVAL(expr) { status = expr; if (status < 0) goto exit; }
 
 #ifdef __cplusplus
