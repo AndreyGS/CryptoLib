@@ -116,11 +116,8 @@ int
 InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode
     , __in PaddingType padding, __in HardwareFeatures hwFeatures, __in const void* key, __in_opt const void* iv);
 
-inline void 
-BlockCipherKeySchedule(__in BlockCipherType cipher, __in const void* key, __inout void* specificCipherState);
-
 extern inline void
-GetActiveHardwareFeaturesInternal(__in BlockCipherState* state, __out HardwareFeatures hwFeatures);
+GetActiveHardwareFeaturesInternal(__in BlockCipherState* state, __out HardwareFeatures* hwFeatures);
 
 extern inline void 
 ReInitBlockCipherCryptoModeInternal(__inout BlockCipherState* state, __in CryptoMode cryptoMode);
@@ -135,7 +132,7 @@ inline void
 ReInitHardwareFeaturesInternal(__inout BlockCipherState* state, __in HardwareFeatures hwFeatures);
 
 void 
-ReInitBlockCipherIvInternal(__in BlockCipherType cipher, __in const void* iv, __inout void* specificCipherState);
+ReInitBlockCipherIvInternal(__in BlockCipherType cipher, __in HardwareFeatures hwFeatures, __in const uint64_t* iv, __inout void* specificCipherState);
 
 int 
 ProcessingByBlockCipherInternal(__inout BlockCipherState* state, __in const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output, __inout size_t* outputSize);

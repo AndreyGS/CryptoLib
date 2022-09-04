@@ -257,7 +257,7 @@ int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType
  *
  * @return status
  */
-int GetActiveHardwareFeatures(__in BlockCipherHandle handle, __out HardwareFeatures hwFeatures);
+int GetActiveHardwareFeatures(__in BlockCipherHandle handle, __out HardwareFeatures* hwFeatures);
 
 /**
  * ReInits crypto mode (encryption/decryption)

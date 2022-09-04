@@ -67,10 +67,12 @@ int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType
         return InitBlockCiperStateInternal((BlockCipherState**)handle, cipher, cryptoMode, opMode, padding, hwFeatures, key, iv);
 }
 
-int GetActiveHardwareFeatures(__in BlockCipherHandle handle, __out HardwareFeatures hwFeatures)
+int GetActiveHardwareFeatures(__in BlockCipherHandle handle, __out HardwareFeatures* hwFeatures)
 {
     if (!handle)
         return ERROR_NULL_STATE_HANDLE;
+
+    GetActiveHardwareFeaturesInternal(handle, hwFeatures);
 
     return NO_ERROR;
 }
@@ -128,7 +130,7 @@ int ReInitBlockCipherIv(__inout BlockCipherHandle handle, __in const void* iv)
     else if (!iv)
         return ERROR_NULL_INIT_VECTOR;
 
-    ReInitBlockCipherIvInternal(((BlockCipherState*)handle)->cipher, iv, ((BlockCipherState*)handle)->state);
+    ReInitBlockCipherIvInternal(((BlockCipherState*)handle)->cipher, ((BlockCipherState*)handle)->hwFeatures, iv, ((BlockCipherState*)handle)->state);
 
     return NO_ERROR;
 }
