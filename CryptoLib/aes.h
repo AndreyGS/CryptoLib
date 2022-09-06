@@ -103,8 +103,6 @@ typedef struct _Aes256AvxState {
     uint64_t xmmRegsBuffer[AES256AVX_TOTAL_QWORDS_IN_XMM_REGS_IN_ALGO_USE];
 } Aes256AvxState;
 
-HardwareFeatures HardwareFeaturesDetect();
-
 void AesKeySchedule(__in BlockCipherType cipher, __in const uint32_t* key, __in HardwareFeatures hwFeatures, __out void* specificCipherState);
 
 int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in HardwareFeatures hwFeatures

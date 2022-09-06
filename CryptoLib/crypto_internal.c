@@ -30,6 +30,7 @@
 #include "aes.h"
 #include "paddings.h"
 #include "hmac.h"
+#include "common_asm.h"
 
 // The order of mappings must be equal to the order of HashFunc consts
 const HashFuncsSizes g_hashFuncsSizesMapping[11] =

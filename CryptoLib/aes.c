@@ -27,35 +27,9 @@
 #include "aes.h"
 #include "paddings.h"
 #include "crypto_internal.h"
-
-void AesKeyScheduleSoftware(__in BlockCipherType cipher, __in const uint32_t* key, __out uint32_t* roundKeys);
-
-void Aes128AvxKeySchedule(__in const void* key, __out void* roundKeys, __out void* decryptionRoundKeys);
-void Aes192AvxKeySchedule(__in const void* key, __out void* roundKeys, __out void* decryptionRoundKeys);
-void Aes256AvxKeySchedule(__in const void* key, __out void* roundKeys, __out void* decryptionRoundKeys);
-
-void Aes128NiKeySchedule(__in const void* key, __out void* roundKeys, __out void* decryptionRoundKeys);
-void Aes192NiKeySchedule(__in const void* key, __out void* roundKeys, __out void* decryptionRoundKeys);
-void Aes256NiKeySchedule(__in const void* key, __out void* roundKeys, __out void* decryptionRoundKeys);
+#include "aes_ni.h"
 
 typedef void (*AesProcessingBlockFunction)(__in_opt const uint64_t* roundKeys, __in const uint64_t* input, __out uint64_t* output);
-
-void PrepareXmmRegistersForAesAvx(__in const uint64_t* roundKeys, __in  BlockCipherType type, __inout  uint64_t* xmmRegsBuffer);
-void RestoreXmmRegistersFromAesAvx(__in BlockCipherType type, __in  uint64_t* xmmRegsBuffer);
-
-void Aes128NiEncryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t* input, __out uint64_t* output);
-void Aes192NiEncryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t* input, __out uint64_t* output);
-void Aes256NiEncryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t* input, __out uint64_t* output);
-void Aes128NiDecryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t* input, __out uint64_t* output);
-void Aes192NiDecryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t* input, __out uint64_t* output);
-void Aes256NiDecryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t* input, __out uint64_t* output);
-
-void Aes128AvxEncryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t* input, __out uint64_t* output);
-void Aes192AvxEncryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t* input, __out uint64_t* output);
-void Aes256AvxEncryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t* input, __out uint64_t* output);
-void Aes128AvxDecryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t* input, __out uint64_t* output);
-void Aes192AvxDecryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t* input, __out uint64_t* output);
-void Aes256AvxDecryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t* input, __out uint64_t* output);
 
 const uint8_t AES_S_BOX[256] = 
 {
@@ -102,28 +76,6 @@ const uint32_t R_CONSTANTS[10] =
     0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36
 };
 
-void AesKeySchedule(__in BlockCipherType cipher, __in const uint32_t* key, __in HardwareFeatures hwFeatures, __out void* specificCipherState)
-{
-    if (hwFeatures.avx) {
-        if (cipher == AES128_cipher_type)
-            Aes128AvxKeySchedule(key, specificCipherState, ((Aes128AvxState*)specificCipherState)->decryptionRoundKeys);
-        else if (cipher == AES192_cipher_type)
-            Aes192AvxKeySchedule(key, specificCipherState, ((Aes192AvxState*)specificCipherState)->decryptionRoundKeys);
-        else
-            Aes256AvxKeySchedule(key, specificCipherState, ((Aes256AvxState*)specificCipherState)->decryptionRoundKeys);
-    }
-    else if (hwFeatures.aesni) {
-        if (cipher == AES128_cipher_type)
-            Aes128NiKeySchedule(key, specificCipherState, ((Aes128NiState*)specificCipherState)->decryptionRoundKeys);
-        else if (cipher == AES192_cipher_type)
-            Aes192NiKeySchedule(key, specificCipherState, ((Aes192NiState*)specificCipherState)->decryptionRoundKeys);
-        else
-            Aes256NiKeySchedule(key, specificCipherState, ((Aes256NiState*)specificCipherState)->decryptionRoundKeys);
-    }
-    else
-        AesKeyScheduleSoftware(cipher, key, specificCipherState);
-}
-
 void AesKeyScheduleSoftware(__in BlockCipherType cipher, __in const uint32_t* key, __out uint32_t* roundKeys)
 {
     assert(key && roundKeys);
@@ -164,6 +116,28 @@ void AesKeyScheduleSoftware(__in BlockCipherType cipher, __in const uint32_t* ke
 
         roundKeys[i] = roundKeys[i - words_in_key] ^ t;
     }
+}
+
+void AesKeySchedule(__in BlockCipherType cipher, __in const uint32_t* key, __in HardwareFeatures hwFeatures, __out void* specificCipherState)
+{
+    if (hwFeatures.avx) {
+        if (cipher == AES128_cipher_type)
+            Aes128AvxKeySchedule(key, specificCipherState, ((Aes128AvxState*)specificCipherState)->decryptionRoundKeys);
+        else if (cipher == AES192_cipher_type)
+            Aes192AvxKeySchedule(key, specificCipherState, ((Aes192AvxState*)specificCipherState)->decryptionRoundKeys);
+        else
+            Aes256AvxKeySchedule(key, specificCipherState, ((Aes256AvxState*)specificCipherState)->decryptionRoundKeys);
+    }
+    else if (hwFeatures.aesni) {
+        if (cipher == AES128_cipher_type)
+            Aes128NiKeySchedule(key, specificCipherState, ((Aes128NiState*)specificCipherState)->decryptionRoundKeys);
+        else if (cipher == AES192_cipher_type)
+            Aes192NiKeySchedule(key, specificCipherState, ((Aes192NiState*)specificCipherState)->decryptionRoundKeys);
+        else
+            Aes256NiKeySchedule(key, specificCipherState, ((Aes256NiState*)specificCipherState)->decryptionRoundKeys);
+    }
+    else
+        AesKeyScheduleSoftware(cipher, key, specificCipherState);
 }
 
 inline void AesSubBytes(__inout uint8_t* input)
@@ -522,8 +496,10 @@ int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
         }
     }
 
-    if (hwFeatures.aesni)
+    if (hwFeatures.avx)
         PrepareXmmRegistersForAesAvx(roundKeys, cipher, xmmRegsBuffer);
+    else if (hwFeatures.aesni)
+        PrepareXmmRegistersForAesNi(roundKeys, xmmRegsBuffer);
 
     uint64_t blocksNumber = *outputSize >> 4; // (outputSize / AES_BLOCK_SIZE) outputSize must be divisible by AES_BLOCK_SIZE without remainder
 
@@ -658,7 +634,10 @@ int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
 
     }
 
-    RestoreXmmRegistersFromAesAvx(cipher, xmmRegsBuffer);
+    if (hwFeatures.avx)
+        RestoreXmmRegistersFromAesAvx(cipher, xmmRegsBuffer);
+    else if (hwFeatures.aesni)
+        RestoreXmmRegistersFromAesNi(xmmRegsBuffer);
 
     return NO_ERROR;
 }
@@ -734,8 +713,10 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
         }
     }
 
-    if (hwFeatures.aesni)
+    if (hwFeatures.avx)
         PrepareXmmRegistersForAesAvx(roundKeys, cipher, xmmRegsBuffer);
+    else if (hwFeatures.aesni)
+        PrepareXmmRegistersForAesNi(roundKeys, xmmRegsBuffer);
     else
         roundKeys = state;
 
@@ -910,7 +891,10 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     iv[0] = lastIvBlock[0];
     iv[1] = lastIvBlock[1];
 
-    RestoreXmmRegistersFromAesAvx(cipher, xmmRegsBuffer);
+    if (hwFeatures.avx)
+        RestoreXmmRegistersFromAesAvx(cipher, xmmRegsBuffer);
+    else if (hwFeatures.aesni)
+        RestoreXmmRegistersFromAesNi(xmmRegsBuffer);
 
     return NO_ERROR;
 }

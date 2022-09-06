@@ -54,6 +54,12 @@
     <ClInclude Include="aes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="common_asm.h">
+      <Filter>asm</Filter>
+    </ClInclude>
+    <ClInclude Include="aes_ni.h">
+      <Filter>asm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="des.c">
@@ -98,12 +104,24 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
+    <None Include="macro_asm.inc">
+      <Filter>asm</Filter>
+    </None>
+    <None Include="macro_asm_only_x86.inc">
+      <Filter>asm</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="aes_ni_x86.asm">
       <Filter>asm</Filter>
     </MASM>
     <MASM Include="aes_ni_x64.asm">
+      <Filter>asm</Filter>
+    </MASM>
+    <MASM Include="common_asm_x64.asm">
+      <Filter>asm</Filter>
+    </MASM>
+    <MASM Include="common_asm_x86.asm">
       <Filter>asm</Filter>
     </MASM>
   </ItemGroup>
