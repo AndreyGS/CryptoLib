@@ -722,8 +722,8 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
 
     uint64_t blocksNumber = inputSize >> 4; // (inputSize / AES_BLOCK_SIZE) inputSize must be divisible by AES_BLOCK_SIZE without remainder
     const uint64_t* lastInputBlock = input + ((blocksNumber - 1) << 1);
-    uint64_t lastOutputBlock[2] = { 0 };
-    uint64_t lastIvBlock[2] = { 0 };
+    uint64_t lastOutputBlock[2] = { 1 };    // this init with 1 is necessary cause VS compiler replaces XMM registers that
+    uint64_t lastIvBlock[2] = { 1 };        // are using in keys holding at AESNI as slot for 128 bit vars and this behavior can't be changed
 
     bool multiBlock = inputSize > AES_BLOCK_SIZE;
 
@@ -768,6 +768,7 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     }
 
     case OFB_mode: {
+        lastOutputBlock[0] = lastOutputBlock[1] = lastIvBlock[0] = lastIvBlock[1] = 0;
         // All input processing when OFB_mode must be calculated here
         if (*outputSize >= inputSize) {
             --input;
@@ -830,7 +831,8 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     }
 
     case CBC_mode: {
-        uint64_t ivBlockNext[2] = { 0 };
+        uint64_t ivBlockNext[2] = { 0 };    // this init with 1 is necessary cause VS compiler replaces XMM registers that
+                                            // are using in keys holding at AESNI as slot for 128 bit vars and this behavior can't be changed
         --input,
         output;
 
@@ -848,7 +850,8 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     }
 
     case CFB_mode: {
-        uint64_t ivBlockNext[2] = { 0 };
+        uint64_t ivBlockNext[2] = { 0 };    // this init with 1 is necessary cause VS compiler replaces XMM registers that
+                                            // are using in keys holding at AESNI as slot for 128 bit vars and this behavior can't be changed
         --input,
         output;
 

@@ -232,7 +232,7 @@ int GetXof(__inout XofHandle handle, __in_opt const void* input, __in size_t inp
     int status = NO_ERROR;
     if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output))
         return status;
-    else if (!outputSize)
+    else if (finalize && !outputSize)
         return ERROR_NULL_OUTPUT_SIZE;
     else if (!finalize && (inputSize % g_XofSizesMapping[*(Xof*)handle].blockSize))
         return ERROR_WRONG_INPUT_SIZE;

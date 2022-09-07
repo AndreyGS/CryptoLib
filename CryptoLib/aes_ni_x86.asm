@@ -119,9 +119,9 @@ decryptionRoundKeysSchedule:
 	vmovdqa xmm0, xmmword ptr [ebp-16]
 
 	RestoreStack16BytesAligned ebx
+	leave
 	pop edi
 	pop ebx
-	leave
 	ret	
 Aes128AvxKeySchedule ENDP
 
@@ -228,9 +228,9 @@ decryptionRoundKeysSchedule:
 	vmovdqa xmm0, xmmword ptr [ebp-16]
 
 	RestoreStack16BytesAligned ebx
+	leave
 	pop edi
 	pop ebx
-	leave
 	ret
 Aes192AvxKeySchedule ENDP
 
@@ -355,10 +355,10 @@ decryptionRoundKeysSchedule:
 	vmovdqa xmm0, xmmword ptr [ebp-16]
 
 	RestoreStack16BytesAligned ebx
+	leave
 	pop edi
 	pop esi
 	pop ebx
-	leave
 	ret
 Aes256AvxKeySchedule ENDP
 
@@ -565,9 +565,9 @@ decryptionRoundKeysSchedule:
 	movdqa xmm0, xmmword ptr [ebp-16]
 
 	RestoreStack16BytesAligned ebx
+	leave
 	pop edi
 	pop ebx
-	leave
 	ret
 Aes192NiKeySchedule ENDP
 
@@ -694,10 +694,10 @@ decryptionRoundKeysSchedule:
 	movdqa xmm0, xmmword ptr [ebp-16]
 
 	RestoreStack16BytesAligned ebx
+	leave
 	pop edi
 	pop esi
 	pop ebx
-	leave
 	ret
 Aes256NiKeySchedule ENDP
 
