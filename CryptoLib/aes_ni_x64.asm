@@ -698,6 +698,7 @@ PrepareXmmRegistersForAesNi PROC
 	movdqa xmm4, xmmword ptr [rcx + 48]
 	movdqa xmm5, xmmword ptr [rcx + 64]
 	movdqa xmm6, xmmword ptr [rcx + 80]
+	movdqa xmm7, xmmword ptr [rcx + 96]
 
 	ret
 PrepareXmmRegistersForAesNi ENDP
@@ -903,16 +904,11 @@ Aes128NiEncryptBlock PROC
 	aesenc xmm0, xmm4
 	aesenc xmm0, xmm5
 	aesenc xmm0, xmm6
-	movdqa xmm7, xmmword ptr [rcx+96]
 	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+112]
-	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+128]
-	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+144]
-	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+160]
-	aesenclast xmm0, xmm7
+	aesenc xmm0, xmmword ptr [rcx+112]
+	aesenc xmm0, xmmword ptr [rcx+128]
+	aesenc xmm0, xmmword ptr [rcx+144] 
+	aesenclast xmm0, xmmword ptr [rcx+160]
 	movdqu xmmword ptr [r8], xmm0
 
 	ret
@@ -930,20 +926,13 @@ Aes192NiEncryptBlock PROC
 	aesenc xmm0, xmm4
 	aesenc xmm0, xmm5
 	aesenc xmm0, xmm6
-	movdqa xmm7, xmmword ptr [rcx+96]
 	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+112]
-	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+128]
-	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+144]
-	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+160]
-	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+176]
-	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+192]
-	aesenclast xmm0, xmm7
+	aesenc xmm0, xmmword ptr [rcx+112]
+	aesenc xmm0, xmmword ptr [rcx+128]
+	aesenc xmm0, xmmword ptr [rcx+144] 
+	aesenc xmm0, xmmword ptr [rcx+160]
+	aesenc xmm0, xmmword ptr [rcx+176]
+	aesenclast xmm0, xmmword ptr [rcx+192]
 	movdqu xmmword ptr [r8], xmm0
 
 	ret
@@ -961,24 +950,15 @@ Aes256NiEncryptBlock PROC
 	aesenc xmm0, xmm4
 	aesenc xmm0, xmm5
 	aesenc xmm0, xmm6
-	movdqa xmm7, xmmword ptr [rcx+96]
 	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+112]
-	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+128]
-	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+144]
-	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+160]
-	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+176]
-	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+192]
-	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+208]
-	aesenc xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+224]
-	aesenclast xmm0, xmm7
+	aesenc xmm0, xmmword ptr [rcx+112]
+	aesenc xmm0, xmmword ptr [rcx+128]
+	aesenc xmm0, xmmword ptr [rcx+144]
+	aesenc xmm0, xmmword ptr [rcx+160] 
+	aesenc xmm0, xmmword ptr [rcx+176]
+	aesenc xmm0, xmmword ptr [rcx+192]
+	aesenc xmm0, xmmword ptr [rcx+208]
+	aesenclast xmm0, xmmword ptr [rcx+224]
 	movdqu xmmword ptr [r8], xmm0
 
 	ret
@@ -991,15 +971,10 @@ Aes128NiDecryptBlock PROC
 ; r8: output: xmmword ptr
 
 	movdqu xmm0, xmmword ptr [rdx]
-	movdqa xmm7, xmmword ptr [rcx+160]
-	xorps xmm0, xmm7 ; input ^ roundKeys[11]
-	movdqa xmm7, xmmword ptr [rcx+144]
-	aesdec xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+128]
-	aesdec xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+112]
-	aesdec xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+96]
+	xorps xmm0, xmmword ptr [rcx+160] ; input ^ roundKeys[11]
+	aesdec xmm0, xmmword ptr [rcx+144]
+	aesdec xmm0, xmmword ptr [rcx+128]
+	aesdec xmm0, xmmword ptr [rcx+112]
 	aesdec xmm0, xmm7
 	aesdec xmm0, xmm6
 	aesdec xmm0, xmm5
@@ -1018,19 +993,12 @@ Aes192NiDecryptBlock PROC
 ; r8: output: xmmword ptr
 
 	movdqu xmm0, xmmword ptr [rdx]
-	movdqa xmm7, xmmword ptr [rcx+192]
-	xorps xmm0, xmm7 ; input ^ roundKeys[13]
-	movdqa xmm7, xmmword ptr [rcx+176]
-	aesdec xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+160]
-	aesdec xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+144]
-	aesdec xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+128]
-	aesdec xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+112]
-	aesdec xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+96]
+	xorps xmm0, xmmword ptr [rcx+192] ; input ^ roundKeys[13]
+	aesdec xmm0, xmmword ptr [rcx+176]
+	aesdec xmm0, xmmword ptr [rcx+160]
+	aesdec xmm0, xmmword ptr [rcx+144]
+	aesdec xmm0, xmmword ptr [rcx+128]
+	aesdec xmm0, xmmword ptr [rcx+112]
 	aesdec xmm0, xmm7
 	aesdec xmm0, xmm6
 	aesdec xmm0, xmm5
@@ -1049,23 +1017,14 @@ Aes256NiDecryptBlock PROC
 ; r8: output: xmmword ptr
 
 	movdqu xmm0, xmmword ptr [rdx]
-	movdqa xmm7, xmmword ptr [rcx+224]
-	xorps xmm0, xmm7 ; input ^ roundKeys[15]
-	movdqa xmm7, xmmword ptr [rcx+208]
-	aesdec xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+192]
-	aesdec xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+176]
-	aesdec xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+160]
-	aesdec xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+144]
-	aesdec xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+128]
-	aesdec xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+112]
-	aesdec xmm0, xmm7
-	movdqa xmm7, xmmword ptr [rcx+96]
+	xorps xmm0, xmmword ptr [rcx+224] ; input ^ roundKeys[15]
+	aesdec xmm0, xmmword ptr [rcx+208]
+	aesdec xmm0, xmmword ptr [rcx+192]
+	aesdec xmm0, xmmword ptr [rcx+176]
+	aesdec xmm0, xmmword ptr [rcx+160]
+	aesdec xmm0, xmmword ptr [rcx+144]
+	aesdec xmm0, xmmword ptr [rcx+128] 
+	aesdec xmm0, xmmword ptr [rcx+112]
 	aesdec xmm0, xmm7
 	aesdec xmm0, xmm6
 	aesdec xmm0, xmm5
