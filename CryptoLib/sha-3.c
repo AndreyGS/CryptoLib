@@ -122,7 +122,6 @@ inline void Sha3StateXor(__in const uint64_t* input, __in Sha3Func func, __inout
 {
     assert(input && state);
 
-    uint64_t x = 1;
     switch (func) {
     case Sha3Func_SHAKE128:
         state[20] ^= (input[20]);

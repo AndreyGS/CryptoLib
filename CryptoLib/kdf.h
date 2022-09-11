@@ -25,4 +25,4 @@
 
 #include "crypto_internal.h"
 
-int GetPbkdf2Internal(__in const void* salt, __in size_t saltSize, __in const void* password, __in size_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in size_t outputSize);
+int GetPbkdf2Internal(__in_opt const void* salt, __in size_t saltSize, __in_opt const void* password, __in size_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in size_t outputSize);

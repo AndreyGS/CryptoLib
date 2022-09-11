@@ -109,9 +109,6 @@ int
 CutPaddingInternal(__in PaddingType padding, __in size_t blockSize, __in uint8_t* paddedInput, __inout size_t* inputSize);
 
 // Block Ciphers Functions
-extern inline size_t
-GetSpecificBlockCipherStateSize(__in BlockCipherType cipher, __in HardwareFeatures hwFeatures);
-
 int
 InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode
     , __in PaddingType padding, __in HardwareFeatures hwFeatures, __in const void* key, __in_opt const void* iv);
@@ -127,9 +124,6 @@ ReInitBlockCipherOpModeInternal(__inout BlockCipherState* state, __in BlockCiphe
 
 extern inline void 
 ReInitBlockCipherPaddingTypeInternal(__inout BlockCipherState* state, __in PaddingType padding);
-
-inline void
-ReInitHardwareFeaturesInternal(__inout BlockCipherState* state, __in HardwareFeatures hwFeatures);
 
 void 
 ReInitBlockCipherIvInternal(__in BlockCipherType cipher, __in HardwareFeatures hwFeatures, __in const uint64_t* iv, __inout void* specificCipherState);

@@ -73,14 +73,49 @@ exit:
     EXPECT_TRUE(status == NO_ERROR);
 }
 
+// GetActiveHardwareFeatures
+
+TEST(BlockCipherStateFuncsTest, NullStateGetActiveHardwareFeatures) {
+    HardwareFeatures hwFeatures = { 0 };
+
+    EXPECT_TRUE(GetActiveHardwareFeatures(nullptr, &hwFeatures) == ERROR_NULL_STATE_HANDLE);
+}
+
+TEST(BlockCipherStateFuncsTest, NullHwFeaturesGetActiveHardwareFeatures) {
+    int status = NO_ERROR;
+    BlockCipherHandle handle = nullptr;
+    EVAL(InitBlockCipherState(&handle, AES128_cipher_type, Encryption_mode, ECB_mode, No_padding, HardwareFeatures(), KEY_8, nullptr));
+    EVAL(GetActiveHardwareFeatures(handle, nullptr));
+
+exit:
+    EXPECT_TRUE(status = ERROR_NULL_HW_FEATURES);
+}
+
+TEST(BlockCipherStateFuncsTest, GetActiveHardwareFeaturesMain) {
+    int status = NO_ERROR;
+    BlockCipherHandle handle = nullptr;
+    uint64_t desIv = 0x0123456789abcdef;
+    HardwareFeatures hwFeatures = { 0 };
+    hwFeatures.vaes = true;
+    hwFeatures.avx = true;
+
+    EVAL(InitBlockCipherState(&handle, AES128_cipher_type, Encryption_mode, CBC_mode, No_padding, hwFeatures, KEY_8, &desIv));
+    EVAL(GetActiveHardwareFeatures(handle, &hwFeatures));
+
+    EXPECT_TRUE(hwFeatures.aesni && hwFeatures.avx && !hwFeatures.aeskle && !hwFeatures.vaes && !hwFeatures.vex_aes
+        /* tested on aesni and avx supported hardare, aeskle, vaes, vex_aes currently not supported by AES library functions and must be reset in InitBlockCipherState*/);
+
+exit:
+    if (handle)
+        FreeBlockCipherState(handle);
+
+    EXPECT_TRUE(status == NO_ERROR);
+}
+
 // ReInitBlockCipherCryptoMode
 
 TEST(BlockCipherStateFuncsTest, NullStateReInitCryptoMode) {
-    int status = NO_ERROR;
-    EVAL(ReInitBlockCipherCryptoMode(nullptr, Encryption_mode));
-
-exit:
-    EXPECT_TRUE(status == ERROR_NULL_STATE_HANDLE);
+    EXPECT_TRUE(ReInitBlockCipherCryptoMode(nullptr, Encryption_mode) == ERROR_NULL_STATE_HANDLE);
 }
 
 TEST(BlockCipherStateFuncsTest, UnsupportedEnModeReInit) {
@@ -182,6 +217,7 @@ exit:
 
     EXPECT_TRUE(status == ERROR_UNSUPPORTED_PADDING_TYPE);
 }
+
 
 TEST(BlockCipherStateFuncsTest, ReInitBlockCipherPaddingTypeMain) {
     int status = NO_ERROR;

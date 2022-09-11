@@ -31,7 +31,6 @@
 
 int AddPadding(__in const void* input, __in size_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout size_t* outputSize, __in bool fillLastBlock)
 {
-    int status = NO_ERROR;
     if (!input)
         return ERROR_NULL_INPUT;
     else if (!inputSize)
@@ -71,6 +70,8 @@ int GetActiveHardwareFeatures(__in BlockCipherHandle handle, __out HardwareFeatu
 {
     if (!handle)
         return ERROR_NULL_STATE_HANDLE;
+    else if (!hwFeatures)
+        return ERROR_NULL_HW_FEATURES;
 
     GetActiveHardwareFeaturesInternal(handle, hwFeatures);
 
@@ -109,16 +110,6 @@ int ReInitBlockCipherPaddingType(__inout BlockCipherHandle handle, __in PaddingT
         return ERROR_UNSUPPORTED_PADDING_TYPE;
 
     ReInitBlockCipherPaddingTypeInternal(handle, padding);
-
-    return NO_ERROR;
-}
-
-int ReInitHardwareFeatures(__inout BlockCipherHandle handle, __in HardwareFeatures hwFeatures)
-{
-    if (!handle)
-        return ERROR_NULL_STATE_HANDLE;
-
-    ReInitHardwareFeaturesInternal(handle, hwFeatures);
 
     return NO_ERROR;
 }
@@ -283,7 +274,6 @@ int FreePrfState(__inout PrfHandle handle)
 
 int GetPrf(__inout PrfHandle handle, __in_opt const void* input, __in size_t inputSize, __in_opt const void* key, __in size_t keySize, __in bool finalize, __out_opt void* output, __in_opt size_t outputSize)
 {
-    int status = NO_ERROR;
     if (!handle)
         return ERROR_NULL_STATE_HANDLE;
     else if (!input && inputSize)

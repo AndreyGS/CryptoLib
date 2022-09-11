@@ -52,6 +52,7 @@ extern "C" {
 #define ERROR_NULL_KEY                      0x80000004
 #define ERROR_NULL_OUTPUT_SIZE              0x80000005
 #define ERROR_NULL_INIT_VECTOR              0x80000006
+#define ERROR_NULL_HW_FEATURES              0x80000007
 
 #define ERROR_UNSUPPORTED_CIPHER_FUNC       0x80000101
 #define ERROR_UNSUPPROTED_ENCRYPTION_MODE   0x80000102
@@ -299,16 +300,6 @@ int ReInitBlockCipherPaddingType(__inout BlockCipherHandle handle, __in PaddingT
  * @return status
  */
 int ReInitBlockCipherIv(__inout BlockCipherHandle handle, __in const void* iv);
-
-/**
- * ReInits set enabled hardware features (has sense only for AES)
- *
- * @param handle is a state handle that inited by InitBlockCipherState
- * @param opMode new requested hardware features
- *
- * @return status
- */
-int ReInitHardwareFeatures(__inout BlockCipherHandle handle, __in HardwareFeatures hwFeatures);
 
 /**
  * Make processing by block cipher function

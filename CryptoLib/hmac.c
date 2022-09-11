@@ -30,8 +30,6 @@ void GetHmac(__inout HmacStateHandle state, __in_opt const void* input, __in siz
 {
     assert(state && (input || !inputSize) && (key || !keySize) && (!finalize || output));
 
-    int status = NO_ERROR;
-
     uint16_t blockSize = 0;
     uint16_t didgestSize = 0;
     

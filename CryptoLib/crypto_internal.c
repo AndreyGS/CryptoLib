@@ -83,7 +83,8 @@ const PrfSizes g_PrfSizesMapping[11] = {
     { HMAC_SHA3_512,    SHA3_512,    sizeof(Hmac_Sha3_512State),    PRF_STATE_HMAC_SHA3_512_SIZE }
 };
 
-inline void BlockCipherKeySchedule(__in BlockCipherType cipher, __in const void* key, __in_opt HardwareFeatures hwFeatures, __inout void* specificCipherState);
+static inline void BlockCipherKeySchedule(__in BlockCipherType cipher, __in_opt HardwareFeatures hwFeatures, __in const void* key, __inout void* specificCipherState);
+int FillSpecificBlockCipherState(__in BlockCipherType cipher, __in_opt HardwareFeatures hwFeatures, __in const void* key, __in const void* iv);
 
 // AddPaddingInternal function adds padding and fills last block by padding directly to output with respective offset 
 // and when fillLastBlock is set and (inputSize % blockSize != 0) it also copying the begining of the last input block to output with respective offset
@@ -187,7 +188,7 @@ int CutPaddingInternal(__in PaddingType padding, __in size_t blockSize, __in uin
     return status;
 }
 
-inline size_t GetSpecificBlockCipherStateSize(__in BlockCipherType cipher, __in HardwareFeatures hwFeatures)
+static inline size_t GetSpecificBlockCipherStateSize(__in BlockCipherType cipher, __in HardwareFeatures hwFeatures)
 {
     switch (cipher) {
     case DES_cipher_type:
@@ -226,11 +227,31 @@ int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCiph
     assert(state && key && (opMode == ECB_mode || iv));
 
     int status = NO_ERROR;
-
+    
     EVAL(AllocBuffer(state, sizeof(BlockCipherState)));
     (*state)->cipher = cipher;
 
-    ReInitHardwareFeaturesInternal(*state, hwFeatures);
+    ReInitBlockCipherCryptoModeInternal(*state, cryptoMode);
+    ReInitBlockCipherOpModeInternal(*state, opMode);
+    ReInitBlockCipherPaddingTypeInternal(*state, padding);
+    
+    HardwareFeatures emptyHwFeatures = { 0 };
+    (*state)->hwFeatures = emptyHwFeatures;
+
+    if (cipher == AES128_cipher_type || cipher == AES192_cipher_type || cipher == AES256_cipher_type) {
+        HardwareFeatures supportedHwFeatures = HardwareFeaturesDetect();
+
+        // Next features are not implemented for now and should be zeroed;
+        supportedHwFeatures.vex_aes = false;
+        supportedHwFeatures.vaes = false;
+        supportedHwFeatures.aeskle = false;
+
+        (*state)->hwFeatures.avx = hwFeatures.avx ? supportedHwFeatures.avx : false;
+        (*state)->hwFeatures.aesni = hwFeatures.aesni || hwFeatures.avx ? supportedHwFeatures.aesni : false;
+        (*state)->hwFeatures.vex_aes = false;
+        (*state)->hwFeatures.vaes = false;
+        (*state)->hwFeatures.aeskle = false;
+    }
 
     size_t specificStateSize = GetSpecificBlockCipherStateSize(cipher, (*state)->hwFeatures);
 
@@ -246,11 +267,7 @@ int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCiph
         break;
     }
 
-    BlockCipherKeySchedule(cipher, key, (*state)->hwFeatures, (*state)->state);
-
-    ReInitBlockCipherCryptoModeInternal(*state, cryptoMode);
-    ReInitBlockCipherOpModeInternal(*state, opMode);
-    ReInitBlockCipherPaddingTypeInternal(*state, padding);
+    BlockCipherKeySchedule(cipher, (*state)->hwFeatures, key, (*state)->state);
 
     if (iv)
         ReInitBlockCipherIvInternal(cipher, (*state)->hwFeatures, iv, (*state)->state);
@@ -259,7 +276,7 @@ exit:
     return status;
 }
 
-void BlockCipherKeySchedule(__in BlockCipherType cipher, __in const void* key, __in_opt HardwareFeatures hwFeatures, __inout void* specificCipherState)
+static inline void BlockCipherKeySchedule(__in BlockCipherType cipher, __in_opt HardwareFeatures hwFeatures, __in const void* key, __inout void* specificCipherState)
 {
     assert(key && specificCipherState);
 
@@ -277,7 +294,7 @@ void BlockCipherKeySchedule(__in BlockCipherType cipher, __in const void* key, _
 
 inline void GetActiveHardwareFeaturesInternal(__in BlockCipherState* state, __out HardwareFeatures* hwFeatures)
 {
-    assert(state);
+    assert(state && hwFeatures);
 
     *hwFeatures = state->hwFeatures;
 }
@@ -301,29 +318,6 @@ inline void ReInitBlockCipherPaddingTypeInternal(__inout BlockCipherState* state
     assert(state);
 
     state->padding = padding;
-}
-
-void ReInitHardwareFeaturesInternal(__inout BlockCipherState* state, __in HardwareFeatures hwFeatures)
-{
-    assert(state);
-
-    HardwareFeatures emptyHwFeatures = { 0 };
-    state->hwFeatures = emptyHwFeatures;
-
-    if (state->cipher == AES128_cipher_type || state->cipher == AES192_cipher_type || state->cipher == AES256_cipher_type) {
-        HardwareFeatures supportedHwFeatures = HardwareFeaturesDetect();
-
-        // Next features are not implemented for now and should be zeroed;
-        supportedHwFeatures.vex_aes = false;
-        supportedHwFeatures.vaes = false;
-        supportedHwFeatures.aeskle = false;
-        
-        state->hwFeatures.avx = hwFeatures.avx ? supportedHwFeatures.avx : false;
-        state->hwFeatures.aesni = hwFeatures.aesni || hwFeatures.avx ? supportedHwFeatures.aesni : false;
-        state->hwFeatures.vex_aes = false;
-        state->hwFeatures.vaes = false;
-        state->hwFeatures.aeskle = false;
-    }
 }
 
 void ReInitBlockCipherIvInternal(__in BlockCipherType cipher, __in HardwareFeatures hwFeatures, __in const uint64_t* iv, __inout void* specificCipherState)

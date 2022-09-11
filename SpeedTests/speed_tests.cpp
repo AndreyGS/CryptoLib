@@ -63,6 +63,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         hwFeatures.aesni = true;
         std::cout << "AESNI:\n";
@@ -77,6 +78,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         hwFeatures.avx = true;
         std::cout << "AVX:\n";
@@ -91,6 +93,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n------------------------\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         // AES192_cipher_type
         hwFeatures.aesni = false, hwFeatures.avx = false;
@@ -107,6 +110,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         hwFeatures.aesni = true;
         std::cout << "AESNI:\n";
@@ -121,6 +125,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         hwFeatures.avx = true;
         std::cout << "AVX:\n";
@@ -135,6 +140,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n------------------------\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         // AES256_cipher_type
         hwFeatures.aesni = false, hwFeatures.avx = false;
@@ -151,6 +157,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         hwFeatures.aesni = true;
         std::cout << "AESNI:\n";
@@ -165,6 +172,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         hwFeatures.avx = true;
         std::cout << "AVX:\n";
@@ -179,6 +187,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n-----------------------------------------------\n\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         std::cout << "Decryption\n";
         std::cout << "\n";
@@ -198,6 +207,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         hwFeatures.aesni = true;
         std::cout << "AESNI:\n";
@@ -212,6 +222,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         hwFeatures.avx = true;
         std::cout << "AVX:\n";
@@ -226,6 +237,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n------------------------\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         // AES192_cipher_type
         hwFeatures.aesni = false, hwFeatures.avx = false;
@@ -242,6 +254,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         hwFeatures.aesni = true;
         std::cout << "AESNI:\n";
@@ -256,6 +269,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         hwFeatures.avx = true;
         std::cout << "AVX:\n";
@@ -270,6 +284,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n------------------------\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         // AES256_cipher_type
         hwFeatures.aesni = false, hwFeatures.avx = false;
@@ -286,6 +301,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         hwFeatures.aesni = true;
         std::cout << "AESNI:\n";
@@ -300,6 +316,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n\n";
+        FreeBlockCipherState(cipherHandle);
 
         hwFeatures.avx = true;
         std::cout << "AVX:\n";
@@ -314,6 +331,7 @@ int main()
             << "Mb/s, truncated sha1 of encrypted data: ";
         PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
         std::cout << "\n-----------------------------------------------\n\n\n";
+        FreeBlockCipherState(cipherHandle);
 
     } while (false);
 }
