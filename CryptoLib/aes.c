@@ -816,8 +816,19 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
 
         *outputSize = inputSize;
     }
-    else if (status = FillLastDecryptedBlockInternal(padding, AES_BLOCK_SIZE, &lastOutputBlock, inputSize, output, outputSize))
-        return status;
+    else {
+        if (hwFeatures.avx)
+            RestoreXmmRegistersFromAesAvx(cipher, xmmRegsBuffer);
+        else if (hwFeatures.aesni)
+            RestoreXmmRegistersFromAesNi(xmmRegsBuffer);
+
+        if (status = FillLastDecryptedBlockInternal(padding, AES_BLOCK_SIZE, &lastOutputBlock, inputSize, output, outputSize))
+            return status;
+        else if (hwFeatures.avx)
+            PrepareXmmRegistersForAesAvx(roundKeys, cipher, xmmRegsBuffer);
+        else if (hwFeatures.aesni)
+            PrepareXmmRegistersForAesNi(roundKeys, xmmRegsBuffer);
+    }
 
     switch (opMode) {
     case ECB_mode: {
@@ -831,8 +842,8 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     }
 
     case CBC_mode: {
-        uint64_t ivBlockNext[2] = { 0 };    // this init with 1 is necessary cause VS compiler replaces XMM registers that
-                                            // are using in keys holding at AESNI as slot for 128 bit vars and this behavior can't be changed
+        uint64_t ivBlockNext[2] = { 0 };
+
         --input,
         output;
 
@@ -850,8 +861,8 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     }
 
     case CFB_mode: {
-        uint64_t ivBlockNext[2] = { 0 };    // this init with 1 is necessary cause VS compiler replaces XMM registers that
-                                            // are using in keys holding at AESNI as slot for 128 bit vars and this behavior can't be changed
+        uint64_t ivBlockNext[2] = { 0 };
+
         --input,
         output;
 

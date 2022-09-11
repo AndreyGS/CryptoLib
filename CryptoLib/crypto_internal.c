@@ -246,7 +246,7 @@ int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCiph
         break;
     }
 
-    BlockCipherKeySchedule(cipher, key, hwFeatures, (*state)->state);
+    BlockCipherKeySchedule(cipher, key, (*state)->hwFeatures, (*state)->state);
 
     ReInitBlockCipherCryptoModeInternal(*state, cryptoMode);
     ReInitBlockCipherOpModeInternal(*state, opMode);
