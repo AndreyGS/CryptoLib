@@ -72,10 +72,14 @@ There is a Doxygen comments in crypto.h for all of them.\
 The full example of using can be found in unit tests.\
 You can test it by yourself if you wish.
 
+## Hardware support
+Currently supported x86 and AMD64 AESNI implementations (there is SSE and AVX versions for each).
+
 ## What can be done next?
-- Optimization for AES with AES-NI support implementing.
-- RSA module.
-- Specialized functions for ciphers keys generation.
+- another optimizations for AES with AES-NI support implementing;
+- RSA module;
+- specialized functions for ciphers keys generation;
+- XTS-AES.
 
 ## License
 
