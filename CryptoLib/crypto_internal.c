@@ -246,7 +246,7 @@ int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCiph
         break;
     }
 
-    BlockCipherKeySchedule(cipher, key, hwFeatures, (*state)->state);
+    BlockCipherKeySchedule(cipher, key, (*state)->hwFeatures, (*state)->state);
 
     ReInitBlockCipherCryptoModeInternal(*state, cryptoMode);
     ReInitBlockCipherOpModeInternal(*state, opMode);
@@ -542,7 +542,7 @@ inline void ResetXofStateInternal(__inout XofState* state)
 
 void GetXofInternal(__inout XofState* state, __in const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output, __in size_t outputSize)
 {
-    assert(state && (!finalize || output) && outputSize && (input || !inputSize));
+    assert(state && (!finalize || (output && outputSize)) && (input || !inputSize));
 
     Xof func = state->func;
 

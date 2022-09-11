@@ -12,6 +12,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CryptoTests", "..\CryptoTes
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ThirdParty_Zip_for_tests_only", "..\ThirdParty_Zip_for_tests_only\ThirdParty_Zip_for_tests_only.vcxproj", "{D286FEBF-9D3E-4070-8BEF-BA259DE7D6F1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpeedTests", "..\SpeedTests\SpeedTests.vcxproj", "{EBC8B791-368A-4610-9A0A-AB92754602C5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FDA7E835-0DB6-41F3-8281-A5DE8272AB9C} = {FDA7E835-0DB6-41F3-8281-A5DE8272AB9C}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -44,6 +49,14 @@ Global
 		{D286FEBF-9D3E-4070-8BEF-BA259DE7D6F1}.Release|x64.Build.0 = Release|x64
 		{D286FEBF-9D3E-4070-8BEF-BA259DE7D6F1}.Release|x86.ActiveCfg = Release|Win32
 		{D286FEBF-9D3E-4070-8BEF-BA259DE7D6F1}.Release|x86.Build.0 = Release|Win32
+		{EBC8B791-368A-4610-9A0A-AB92754602C5}.Debug|x64.ActiveCfg = Debug|x64
+		{EBC8B791-368A-4610-9A0A-AB92754602C5}.Debug|x64.Build.0 = Debug|x64
+		{EBC8B791-368A-4610-9A0A-AB92754602C5}.Debug|x86.ActiveCfg = Debug|Win32
+		{EBC8B791-368A-4610-9A0A-AB92754602C5}.Debug|x86.Build.0 = Debug|Win32
+		{EBC8B791-368A-4610-9A0A-AB92754602C5}.Release|x64.ActiveCfg = Release|x64
+		{EBC8B791-368A-4610-9A0A-AB92754602C5}.Release|x64.Build.0 = Release|x64
+		{EBC8B791-368A-4610-9A0A-AB92754602C5}.Release|x86.ActiveCfg = Release|Win32
+		{EBC8B791-368A-4610-9A0A-AB92754602C5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
