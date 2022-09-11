@@ -107,7 +107,6 @@ typedef enum _BlockCipherType {
 
 #define AES_IV_SIZE                     AES_BLOCK_SIZE
 
-
 typedef enum _BlockCipherOpMode {
     ECB_mode,
     CBC_mode,
@@ -130,6 +129,19 @@ typedef enum _PaddingType {
     ISO_7816_padding,
     PaddingType_max
 } PaddingType;
+
+/// @struct HardwareFeatures
+/// 
+/// This bit field describes enabled hardware features.
+/// Currently only AESNI and AVX flags are supported.
+/// If AVX flag is set, then AESNI is ignored, because AVX is the superset of AESNI 
+typedef struct _HardwareFeatures {
+    uint64_t aesni  : 1;
+    uint64_t avx    : 1;
+    uint64_t vex_aes: 1;
+    uint64_t vaes   : 1;
+    uint64_t aeskle : 1;
+} HardwareFeatures;
 
 typedef uint32_t _HashFuncs;
 typedef enum _HashFunc {
@@ -159,13 +171,13 @@ typedef enum _HashFunc {
 #define SHA3_384_DIGEST_SIZE            48
 #define SHA3_512_DIGEST_SIZE            64
 
-#define SHA1_BLOCK_SIZE 64
-#define SHA2_32_BLOCK_SIZE 64
-#define SHA2_64_BLOCK_SIZE 128
-#define SHA3_224_BLOCK_SIZE 144
-#define SHA3_256_BLOCK_SIZE 136
-#define SHA3_384_BLOCK_SIZE 104
-#define SHA3_512_BLOCK_SIZE 72
+#define SHA1_BLOCK_SIZE                 64
+#define SHA2_32_BLOCK_SIZE              64
+#define SHA2_64_BLOCK_SIZE              128
+#define SHA3_224_BLOCK_SIZE             144
+#define SHA3_256_BLOCK_SIZE             136
+#define SHA3_384_BLOCK_SIZE             104
+#define SHA3_512_BLOCK_SIZE             72
 
 typedef enum _Xof {
     SHAKE128,
@@ -173,8 +185,8 @@ typedef enum _Xof {
     Xof_max
 } Xof;
 
-#define SHAKE128_BLOCK_SIZE 168
-#define SHAKE256_BLOCK_SIZE 136
+#define SHAKE128_BLOCK_SIZE             168
+#define SHAKE256_BLOCK_SIZE             136
 
 typedef enum _Prf {
     HMAC_SHA1,
@@ -224,12 +236,28 @@ int AddPadding(__in const void* input, __in size_t inputSize, __in PaddingType p
  * @param cryptoMode encryption or decryption
  * @param opMode type of operation mode (ECB, CBC, etc)
  * @param padding type of padding that using in encryption/decryption
+ * @param hwFeatures is what type of hardware encryption support user wants to enable (only for AES)
  * @param key encryption key
  * @param iv initialization vector (for ECB is not used)
  * 
  * @return status
  */
-int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt const void* iv);
+int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode
+    , __in PaddingType padding, __in HardwareFeatures hwFeatures, __in const void* key, __in_opt const void* iv);
+
+/**
+ * Returns active set of hardware features for this handle (has sense only for AES)
+ * 
+ * User may ask to enable as many hardware features as he wants, but if some of them 
+ * are not supported by execution enviroment, then this function gives an actual info
+ * about active features in the current handle
+ *
+ * @param handle is a state handle that inited by InitBlockCipherState
+ * @param hwFeatures struct that receives hw features enabled state for current handle
+ *
+ * @return status
+ */
+int GetActiveHardwareFeatures(__in BlockCipherHandle handle, __out HardwareFeatures* hwFeatures);
 
 /**
  * ReInits crypto mode (encryption/decryption)
@@ -270,6 +298,16 @@ int ReInitBlockCipherPaddingType(__inout BlockCipherHandle handle, __in PaddingT
  * @return status
  */
 int ReInitBlockCipherIv(__inout BlockCipherHandle handle, __in const void* iv);
+
+/**
+ * ReInits set enabled hardware features (has sense only for AES)
+ *
+ * @param handle is a state handle that inited by InitBlockCipherState
+ * @param opMode new requested hardware features
+ *
+ * @return status
+ */
+int ReInitHardwareFeatures(__inout BlockCipherHandle handle, __in HardwareFeatures hwFeatures);
 
 /**
  * Make processing by block cipher function

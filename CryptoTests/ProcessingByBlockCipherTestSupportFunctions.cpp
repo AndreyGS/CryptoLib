@@ -9,8 +9,35 @@
 #include "windows.h"
 #endif
 
+void ProcessingByBlockCipherMultipartTestFuncWithFeatures(__in const void* input_1, __in size_t inputSize_1, __in const void* input_2, __in size_t inputSize_2
+    , __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType, __in BlockCipherOpMode mode, __in HardwareFeatures hwFeatures, __in_opt const void* iv
+    , __in_opt const char* expectedRes, __in CryptoMode enMode);
+
+void ProcessingByBlockCipherMainTestFuncWithFeatures(__in const void* input, __in size_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
+    , __inout size_t outputSize, __in BlockCipherOpMode mode, __in HardwareFeatures hwFeatures, __in_opt const void* iv
+    , __in int expectedStatus, __in_opt const char* expectedRes, bool inPlace, __in CryptoMode enMode, int expLength, const char* fileName, size_t testNum);
+
 void ProcessingByBlockCipherMainTestFunc(__in const void* input, __in size_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
     , __inout size_t outputSize, __in BlockCipherOpMode mode, __in_opt const void* iv
+    , __in int expectedStatus, __in_opt const char* expectedRes, bool inPlace, __in CryptoMode enMode, int expLength, const char* fileName, size_t testNum
+)
+{
+    HardwareFeatures hwFeatures = { 0 };
+    ProcessingByBlockCipherMainTestFuncWithFeatures(input, inputSize, padding, key, cipherType, outputSize, mode, hwFeatures, iv
+        , expectedStatus, expectedRes, inPlace, enMode, expLength, fileName, testNum);
+
+    if (expectedStatus == NO_ERROR && (cipherType == AES128_cipher_type || cipherType == AES192_cipher_type || cipherType == AES256_cipher_type)) {
+        hwFeatures.aesni = true;
+        ProcessingByBlockCipherMainTestFuncWithFeatures(input, inputSize, padding, key, cipherType, outputSize, mode, hwFeatures, iv
+            , expectedStatus, expectedRes, inPlace, enMode, expLength, fileName, testNum);
+        hwFeatures.avx = true;
+        ProcessingByBlockCipherMainTestFuncWithFeatures(input, inputSize, padding, key, cipherType, outputSize, mode, hwFeatures, iv
+            , expectedStatus, expectedRes, inPlace, enMode, expLength, fileName, testNum);
+    }
+}
+
+void ProcessingByBlockCipherMainTestFuncWithFeatures(__in const void* input, __in size_t inputSize, __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType
+    , __inout size_t outputSize, __in BlockCipherOpMode mode, __in HardwareFeatures hwFeatures, __in_opt const void* iv
     , __in int expectedStatus, __in_opt const char* expectedRes, bool inPlace, __in CryptoMode enMode, int expLength, const char* fileName, size_t testNum
 )
 {
@@ -41,7 +68,7 @@ void ProcessingByBlockCipherMainTestFunc(__in const void* input, __in size_t inp
 
     BlockCipherHandle handle = nullptr;
 
-    EVAL(InitBlockCipherState(&handle, cipherType, enMode, mode, padding, key, iv));
+    EVAL(InitBlockCipherState(&handle, cipherType, enMode, mode, padding, hwFeatures, key, iv));
 
     EVAL(ProcessingByBlockCipher(handle, input, inputSize, true, buffer.get(), &outputSize));
 
@@ -105,6 +132,23 @@ void ProcessingByBlockCipherMultipartTestFunc(__in const void* input_1, __in siz
     , __in BlockCipherOpMode mode, __in_opt const void* iv
     , __in_opt const char* expectedRes, __in CryptoMode enMode)
 {
+    HardwareFeatures hwFeatures = { 0 };
+    ProcessingByBlockCipherMultipartTestFuncWithFeatures(input_1, inputSize_1, input_2, inputSize_2, padding, key, cipherType
+        , mode, hwFeatures, iv, expectedRes, enMode);
+    if (cipherType == AES128_cipher_type || cipherType == AES192_cipher_type || cipherType == AES256_cipher_type) {
+        hwFeatures.aesni = true;
+        ProcessingByBlockCipherMultipartTestFuncWithFeatures(input_1, inputSize_1, input_2, inputSize_2, padding, key, cipherType
+            , mode, hwFeatures, iv, expectedRes, enMode);
+        hwFeatures.avx = true;
+        ProcessingByBlockCipherMultipartTestFuncWithFeatures(input_1, inputSize_1, input_2, inputSize_2, padding, key, cipherType
+            , mode, hwFeatures, iv, expectedRes, enMode);
+    }
+}
+
+void ProcessingByBlockCipherMultipartTestFuncWithFeatures(__in const void* input_1, __in size_t inputSize_1, __in const void* input_2, __in size_t inputSize_2
+    , __in PaddingType padding, __in const void* key, __in BlockCipherType cipherType, __in BlockCipherOpMode mode, __in HardwareFeatures hwFeatures, __in_opt const void* iv
+    , __in_opt const char* expectedRes, __in CryptoMode enMode)
+{
     size_t blockSize = 0;
     switch (cipherType) {
     case DES_cipher_type:
@@ -131,7 +175,7 @@ void ProcessingByBlockCipherMultipartTestFunc(__in const void* input_1, __in siz
 
     BlockCipherHandle handle = nullptr;
 
-    EVAL(InitBlockCipherState(&handle, cipherType, enMode, mode, padding, key, iv));
+    EVAL(InitBlockCipherState(&handle, cipherType, enMode, mode, padding, hwFeatures, key, iv));
 
     if (NO_ERROR == (status = ProcessingByBlockCipher(handle, input_1, inputSize_1, false, buffer.get(), &outputSize))) {
         size_t totalSize = outputSize;

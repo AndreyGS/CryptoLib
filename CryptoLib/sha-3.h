@@ -23,7 +23,17 @@
 
 #pragma once
 
-#include "crypto_internal.h"
+#include "crypto_helpers.h"
+
+#define SHA3_QWORDS_IN_STATE        25
+
+#define SHA3_224_QWORDS_IN_BLOCK    SHA3_224_BLOCK_SIZE / sizeof(uint64_t)
+#define SHA3_256_QWORDS_IN_BLOCK    SHA3_256_BLOCK_SIZE / sizeof(uint64_t)
+#define SHA3_384_QWORDS_IN_BLOCK    SHA3_384_BLOCK_SIZE / sizeof(uint64_t)
+#define SHA3_512_QWORDS_IN_BLOCK    SHA3_512_BLOCK_SIZE / sizeof(uint64_t)
+
+#define SHAKE128_QWORDS_IN_BLOCK    SHAKE128_BLOCK_SIZE / sizeof(uint64_t)
+#define SHAKE256_QWORDS_IN_BLOCK    SHAKE256_BLOCK_SIZE / sizeof(uint64_t)
 
 typedef enum _Sha3Func {
     Sha3Func_SHA3_224,
@@ -35,33 +45,33 @@ typedef enum _Sha3Func {
 } Sha3Func;
 
 typedef struct _Sha3_224State {
-    uint64_t state[25];
-    uint64_t tailBlocks[18];
+    uint64_t state[SHA3_QWORDS_IN_STATE];
+    uint64_t tailBlocks[SHA3_224_QWORDS_IN_BLOCK];
 } Sha3_224State;
 
 typedef struct _Sha3_256State {
-    uint64_t state[25];
-    uint64_t tailBlocks[17];
+    uint64_t state[SHA3_QWORDS_IN_STATE];
+    uint64_t tailBlocks[SHA3_256_QWORDS_IN_BLOCK];
 } Sha3_256State;
 
 typedef struct _Sha3_384State {
-    uint64_t state[25];
-    uint64_t tailBlocks[13];
+    uint64_t state[SHA3_QWORDS_IN_STATE];
+    uint64_t tailBlocks[SHA3_384_QWORDS_IN_BLOCK];
 } Sha3_384State;
 
 typedef struct _Sha3_512State {
-    uint64_t state[25];
-    uint64_t tailBlocks[9];
+    uint64_t state[SHA3_QWORDS_IN_STATE];
+    uint64_t tailBlocks[SHA3_512_QWORDS_IN_BLOCK];
 } Sha3_512State;
 
 typedef struct _Shake128State {
-    uint64_t state[25];
-    uint64_t tailBlocks[42];
+    uint64_t state[SHA3_QWORDS_IN_STATE];
+    uint64_t tailBlocks[SHAKE128_QWORDS_IN_BLOCK];
 } Shake128State;
 
 typedef struct _Shake256State {
-    uint64_t state[25];
-    uint64_t tailBlocks[34];
+    uint64_t state[SHA3_QWORDS_IN_STATE];
+    uint64_t tailBlocks[SHAKE256_QWORDS_IN_BLOCK];
 } Shake256State;
 
 #define HASH_STATE_SHA3_224_SIZE         HASH_STATE_HEADER_SIZE + sizeof(Sha3_224State)

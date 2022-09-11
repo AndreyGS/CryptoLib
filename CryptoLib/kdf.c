@@ -66,8 +66,8 @@ int GetPbkdf2Internal(__in_opt const void* salt, __in size_t saltSize, __in_opt 
     uint8_t* buffer1 = NULL;
     uint8_t* buffer2 = NULL;
     PrfState* state = NULL;
-    EVAL(AllocBuffer(&buffer1, didgestSize));
-    EVAL(AllocBuffer(&buffer2, didgestSize));
+    EVAL(AlignedAllocBuffer(&buffer1, didgestSize, 8));
+    EVAL(AlignedAllocBuffer(&buffer2, didgestSize, 8));
     EVAL(InitPrfState(&state, func));
 
     uint8_t* reserveBuffer2 = buffer2;
@@ -106,8 +106,8 @@ int GetPbkdf2Internal(__in_opt const void* salt, __in size_t saltSize, __in_opt 
 
 exit:
     FreePrfState(state);
-    FreeBuffer(buffer2);
-    FreeBuffer(buffer1);
+    AlignedFreeBuffer(buffer2);
+    AlignedFreeBuffer(buffer1);
     
     return status;
 }

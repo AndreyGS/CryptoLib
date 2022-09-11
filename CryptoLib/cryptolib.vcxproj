@@ -158,7 +158,8 @@
     </MASM>
     <MASM>
       <EnableAssemblyGeneratedCodeListing>false</EnableAssemblyGeneratedCodeListing>
-      <UseSafeExceptionHandlers>true</UseSafeExceptionHandlers>
+      <UseSafeExceptionHandlers>
+      </UseSafeExceptionHandlers>
     </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -186,15 +187,18 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <MASM>
-      <UseSafeExceptionHandlers>true</UseSafeExceptionHandlers>
+      <GeneratePreprocessedSourceListing>
+      </GeneratePreprocessedSourceListing>
     </MASM>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="aes.h" />
+    <ClInclude Include="common_asm.h" />
     <ClInclude Include="crypto.h" />
     <ClInclude Include="crypto_helpers.h" />
     <ClInclude Include="crypto_internal.h" />
     <ClInclude Include="des.h" />
+    <ClInclude Include="aes_ni.h" />
     <ClInclude Include="hmac.h" />
     <ClInclude Include="kdf.h" />
     <ClInclude Include="paddings.h" />
@@ -227,6 +231,18 @@
       <FileType>CppCode</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </MASM>
+    <MASM Include="common_asm_x64.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </MASM>
+    <MASM Include="common_asm_x86.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -235,6 +251,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </MASM>
+    <None Include="macro_asm.inc" />
+    <None Include="macro_asm_only_x86.inc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

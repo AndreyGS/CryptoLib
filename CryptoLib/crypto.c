@@ -46,7 +46,8 @@ int AddPadding(__in const void* input, __in size_t inputSize, __in PaddingType p
         return AddPaddingInternal(input, inputSize, padding, blockSize, output, outputSize, fillLastBlock);
 }
 
-int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const void* key, __in_opt const void* iv)
+int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode
+    , __in PaddingType padding, __in HardwareFeatures hwFeatures, __in const void* key, __in_opt const void* iv)
 {
     if (!handle)
         return ERROR_NULL_STATE_HANDLE;
@@ -63,7 +64,17 @@ int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType
     else if (!iv && opMode != ECB_mode)
         return ERROR_NULL_INIT_VECTOR;
     else
-        return InitBlockCiperStateInternal((BlockCipherState**)handle, cipher, cryptoMode, opMode, padding, key, iv);
+        return InitBlockCiperStateInternal((BlockCipherState**)handle, cipher, cryptoMode, opMode, padding, hwFeatures, key, iv);
+}
+
+int GetActiveHardwareFeatures(__in BlockCipherHandle handle, __out HardwareFeatures* hwFeatures)
+{
+    if (!handle)
+        return ERROR_NULL_STATE_HANDLE;
+
+    GetActiveHardwareFeaturesInternal(handle, hwFeatures);
+
+    return NO_ERROR;
 }
 
 int ReInitBlockCipherCryptoMode(__inout BlockCipherHandle handle, __in CryptoMode cryptoMode)
@@ -102,6 +113,16 @@ int ReInitBlockCipherPaddingType(__inout BlockCipherHandle handle, __in PaddingT
     return NO_ERROR;
 }
 
+int ReInitHardwareFeatures(__inout BlockCipherHandle handle, __in HardwareFeatures hwFeatures)
+{
+    if (!handle)
+        return ERROR_NULL_STATE_HANDLE;
+
+    ReInitHardwareFeaturesInternal(handle, hwFeatures);
+
+    return NO_ERROR;
+}
+
 int ReInitBlockCipherIv(__inout BlockCipherHandle handle, __in const void* iv)
 {
     if (!handle)
@@ -109,7 +130,7 @@ int ReInitBlockCipherIv(__inout BlockCipherHandle handle, __in const void* iv)
     else if (!iv)
         return ERROR_NULL_INIT_VECTOR;
 
-    ReInitBlockCipherIvInternal(((BlockCipherState*)handle)->cipher, iv, ((BlockCipherState*)handle)->state);
+    ReInitBlockCipherIvInternal(((BlockCipherState*)handle)->cipher, ((BlockCipherState*)handle)->hwFeatures, iv, ((BlockCipherState*)handle)->state);
 
     return NO_ERROR;
 }
@@ -211,7 +232,7 @@ int GetXof(__inout XofHandle handle, __in_opt const void* input, __in size_t inp
     int status = NO_ERROR;
     if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output))
         return status;
-    else if (!outputSize)
+    else if (finalize && !outputSize)
         return ERROR_NULL_OUTPUT_SIZE;
     else if (!finalize && (inputSize % g_XofSizesMapping[*(Xof*)handle].blockSize))
         return ERROR_WRONG_INPUT_SIZE;

@@ -28,7 +28,9 @@
 #include "paddings.h"
 #include "crypto_internal.h"
 
-const uint32_t H[5] = {
+#define SHA1_DWORD_CHUNKS_IN_BLOCK_NUMBER   16
+
+const uint32_t H[SHA1_DWORDS_IN_STATE] = {
     0x67452301,
     0xefcdab89,
     0x98badcfe,
@@ -52,13 +54,13 @@ void Sha1ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* output)
 {
     assert(input && words && output);
 
-    for (int i = 0; i < 16; ++i)
+    for (int i = 0; i < SHA1_DWORD_CHUNKS_IN_BLOCK_NUMBER; ++i)
         words[i] = Uint32LittleEndianToBigEndian(*input++);
 
-    for (int i = 16; i < 32; ++i)
+    for (int i = SHA1_DWORD_CHUNKS_IN_BLOCK_NUMBER; i < 32; ++i)
         words[i] = Uint32BigEndianLeftRotateByOne(words[i - 3] ^ words[i - 8] ^ words[i - 14] ^ words[i - 16]);
 
-    for (int i = 32; i < 80; ++i)
+    for (int i = 32; i < SHA1_DWORDS_IN_ALOGO_NUMBER; ++i)
         words[i] = Uint32BigEndianLeftRotate(words[i - 6] ^ words[i - 16] ^ words[i - 28] ^ words[i - 32], 2);
 
     uint32_t a = output[0],
@@ -70,7 +72,7 @@ void Sha1ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* output)
              k = 0,
              temp = 0;
 
-    for (int i = 0; i < 80; ++i) {
+    for (int i = 0; i < SHA1_DWORDS_IN_ALOGO_NUMBER; ++i) {
         if (i < 20) {
             f = d ^ (b & (c ^ d));
             k = K1;

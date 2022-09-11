@@ -15,7 +15,7 @@ TEST(ProcessingByBlockCipherDecryptionTest, TooSmallOutputSize) {
     size_t outputSize = 0;
     uint8_t* buffer = new uint8_t[outputSize];
     BlockCipherHandle handle = nullptr;
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, KEY_8, nullptr));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, HardwareFeatures(), KEY_8, nullptr));
     EVAL(ProcessingByBlockCipher(handle, input, 8, true, buffer, &outputSize));
 
 exit:
@@ -605,7 +605,7 @@ TEST(ProcessingByBlockCipherDecryptionTest, TdesCTRmultipart2) {
 
 // AES128 Single
 
-TEST(ProcessingByBlockCipherDecryptionTest, Aes128CBsingle) {
+TEST(ProcessingByBlockCipherDecryptionTest, Aes128ECBsingle) {
     uint8_t input[] = { 0xb3, 0x5e, 0x00, 0x71, 0x0a, 0x0b, 0x57, 0x8e, 0x63, 0x7a, 0x67, 0xce, 0x79, 0xf8, 0x10, 0x80 };
 
     ProcessingByBlockCipherTestFunc(input, sizeof(input), PKCSN7_padding, KEY_16, AES128_cipher_type, 15, ECB_mode, nullptr

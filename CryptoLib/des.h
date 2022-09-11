@@ -25,20 +25,23 @@
 
 #include "crypto_helpers.h"
 
+#define DES_ROUND_KEYS_NUMBER       16
+#define TDES_ROUND_KEYS_NUMBER      48
+
+#define DES_ROUND_KEYS_NUMBER_X2    32
+
 typedef struct _DesState {
-    uint64_t roundsKeys[16];
+    uint64_t roundKeys[DES_ROUND_KEYS_NUMBER];
     uint64_t iv;
 } DesState;
 
 typedef struct _TdesState {
-    uint64_t roundsKeys[48];
+    uint64_t roundKeys[TDES_ROUND_KEYS_NUMBER];
     uint64_t iv;
 } TdesState;
 
-#define DES_ROUNDS_KEYS_SIZE            128
-#define TDES_ROUNDS_KEYS_SIZE           384
 
-extern inline void DesKeySchedule(__in BlockCipherType cipher, __in const uint64_t* key, __out uint64_t* roundsKeys);
+extern inline void DesKeySchedule(__in BlockCipherType cipher, __in const uint64_t* key, __out uint64_t* roundKeys);
 
 int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in BlockCipherOpMode opMode, __in PaddingType padding, __in const uint64_t* input, __in size_t inputSize
     , __in bool finalize, __out_opt uint64_t* output, __inout size_t* outputSize);

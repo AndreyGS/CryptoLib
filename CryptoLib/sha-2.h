@@ -23,21 +23,31 @@
 
 #pragma once
 
-#include "crypto_internal.h"
+#include "crypto_helpers.h"
+
+#define SHA2_32_DWORDS_IN_STATE                8
+#define SHA2_32_DWORDS_IN_ALOGO_NUMBER         64
+#define SHA2_32_QWORDS_IN_BLOCK                SHA2_32_BLOCK_SIZE / sizeof(uint64_t)
+#define SHA2_32_QWORDS_IN_TAIL_BLOCKS_BUFFER   SHA2_32_QWORDS_IN_BLOCK * SHA_1_2_MAX_BLOCKS_NUMBER_IN_TAIL
+
+#define SHA2_64_QWORDS_IN_STATE                8
+#define SHA2_64_QWORDS_IN_ALOGO_NUMBER         80
+#define SHA2_64_QWORDS_IN_BLOCK                SHA2_64_BLOCK_SIZE / sizeof(uint64_t)
+#define SHA2_64_QWORDS_IN_TAIL_BLOCKS_BUFFER   SHA2_64_QWORDS_IN_BLOCK * SHA_1_2_MAX_BLOCKS_NUMBER_IN_TAIL
 
 typedef struct _Sha2_32State {
-    uint32_t state[8];
+    uint32_t state[SHA2_32_DWORDS_IN_STATE];
     uint64_t size;
-    uint32_t words[64];
-    uint64_t tailBlocks[16];
+    uint32_t words[SHA2_32_DWORDS_IN_ALOGO_NUMBER];
+    uint64_t tailBlocks[SHA2_32_QWORDS_IN_TAIL_BLOCKS_BUFFER];
 } Sha2_32State;
 
 typedef struct _Sha2_64State {
-    uint64_t state[8];
+    uint64_t state[SHA2_64_QWORDS_IN_STATE];
     uint64_t sizeLow;
     uint64_t sizeHigh;
-    uint64_t words[80];
-    uint64_t tailBlocks[32];
+    uint64_t words[SHA2_64_QWORDS_IN_ALOGO_NUMBER];
+    uint64_t tailBlocks[SHA2_64_QWORDS_IN_TAIL_BLOCKS_BUFFER];
 } Sha2_64State;
 
 #define HASH_STATE_SHA2_32_SIZE          HASH_STATE_HEADER_SIZE + sizeof(Sha2_32State)

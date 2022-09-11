@@ -1,5 +1,5 @@
 /**
- * @file sha-1.h
+ * @file common_asm.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,21 +23,14 @@
 
 #pragma once
 
-#include "crypto_helpers.h"
+#include "crypto.h"
 
-#define SHA1_DWORDS_IN_STATE                5
-#define SHA1_DWORDS_IN_ALOGO_NUMBER         80
-#define SHA1_QWORDS_IN_BLOCK                SHA1_BLOCK_SIZE / sizeof(uint64_t)
-#define SHA1_QWORDS_IN_TAIL_BLOCKS_BUFFER   SHA1_QWORDS_IN_BLOCK * SHA_1_2_MAX_BLOCKS_NUMBER_IN_TAIL
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-typedef struct _Sha1State {
-    uint32_t state[SHA1_DWORDS_IN_STATE];
-    uint64_t size;
-    uint32_t words[SHA1_DWORDS_IN_ALOGO_NUMBER];
-    uint64_t tailBlocks[SHA1_QWORDS_IN_TAIL_BLOCKS_BUFFER];
-} Sha1State;
+HardwareFeatures HardwareFeaturesDetect();
 
-#define HASH_STATE_SHA1_SIZE             HASH_STATE_HEADER_SIZE + sizeof(Sha1State)
-
-void Sha1InitState(__out uint32_t* state);
-void Sha1Get(__inout Sha1State* state, __in_opt const void* input, __in size_t inputSize, __in bool finalize, __out_opt uint32_t* output);
+#ifdef __cplusplus
+}
+#endif
