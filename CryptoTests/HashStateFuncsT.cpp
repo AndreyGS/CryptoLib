@@ -86,15 +86,18 @@ TEST(HashStateFuncsTest, FreeHashStateMain) {
     HashHandle handle = NULL;
     bool allOk = false;
 
-    EVAL(InitHashState(&handle, (HashFunc)(HashFunc_max - 1)));
+    EVAL(InitHashState(&handle, SHA_512));
+    EVAL(GetHash(handle, "aee25eaf93c3830774532547d36b4c5328743c7b08785fd391fd419b2001ffdc8811b649cda3102c1846de2eb12b28ce29f5"
+        "b40edfe0b670f637eff6f2cbaf69", 128, false, nullptr));
 
     EVAL(FreeHashState(handle));
 
     {
-        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_hashFuncsSizesMapping[HashFunc_max - 1].stateAndHeaderSize);
-        memset(test.get(), 0, g_hashFuncsSizesMapping[HashFunc_max - 1].stateAndHeaderSize);
+        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_hashFuncsSizesMapping[SHA_512].stateAndHeaderSize);
+        memset(test.get(), 0, g_hashFuncsSizesMapping[SHA_512].stateAndHeaderSize);
 
-        EXPECT_TRUE(memcmp(handle, test.get(), g_hashFuncsSizesMapping[HashFunc_max - 1].stateAndHeaderSize) == 0);
+        // here we adding offset of 8 bytes, cause compiler in release version fills that bytes by some other info after freeing
+        EXPECT_TRUE(memcmp((uint8_t*)handle + 8, test.get(), g_hashFuncsSizesMapping[SHA_512].stateAndHeaderSize - 8) == 0);
     }
 
     allOk = true;

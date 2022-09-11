@@ -27,8 +27,8 @@
 
 #define SHA1_DWORDS_IN_STATE                5
 #define SHA1_DWORDS_IN_ALOGO_NUMBER         80
-#define SHA1_QWORDS_IN_BLOCK                SHA1_BLOCK_SIZE / sizeof(uint64_t)
-#define SHA1_QWORDS_IN_TAIL_BLOCKS_BUFFER   SHA1_QWORDS_IN_BLOCK * SHA_1_2_MAX_BLOCKS_NUMBER_IN_TAIL
+#define SHA1_QWORDS_IN_BLOCK                (SHA1_BLOCK_SIZE / sizeof(uint64_t))
+#define SHA1_QWORDS_IN_TAIL_BLOCKS_BUFFER   (SHA1_QWORDS_IN_BLOCK * SHA_1_2_MAX_BLOCKS_NUMBER_IN_TAIL)
 
 typedef struct _Sha1State {
     uint32_t state[SHA1_DWORDS_IN_STATE];

@@ -280,13 +280,14 @@ TEST(BlockCipherStateFuncsTest, FreeBlockCipherStateMain) {
     memset(test_3.get(), 0, sizeof(BlockCipherState));
     memset(test_4.get(), 0xdd, sizeof(BlockCipherState));
 
-    EVAL(InitBlockCipherState(&handle, (BlockCipherType)0, Decryption_mode, CBC_mode, No_padding, HardwareFeatures(), KEY_8, &iv));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, CBC_mode, No_padding, HardwareFeatures(), KEY_8, &iv));
     state = (BlockCipherState*)handle;
     specificCipherState = ((BlockCipherState*)handle)->state;
 
     EVAL(FreeBlockCipherState(handle));
 
-    EXPECT_TRUE(memcmp(specificCipherState, test_1.get(), sizeof(DesState)) == 0 || memcmp(specificCipherState, test_2.get(), sizeof(DesState)) == 0);
+    // here we adding offset of 8 bytes, cause compiler in release version fills that bytes by some other info after freeing
+    EXPECT_TRUE(memcmp((uint8_t*)(specificCipherState) + 8, test_1.get(), sizeof(DesState) - 8) == 0 || memcmp((uint8_t*)(specificCipherState)+8, test_2.get(), sizeof(DesState) - 8) == 0);
     EXPECT_TRUE(memcmp(state, test_3.get(), sizeof(BlockCipherState)) == 0 || memcmp(state, test_4.get(), sizeof(BlockCipherState)) == 0);
 
     allOk = true;

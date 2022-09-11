@@ -122,6 +122,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -178,6 +179,7 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>
