@@ -134,7 +134,8 @@ typedef enum _PaddingType {
 /// 
 /// This bit field describes enabled hardware features.
 /// Currently only AESNI and AVX flags are supported.
-/// If AVX flag is set, then AESNI is ignored, because AVX is the superset of AESNI in current context
+/// If AVX flag is set, then AESNI is ignored (for Hardware AES processing),
+/// because AVX is the superset of AESNI in this context
 typedef struct _HardwareFeatures {
     uint64_t aesni  : 1;
     uint64_t avx    : 1;

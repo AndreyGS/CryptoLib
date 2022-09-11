@@ -792,13 +792,13 @@ Aes128AvxEncryptBlock PROC roundKeys: PTR, input: PTR, output: PTR
 	mov edx, output
 
 	vmovdqu xmm0, xmmword ptr [ecx]
-	vxorps xmm0, xmm0, xmm1 ; input ^ roundKeys[0]
-	aesenc xmm0, xmm2
-	aesenc xmm0, xmm3
-	aesenc xmm0, xmm4
-	aesenc xmm0, xmm5
-	aesenc xmm0, xmm6
-	aesenc xmm0, xmm7 
+	vxorps xmm0, xmm0, xmmword ptr [eax] ; input ^ roundKeys[0]
+	aesenc xmm0, xmmword ptr [eax+16]
+	aesenc xmm0, xmmword ptr [eax+32]
+	aesenc xmm0, xmmword ptr [eax+48]
+	aesenc xmm0, xmmword ptr [eax+64]
+	aesenc xmm0, xmmword ptr [eax+80]
+	aesenc xmm0, xmmword ptr [eax+96] 
 	aesenc xmm0, xmmword ptr [eax+112]
 	aesenc xmm0, xmmword ptr [eax+128]
 	aesenc xmm0, xmmword ptr [eax+144]
@@ -814,15 +814,15 @@ Aes192AvxEncryptBlock PROC roundKeys: PTR, input: PTR, output: PTR
 	mov edx, output
 
 	vmovdqu xmm0, xmmword ptr [ecx]
-	vxorps xmm0, xmm0, xmm1 ; input ^ roundKeys[0]
-	aesenc xmm0, xmm2
-	aesenc xmm0, xmm3
-	aesenc xmm0, xmm4
-	aesenc xmm0, xmm5
-	aesenc xmm0, xmm6
-	aesenc xmm0, xmm7
+	vxorps xmm0, xmm0, xmmword ptr [eax] ; input ^ roundKeys[0]
+	aesenc xmm0, xmmword ptr [eax+16]
+	aesenc xmm0, xmmword ptr [eax+32]
+	aesenc xmm0, xmmword ptr [eax+48]
+	aesenc xmm0, xmmword ptr [eax+64]
+	aesenc xmm0, xmmword ptr [eax+80]
+	aesenc xmm0, xmmword ptr [eax+96] 
 	aesenc xmm0, xmmword ptr [eax+112]
-	aesenc xmm0, xmmword ptr [eax+128] 
+	aesenc xmm0, xmmword ptr [eax+128]
 	aesenc xmm0, xmmword ptr [eax+144]
 	aesenc xmm0, xmmword ptr [eax+160]
 	aesenc xmm0, xmmword ptr [eax+176]
@@ -838,13 +838,13 @@ Aes256AvxEncryptBlock PROC roundKeys: PTR, input: PTR, output: PTR
 	mov edx, output
 
 	vmovdqu xmm0, xmmword ptr [ecx]
-	vxorps xmm0, xmm0, xmm1 ; input ^ roundKeys[0]
-	aesenc xmm0, xmm2
-	aesenc xmm0, xmm3
-	aesenc xmm0, xmm4
-	aesenc xmm0, xmm5
-	aesenc xmm0, xmm6
-	aesenc xmm0, xmm7
+	vxorps xmm0, xmm0, xmmword ptr [eax] ; input ^ roundKeys[0]
+	aesenc xmm0, xmmword ptr [eax+16]
+	aesenc xmm0, xmmword ptr [eax+32]
+	aesenc xmm0, xmmword ptr [eax+48]
+	aesenc xmm0, xmmword ptr [eax+64]
+	aesenc xmm0, xmmword ptr [eax+80]
+	aesenc xmm0, xmmword ptr [eax+96] 
 	aesenc xmm0, xmmword ptr [eax+112]
 	aesenc xmm0, xmmword ptr [eax+128]
 	aesenc xmm0, xmmword ptr [eax+144]
@@ -868,13 +868,13 @@ Aes128AvxDecryptBlock PROC roundKeys: PTR, input: PTR, output: PTR
 	aesdec xmm0, xmmword ptr [eax+144]
 	aesdec xmm0, xmmword ptr [eax+128]
 	aesdec xmm0, xmmword ptr [eax+112]
-	aesdec xmm0, xmm7
-	aesdec xmm0, xmm6
-	aesdec xmm0, xmm5
-	aesdec xmm0, xmm4
-	aesdec xmm0, xmm3
-	aesdec xmm0, xmm2
-	aesdeclast xmm0, xmm1
+	aesdec xmm0, xmmword ptr [eax+96]
+	aesdec xmm0, xmmword ptr [eax+80]
+	aesdec xmm0, xmmword ptr [eax+64]
+	aesdec xmm0, xmmword ptr [eax+48]
+	aesdec xmm0, xmmword ptr [eax+32]
+	aesdec xmm0, xmmword ptr [eax+16]
+	aesdeclast xmm0, xmmword ptr [eax]
 	vmovdqu xmmword ptr [edx], xmm0
 
 	ret
@@ -892,13 +892,13 @@ Aes192AvxDecryptBlock PROC roundKeys: PTR, input: PTR, output: PTR
 	aesdec xmm0, xmmword ptr [eax+144]
 	aesdec xmm0, xmmword ptr [eax+128]
 	aesdec xmm0, xmmword ptr [eax+112]
-	aesdec xmm0, xmm7
-	aesdec xmm0, xmm6
-	aesdec xmm0, xmm5
-	aesdec xmm0, xmm4
-	aesdec xmm0, xmm3
-	aesdec xmm0, xmm2
-	aesdeclast xmm0, xmm1
+	aesdec xmm0, xmmword ptr [eax+96]
+	aesdec xmm0, xmmword ptr [eax+80]
+	aesdec xmm0, xmmword ptr [eax+64]
+	aesdec xmm0, xmmword ptr [eax+48]
+	aesdec xmm0, xmmword ptr [eax+32]
+	aesdec xmm0, xmmword ptr [eax+16]
+	aesdeclast xmm0, xmmword ptr [eax]
 	vmovdqu xmmword ptr [edx], xmm0
 
 	ret
@@ -918,13 +918,13 @@ Aes256AvxDecryptBlock PROC roundKeys: PTR, input: PTR, output: PTR
 	aesdec xmm0, xmmword ptr [eax+144]
 	aesdec xmm0, xmmword ptr [eax+128]
 	aesdec xmm0, xmmword ptr [eax+112]
-	aesdec xmm0, xmm7
-	aesdec xmm0, xmm6
-	aesdec xmm0, xmm5
-	aesdec xmm0, xmm4
-	aesdec xmm0, xmm3
-	aesdec xmm0, xmm2
-	aesdeclast xmm0, xmm1
+	aesdec xmm0, xmmword ptr [eax+96]
+	aesdec xmm0, xmmword ptr [eax+80]
+	aesdec xmm0, xmmword ptr [eax+64]
+	aesdec xmm0, xmmword ptr [eax+48]
+	aesdec xmm0, xmmword ptr [eax+32]
+	aesdec xmm0, xmmword ptr [eax+16]
+	aesdeclast xmm0, xmmword ptr [eax]
 	vmovdqu xmmword ptr [edx], xmm0
 
 	ret
@@ -937,13 +937,13 @@ Aes128NiEncryptBlock PROC roundKeys: PTR, input: PTR, output: PTR
 	mov edx, output
 
 	movdqu xmm0, xmmword ptr [ecx]
-	xorps xmm0, xmm1 ; input ^ roundKeys[0]
-	aesenc xmm0, xmm2
-	aesenc xmm0, xmm3
-	aesenc xmm0, xmm4
-	aesenc xmm0, xmm5
-	aesenc xmm0, xmm6
-	aesenc xmm0, xmm7
+	xorps xmm0, xmmword ptr [eax] ; input ^ roundKeys[0]
+	aesenc xmm0, xmmword ptr [eax+16]
+	aesenc xmm0, xmmword ptr [eax+32]
+	aesenc xmm0, xmmword ptr [eax+48]
+	aesenc xmm0, xmmword ptr [eax+64]
+	aesenc xmm0, xmmword ptr [eax+80]
+	aesenc xmm0, xmmword ptr [eax+96]
 	aesenc xmm0, xmmword ptr [eax+112]
 	aesenc xmm0, xmmword ptr [eax+128]
 	aesenc xmm0, xmmword ptr [eax+144]
@@ -959,13 +959,13 @@ Aes192NiEncryptBlock PROC roundKeys: PTR, input: PTR, output: PTR
 	mov edx, output
 
 	movdqu xmm0, xmmword ptr [ecx]
-	xorps xmm0, xmm1 ; input ^ roundKeys[0]
-	aesenc xmm0, xmm2
-	aesenc xmm0, xmm3
-	aesenc xmm0, xmm4
-	aesenc xmm0, xmm5
-	aesenc xmm0, xmm6
-	aesenc xmm0, xmm7 
+	xorps xmm0, xmmword ptr [eax] ; input ^ roundKeys[0]
+	aesenc xmm0, xmmword ptr [eax+16]
+	aesenc xmm0, xmmword ptr [eax+32]
+	aesenc xmm0, xmmword ptr [eax+48]
+	aesenc xmm0, xmmword ptr [eax+64]
+	aesenc xmm0, xmmword ptr [eax+80]
+	aesenc xmm0, xmmword ptr [eax+96]
 	aesenc xmm0, xmmword ptr [eax+112]
 	aesenc xmm0, xmmword ptr [eax+128]
 	aesenc xmm0, xmmword ptr [eax+144]
@@ -983,13 +983,13 @@ Aes256NiEncryptBlock PROC roundKeys: PTR, input: PTR, output: PTR
 	mov edx, output
 
 	movdqu xmm0, xmmword ptr [ecx]
-	xorps xmm0, xmm1 ; input ^ roundKeys[0]
-	aesenc xmm0, xmm2
-	aesenc xmm0, xmm3
-	aesenc xmm0, xmm4
-	aesenc xmm0, xmm5
-	aesenc xmm0, xmm6
-	aesenc xmm0, xmm7
+	xorps xmm0, xmmword ptr [eax] ; input ^ roundKeys[0]
+	aesenc xmm0, xmmword ptr [eax+16]
+	aesenc xmm0, xmmword ptr [eax+32]
+	aesenc xmm0, xmmword ptr [eax+48]
+	aesenc xmm0, xmmword ptr [eax+64]
+	aesenc xmm0, xmmword ptr [eax+80]
+	aesenc xmm0, xmmword ptr [eax+96]
 	aesenc xmm0, xmmword ptr [eax+112]
 	aesenc xmm0, xmmword ptr [eax+128]
 	aesenc xmm0, xmmword ptr [eax+144]
@@ -1013,13 +1013,13 @@ Aes128NiDecryptBlock PROC roundKeys: PTR, input: PTR, output: PTR
 	aesdec xmm0, xmmword ptr [eax+144]
 	aesdec xmm0, xmmword ptr [eax+128]
 	aesdec xmm0, xmmword ptr [eax+112]
-	aesdec xmm0, xmm7
-	aesdec xmm0, xmm6
-	aesdec xmm0, xmm5
-	aesdec xmm0, xmm4
-	aesdec xmm0, xmm3
-	aesdec xmm0, xmm2
-	aesdeclast xmm0, xmm1
+	aesdec xmm0, xmmword ptr [eax+96]
+	aesdec xmm0, xmmword ptr [eax+80]
+	aesdec xmm0, xmmword ptr [eax+64]
+	aesdec xmm0, xmmword ptr [eax+48]
+	aesdec xmm0, xmmword ptr [eax+32]
+	aesdec xmm0, xmmword ptr [eax+16]
+	aesdeclast xmm0, xmmword ptr [eax]
 	movdqu xmmword ptr [edx], xmm0
 
 	ret
@@ -1037,13 +1037,13 @@ Aes192NiDecryptBlock PROC roundKeys: PTR, input: PTR, output: PTR
 	aesdec xmm0, xmmword ptr [eax+144]
 	aesdec xmm0, xmmword ptr [eax+128]
 	aesdec xmm0, xmmword ptr [eax+112]
-	aesdec xmm0, xmm7
-	aesdec xmm0, xmm6
-	aesdec xmm0, xmm5
-	aesdec xmm0, xmm4
-	aesdec xmm0, xmm3
-	aesdec xmm0, xmm2
-	aesdeclast xmm0, xmm1
+	aesdec xmm0, xmmword ptr [eax+96]
+	aesdec xmm0, xmmword ptr [eax+80]
+	aesdec xmm0, xmmword ptr [eax+64]
+	aesdec xmm0, xmmword ptr [eax+48]
+	aesdec xmm0, xmmword ptr [eax+32]
+	aesdec xmm0, xmmword ptr [eax+16]
+	aesdeclast xmm0, xmmword ptr [eax]
 	movdqu xmmword ptr [edx], xmm0
 
 	ret
@@ -1063,13 +1063,13 @@ Aes256NiDecryptBlock PROC roundKeys: PTR, input: PTR, output: PTR
 	aesdec xmm0, xmmword ptr [eax+144]
 	aesdec xmm0, xmmword ptr [eax+128]
 	aesdec xmm0, xmmword ptr [eax+112]
-	aesdec xmm0, xmm7
-	aesdec xmm0, xmm6
-	aesdec xmm0, xmm5
-	aesdec xmm0, xmm4
-	aesdec xmm0, xmm3
-	aesdec xmm0, xmm2
-	aesdeclast xmm0, xmm1
+	aesdec xmm0, xmmword ptr [eax+96]
+	aesdec xmm0, xmmword ptr [eax+80]
+	aesdec xmm0, xmmword ptr [eax+64]
+	aesdec xmm0, xmmword ptr [eax+48]
+	aesdec xmm0, xmmword ptr [eax+32]
+	aesdec xmm0, xmmword ptr [eax+16]
+	aesdeclast xmm0, xmmword ptr [eax]
 	movdqu xmmword ptr [edx], xmm0
 
 	ret

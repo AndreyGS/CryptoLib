@@ -303,4 +303,52 @@
     <CodeCurrent>603684731</CodeCurrent>
     <CodeNext>352761</CodeNext>
   </CryptoLib>
+  <CryptoLib>
+    <FileName>crypto_internal.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>0</CodePrev>
+    <CodeCurrent>4249759228</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>paddings.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>43364935</CodePrev>
+    <CodeCurrent>677348896</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>paddings.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>88650311</CodePrev>
+    <CodeCurrent>2675017257</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>paddings.c</FileName>
+    <ErrorCode>V559</ErrorCode>
+    <Message>Suspicious assignment inside the conditional expression of 'if' statement.</Message>
+    <CodePrev>43364935</CodePrev>
+    <CodeCurrent>721668660</CodeCurrent>
+    <CodeNext>352761</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>crypto_internal.c</FileName>
+    <ErrorCode>V557</ErrorCode>
+    <Message>Array overrun is possible. The '_' index is pointing beyond array bound.</Message>
+    <CodePrev>890352620</CodePrev>
+    <CodeCurrent>5942813</CodeCurrent>
+    <CodeNext>125</CodeNext>
+  </CryptoLib>
+  <CryptoLib>
+    <FileName>crypto_internal.c</FileName>
+    <ErrorCode>V522</ErrorCode>
+    <Message>There might be dereferencing of a potential null pointer 'stateIv'.</Message>
+    <CodePrev>0</CodePrev>
+    <CodeCurrent>5943065</CodeCurrent>
+    <CodeNext>890352620</CodeNext>
+  </CryptoLib>
 </NewDataSet>
