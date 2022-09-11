@@ -84,7 +84,6 @@ const PrfSizes g_PrfSizesMapping[11] = {
 };
 
 static inline void BlockCipherKeySchedule(__in BlockCipherType cipher, __in_opt HardwareFeatures hwFeatures, __in const void* key, __inout void* specificCipherState);
-int FillSpecificBlockCipherState(__in BlockCipherType cipher, __in_opt HardwareFeatures hwFeatures, __in const void* key, __in const void* iv);
 
 // AddPaddingInternal function adds padding and fills last block by padding directly to output with respective offset 
 // and when fillLastBlock is set and (inputSize % blockSize != 0) it also copying the begining of the last input block to output with respective offset

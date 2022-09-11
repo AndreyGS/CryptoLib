@@ -38,7 +38,7 @@ typedef struct _CDBlocks {
 
 // Round Keys Generation Block
 
-inline uint64_t DesGetExtendedKeyPermutation(uint64_t extendedKey)
+static inline uint64_t DesGetExtendedKeyPermutation(uint64_t extendedKey)
 {
     /*
         57	49	41	33	25	17	9	1	58	50	42	34	26	18	C0
@@ -107,35 +107,35 @@ inline uint64_t DesGetExtendedKeyPermutation(uint64_t extendedKey)
         | (extendedKey & 0x0000000000000010 /* 2^ 4 */) << 44;
 }
 
-inline CDBlocks DesGetZeroCDBlocks(uint64_t permKey)
+static inline CDBlocks DesGetZeroCDBlocks(uint64_t permKey)
 {
     CDBlocks initialBlock = { (uint32_t)(permKey & 0x00000000f0ffffff), (uint32_t)(((permKey & 0x000f0f0f0f000000) >> 20) | ((permKey & 0x00f0f0f000000000) >> 36)) };
     return initialBlock;
 }
 
-inline uint32_t DesRotateByOne(uint32_t number)
+static inline uint32_t DesRotateByOne(uint32_t number)
 {
     return (number & 0x707f7f7f) << 1 | (number & 0x00000080) << 21 | (number & 0x80808000) >> 15;
 }
 
-inline CDBlocks DesGetRoundCDBlocksOne(CDBlocks cdBlocks)
+static inline CDBlocks DesGetRoundCDBlocksOne(CDBlocks cdBlocks)
 {
     CDBlocks rotatedBlock = { DesRotateByOne(cdBlocks.cBlock), DesRotateByOne(cdBlocks.dBlock) };
     return rotatedBlock;
 }
 
-inline uint32_t DesRotateByTwo(uint32_t number)
+static inline uint32_t DesRotateByTwo(uint32_t number)
 {
     return (number & 0x303f3f3f) << 2 | (number & 0x000000c0) << 22 | (number & 0xc0c0c000) >> 14;
 }
 
-inline CDBlocks DesGetRoundCDBlocksTwo(CDBlocks cdBlocks)
+static inline CDBlocks DesGetRoundCDBlocksTwo(CDBlocks cdBlocks)
 {
     CDBlocks rotatedBlock = { DesRotateByTwo(cdBlocks.cBlock), DesRotateByTwo(cdBlocks.dBlock) };
     return rotatedBlock;
 }
 
-inline uint64_t DesGetRoundKey(CDBlocks cdBlocks)
+static inline uint64_t DesGetRoundKey(CDBlocks cdBlocks)
 {
     /*
         14	17	11	24	1	5	3	28	15	6	21	10	23	19	12	4
@@ -195,7 +195,7 @@ inline uint64_t DesGetRoundKey(CDBlocks cdBlocks)
         | ((uint64_t)cdBlocks.dBlock & 0x0000000000000010 /* 2^ 4 */) << 36;
 }
 
-void SingleDesKeySchedule(__in uint64_t extendedKey, __out uint64_t* roundKeys)
+static void SingleDesKeySchedule(__in uint64_t extendedKey, __out uint64_t* roundKeys)
 {
     assert(roundKeys);
 
@@ -218,7 +218,7 @@ void SingleDesKeySchedule(__in uint64_t extendedKey, __out uint64_t* roundKeys)
     roundKeys[15] = DesGetRoundKey(DesGetRoundCDBlocksOne(cdBlocks));
 }
 
-void TripleDesKeySchedule(__in const uint64_t* extendedKeys, __out uint64_t* roundKeys)
+static void TripleDesKeySchedule(__in const uint64_t* extendedKeys, __out uint64_t* roundKeys)
 {
     assert(roundKeys);
 
@@ -243,7 +243,7 @@ inline void DesKeySchedule(__in BlockCipherType cipher, __in const uint64_t* key
 
 // Feistel block
 
-inline uint64_t DesFeistelExtention(uint32_t r)
+static inline uint64_t DesFeistelExtention(uint32_t r)
 {
     /*
         32	1	2	3	4	5
@@ -326,7 +326,7 @@ const uint8_t DES_S_TRANSFORM_OPTIMIZED[8][64] =
     }
 };
 
-inline uint32_t DesSTransform(uint64_t allB)
+static inline uint32_t DesSTransform(uint64_t allB)
 {
     return
           (DES_S_TRANSFORM_OPTIMIZED[0][(allB & 0x00000000000000fc) >>  2                                    ] <<  4)
@@ -340,7 +340,7 @@ inline uint32_t DesSTransform(uint64_t allB)
         | (DES_S_TRANSFORM_OPTIMIZED[7][(allB & 0x00003f0000000000) >> 40                                    ] << 24);
 }
 
-inline uint32_t DesFeistelPermutation(uint32_t transformed) // correct
+static inline uint32_t DesFeistelPermutation(uint32_t transformed) // correct
 {
     /*
         16	7	20	21	29	12	28	17
@@ -385,14 +385,14 @@ inline uint32_t DesFeistelPermutation(uint32_t transformed) // correct
         | (transformed & 0x0000000080000000 /* 2^31 */) >>  7;
 }
 
-inline uint32_t DesFeistelFunc(uint32_t r, uint64_t roundKey)
+static inline uint32_t DesFeistelFunc(uint32_t r, uint64_t roundKey)
 {
     return DesFeistelPermutation(DesSTransform(DesFeistelExtention(r) ^ roundKey));
 }
 
 // Additional Permutations
 
-inline uint64_t DesInitialPermutation(uint64_t input)
+static inline uint64_t DesInitialPermutation(uint64_t input)
 {
     /*
         58	50	42	34	26	18	10	2	60	52	44	36	28	20	12	4
@@ -461,7 +461,7 @@ inline uint64_t DesInitialPermutation(uint64_t input)
         | (input & 0x0000000000000002 /* 2^1  */) << 55;
 }
 
-inline uint64_t DesFinalPermutation(uint64_t encryptedBlock)
+static inline uint64_t DesFinalPermutation(uint64_t encryptedBlock)
 {
     /*
         40	8	48	16	56	24	64	32	39	7	47	15	55	23	63	31
@@ -533,7 +533,7 @@ inline uint64_t DesFinalPermutation(uint64_t encryptedBlock)
 
 // Main algo block
 
-uint64_t DesEncryptBlock(const uint64_t* roundKeys, const uint64_t input)
+static uint64_t DesEncryptBlock(const uint64_t* roundKeys, const uint64_t input)
 {
     assert(roundKeys);
 
@@ -547,7 +547,7 @@ uint64_t DesEncryptBlock(const uint64_t* roundKeys, const uint64_t input)
     return DesFinalPermutation(permInput);
 }
 
-uint64_t DesDecryptBlock(const uint64_t* roundKeys, const uint64_t input)
+static uint64_t DesDecryptBlock(const uint64_t* roundKeys, const uint64_t input)
 {
     assert(roundKeys);
 
@@ -561,14 +561,14 @@ uint64_t DesDecryptBlock(const uint64_t* roundKeys, const uint64_t input)
     return DesFinalPermutation(permInput);
 }
 
-uint64_t TdesEncryptBlock(const uint64_t* roundKeys, const uint64_t input)
+static uint64_t TdesEncryptBlock(const uint64_t* roundKeys, const uint64_t input)
 {
     assert(roundKeys);
 
     return DesEncryptBlock(roundKeys + DES_ROUND_KEYS_NUMBER_X2, DesDecryptBlock(roundKeys + DES_ROUND_KEYS_NUMBER, DesEncryptBlock(roundKeys, input)));
 }
 
-uint64_t TdesDecryptBlock(const uint64_t* roundKeys, const uint64_t input)
+static uint64_t TdesDecryptBlock(const uint64_t* roundKeys, const uint64_t input)
 {
     assert(roundKeys);
 

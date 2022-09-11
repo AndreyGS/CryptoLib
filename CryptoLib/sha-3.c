@@ -43,7 +43,7 @@ const uint64_t ROUND_CONSTANTS[KECCAK_ROUNDS_NUMBER] =
     0x8000000080008081, 0x8000000000008080, 0x0000000080000001, 0x8000000080008008,      
 };
 
-inline uint16_t GetSha3Capacity(Sha3Func func)
+static inline uint16_t GetSha3Capacity(Sha3Func func)
 {
     switch (func) {
     case Sha3Func_SHA3_224:
@@ -63,7 +63,7 @@ inline uint16_t GetSha3Capacity(Sha3Func func)
     }
 }
 
-void Keccak_p_Rnds(__inout uint64_t* state)
+static void Keccak_p_Rnds(__inout uint64_t* state)
 {
     assert(state);
 
@@ -118,7 +118,7 @@ void Keccak_p_Rnds(__inout uint64_t* state)
     }
 }
 
-inline void Sha3StateXor(__in const uint64_t* input, __in Sha3Func func, __inout uint64_t* state)
+static inline void Sha3StateXor(__in const uint64_t* input, __in Sha3Func func, __inout uint64_t* state)
 {
     assert(input && state);
 
@@ -169,7 +169,7 @@ void Sha3GetXof(__inout void* state, __in_opt const void* input, __in size_t inp
     Sha3Get(state, input, inputSize, func + Sha3Func_SHA3_512 + 1, finalize, output, outputSize);
 }
 
-void Sha3Get(__inout StateHandle state, __in_opt const void* input, __in size_t inputSize, __in Sha3Func func, __in bool finalize, __out_opt uint64_t* output, __in_opt size_t outputSize)
+static void Sha3Get(__inout StateHandle state, __in_opt const void* input, __in size_t inputSize, __in Sha3Func func, __in bool finalize, __out_opt uint64_t* output, __in_opt size_t outputSize)
 {
     assert(state && (input || !inputSize) && (!finalize || output));
 

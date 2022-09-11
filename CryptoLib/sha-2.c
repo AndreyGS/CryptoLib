@@ -166,7 +166,7 @@ void Sha2_64InitState(__in HashFunc func, __out uint64_t* state)
     state[4] = pH[4], state[5] = pH[5], state[6] = pH[6], state[7] = pH[7];
 }
 
-void Sha2_32ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* output)
+static void Sha2_32ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* output)
 {
     assert(input && words && output);
 
@@ -256,7 +256,7 @@ void Sha2_32Get(__inout Sha2_32State* state, __in_opt const void* input, __in si
     }
 }
 
-void Sha2_64ProcessBlock(const uint64_t* input, uint64_t* words, uint64_t* output)
+static void Sha2_64ProcessBlock(const uint64_t* input, uint64_t* words, uint64_t* output)
 {
     assert(input && words && output);
 

@@ -50,7 +50,7 @@ void Sha1InitState(__out uint32_t* state)
     state[0] = H[0], state[1] = H[1], state[2] = H[2], state[3] = H[3], state[4] = H[4];
 }
 
-void Sha1ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* output)
+static void Sha1ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* output)
 {
     assert(input && words && output);
 

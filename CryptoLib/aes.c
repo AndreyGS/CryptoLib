@@ -81,7 +81,7 @@ const uint32_t R_CONSTANTS[10] =
     0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36
 };
 
-void AesKeyScheduleSoftware(__in BlockCipherType cipher, __in const uint32_t* key, __out uint32_t* roundKeys)
+static void AesKeyScheduleSoftware(__in BlockCipherType cipher, __in const uint32_t* key, __out uint32_t* roundKeys)
 {
     assert(key && roundKeys);
     
@@ -145,7 +145,7 @@ void AesKeySchedule(__in BlockCipherType cipher, __in const uint64_t* key, __in 
         AesKeyScheduleSoftware(cipher, (uint32_t*)key, specificCipherState);
 }
 
-inline void AesSubBytes(__inout uint8_t* input)
+static inline void AesSubBytes(__inout uint8_t* input)
 {
     assert(input);
 
@@ -155,7 +155,7 @@ inline void AesSubBytes(__inout uint8_t* input)
     input[12] = AES_S_BOX[input[12]], input[13] = AES_S_BOX[input[13]], input[14] = AES_S_BOX[input[14]], input[15] = AES_S_BOX[input[15]];
 }
 
-inline void AesSubBytesInv(__inout uint8_t* input)
+static inline void AesSubBytesInv(__inout uint8_t* input)
 {
     assert(input);
 
@@ -165,7 +165,7 @@ inline void AesSubBytesInv(__inout uint8_t* input)
     input[12] = AES_S_BOX_INV[input[12]], input[13] = AES_S_BOX_INV[input[13]], input[14] = AES_S_BOX_INV[input[14]], input[15] = AES_S_BOX_INV[input[15]];
 }
 
-inline void AesShiftRows(__inout uint8_t* input)
+static inline void AesShiftRows(__inout uint8_t* input)
 {
     assert(input);
 
@@ -176,7 +176,7 @@ inline void AesShiftRows(__inout uint8_t* input)
     temp = input[3], input[3] = input[15], input[15] = input[11], input[11] = input[7], input[7] = temp;
 }
 
-inline void AesShiftRowsInv(__inout uint8_t* input)
+static inline void AesShiftRowsInv(__inout uint8_t* input)
 {
     assert(input);
 
@@ -228,7 +228,7 @@ const uint8_t AES_MC_PRECALCULETED_CONSTS_X3[256] =
     0x0b, 0x08, 0x0d, 0x0e, 0x07, 0x04, 0x01, 0x02, 0x13, 0x10, 0x15, 0x16, 0x1f, 0x1c, 0x19, 0x1a
 };
 
-inline void AesMixColumns(__inout uint8_t* input)
+static inline void AesMixColumns(__inout uint8_t* input)
 {
     assert(input);
 
@@ -325,7 +325,7 @@ const uint8_t AES_MC_PRECALCULETED_CONSTS_X14[256] =
 };
 
 
-inline void AesMixColumnsInv(__inout uint8_t* input)
+static inline void AesMixColumnsInv(__inout uint8_t* input)
 {
     assert(input);
 
@@ -342,7 +342,7 @@ inline void AesMixColumnsInv(__inout uint8_t* input)
 }
 
 // After compiler optimization call of AesEncryptBlock from AesEncryptBlock128, AesEncryptBlock192 etc. will be inlined 
-void AesEncryptBlock(__in const uint64_t* roundKeys, __in uint8_t roundsNum, __in const uint64_t* input, __out uint64_t* output)
+static void AesEncryptBlock(__in const uint64_t* roundKeys, __in uint8_t roundsNum, __in const uint64_t* input, __out uint64_t* output)
 {
     assert(roundKeys && input && output);
 
@@ -369,25 +369,24 @@ void AesEncryptBlock(__in const uint64_t* roundKeys, __in uint8_t roundsNum, __i
     output[1] ^= roundKeys[1];
 }
 
-void Aes128EncryptBlock(__in const uint64_t* roundKeys, __in const uint64_t* input, __out uint64_t* output)
+static void Aes128EncryptBlock(__in const uint64_t* roundKeys, __in const uint64_t* input, __out uint64_t* output)
 {
     AesEncryptBlock(roundKeys, 10, input, output);
 }
 
-void Aes192EncryptBlock(__in const uint64_t* roundKeys, __in const uint64_t* input, __out uint64_t* output)
+static void Aes192EncryptBlock(__in const uint64_t* roundKeys, __in const uint64_t* input, __out uint64_t* output)
 {
     AesEncryptBlock(roundKeys, 12, input, output);
 }
 
-void Aes256EncryptBlock(__in const uint64_t* roundKeys, __in const uint64_t* input, __out uint64_t* output)
+static void Aes256EncryptBlock(__in const uint64_t* roundKeys, __in const uint64_t* input, __out uint64_t* output)
 {
     AesEncryptBlock(roundKeys, 14, input, output);
 }
 
 
-
 // roundsNum variable is expecting real rounds num minus one (for exclusion of one additional substraction)
-void AesDecryptBlock(__in const uint64_t* roundKeys, __in uint8_t roundsNum, __in const uint64_t* input, __out uint64_t* output)
+static void AesDecryptBlock(__in const uint64_t* roundKeys, __in uint8_t roundsNum, __in const uint64_t* input, __out uint64_t* output)
 {
     assert(roundKeys && input && output);
 
@@ -416,17 +415,17 @@ void AesDecryptBlock(__in const uint64_t* roundKeys, __in uint8_t roundsNum, __i
     output[1] ^= roundKeys[1];
 }
 
-void Aes128DecryptBlock(__in const uint64_t* roundKeys, __in const uint64_t* input, __out uint64_t* output)
+static void Aes128DecryptBlock(__in const uint64_t* roundKeys, __in const uint64_t* input, __out uint64_t* output)
 {
     AesDecryptBlock(roundKeys, 10, input, output);
 }
 
-void Aes192DecryptBlock(__in const uint64_t* roundKeys, __in const uint64_t* input, __out uint64_t* output)
+static void Aes192DecryptBlock(__in const uint64_t* roundKeys, __in const uint64_t* input, __out uint64_t* output)
 {
     AesDecryptBlock(roundKeys, 12, input, output);
 }
 
-void Aes256DecryptBlock(__in const uint64_t* roundKeys, __in const uint64_t* input, __out uint64_t* output)
+static void Aes256DecryptBlock(__in const uint64_t* roundKeys, __in const uint64_t* input, __out uint64_t* output)
 {
     AesDecryptBlock(roundKeys, 14, input, output);
 }

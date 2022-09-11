@@ -30,7 +30,7 @@
 #define SHA_START_LENGTH_OFFSET 56
 #define SHA2_START_LENGTH_OFFSET 112
 
-int CheckPaddingOutput(__in size_t blockSize, __in const void* paddedOutput, __in size_t* outputSize)
+static int CheckPaddingOutput(__in size_t blockSize, __in const void* paddedOutput, __in size_t* outputSize)
 {
     if (!paddedOutput && outputSize && *outputSize)
         return ERROR_NULL_OUTPUT;
@@ -41,8 +41,6 @@ int CheckPaddingOutput(__in size_t blockSize, __in const void* paddedOutput, __i
     else
         return NO_ERROR;
 }
-
-
 
 int PullPaddingSize(__in PaddingType padding, __in void* input, __in size_t blockSize, __out size_t* paddingSize)
 {
@@ -65,12 +63,12 @@ int CutPadding(__in PaddingType padding, __in size_t blockSize, __out void* outp
     return CutPaddingInternal(padding, blockSize, output, outputSize);
 }
 
-bool IsWholeBlockMultiplier(size_t inputSize, size_t blockSize)
+static inline bool IsWholeBlockMultiplier(size_t inputSize, size_t blockSize)
 {
     return inputSize < blockSize ? false : !(inputSize % blockSize);
 }
 
-void FillBlockStartByInput(__in const uint8_t* input, __in size_t inputSize, __in size_t blockSize, __out uint8_t* output, __in size_t paddingSize)
+static void FillBlockStartByInput(__in const uint8_t* input, __in size_t inputSize, __in size_t blockSize, __out uint8_t* output, __in size_t paddingSize)
 {
     size_t length = blockSize - paddingSize;
     size_t offset = inputSize - length;
@@ -78,12 +76,12 @@ void FillBlockStartByInput(__in const uint8_t* input, __in size_t inputSize, __i
     memcpy(output + offset, input + offset, length);
 }
 
-size_t GetRequiringOutputSize(__in size_t inputSize, __in size_t blockSize)
+static size_t GetRequiringOutputSize(__in size_t inputSize, __in size_t blockSize)
 {
     return inputSize + blockSize - (IsWholeBlockMultiplier(inputSize, blockSize) ? 0 : inputSize % blockSize);
 }
 
-int GetPaddingSize(__in size_t inputSize, __in size_t blockSize, __inout size_t* outputSize, __inout size_t* paddingSize)
+static int GetPaddingSize(__in size_t inputSize, __in size_t blockSize, __inout size_t* outputSize, __inout size_t* paddingSize)
 {
     size_t requiringSize = GetRequiringOutputSize(inputSize, blockSize);
 

@@ -27,34 +27,6 @@
 #include "kdf.h"
 #include "hmac.h"
 
-int GetPbkdf2(__in_opt const void* salt, __in size_t saltSize, __in_opt const void* password, __in size_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in size_t outputSize)
-{
-    int status = NO_ERROR;
-    if (!salt && saltSize)
-        return ERROR_NULL_INPUT;
-    else if (!password && passwordSize)
-        return ERROR_NULL_KEY;
-    else if (func < HMAC_SHA1 || func > HMAC_SHA3_512)
-        return ERROR_UNSUPPORTED_PRF_FUNC;
-    else if (!iterationsNum)
-        return ERROR_TOO_SMALL_ITERATIONS_NUMBER;
-    else if (!output)
-        return ERROR_NULL_OUTPUT;
-    else if (!outputSize)
-        return ERROR_TOO_SMALL_OUTPUT_SIZE;
-    else {
-        uint8_t* saltBuffer = NULL;
-        EVAL(AllocBuffer(&saltBuffer, (size_t)saltSize + 4));
-
-        memcpy(saltBuffer, salt, (size_t)saltSize);
-        status = GetPbkdf2Internal(saltBuffer, saltSize, password, passwordSize, func, iterationsNum, output, outputSize);
-        FreeBuffer(saltBuffer);
-    }
-
-exit:
-    return status;
-}
-
 int GetPbkdf2Internal(__in_opt const void* salt, __in size_t saltSize, __in_opt const void* password, __in size_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in size_t outputSize)
 {
     assert((salt || !saltSize) && (password || !passwordSize) && output && outputSize);
