@@ -37,11 +37,17 @@ void Aes128NiKeySchedule(__in const void* key, __out void* roundKeys, __out void
 void Aes192NiKeySchedule(__in const void* key, __out void* roundKeys, __out void* decryptionRoundKeys);
 void Aes256NiKeySchedule(__in const void* key, __out void* roundKeys, __out void* decryptionRoundKeys);
 
+
+/**
+*   The next 4 functions are temporarily not used. If there will be full assembly-language AES algorithm they may be usefull
+* 
 void PrepareXmmRegistersForAesAvx(__in const uint64_t* roundKeys, __in  BlockCipherType type, __inout  uint64_t* xmmRegsBuffer);
 void RestoreXmmRegistersFromAesAvx(__in BlockCipherType type, __in  uint64_t* xmmRegsBuffer);
 
 void PrepareXmmRegistersForAesNi(__in const uint64_t* roundKeys, __inout  uint64_t* xmmRegsBuffer);
 void RestoreXmmRegistersFromAesNi(__in uint64_t* xmmRegsBuffer);
+*
+*/
 
 void Aes128NiEncryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t* input, __out uint64_t* output);
 void Aes192NiEncryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t* input, __out uint64_t* output);
