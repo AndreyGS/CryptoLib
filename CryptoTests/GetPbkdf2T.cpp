@@ -10,13 +10,13 @@
 void GetPbkdf2MainTestFunc(__in_opt const void* salt, __in size_t saltSize, __in_opt const void* password, __in size_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __in size_t outputSize, __in int expectedStatus, __in_opt const void* expectedRes)
 {
     int status = NO_ERROR;
-    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(outputSize);
-    EVAL(GetPbkdf2(salt, saltSize, password, passwordSize, func, iterationsNum, buffer.get(), outputSize));
+    std::vector<uint8_t> buffer(outputSize);
+    EVAL(GetPbkdf2(salt, saltSize, password, passwordSize, func, iterationsNum, buffer.data(), outputSize));
 
 exit:
 
     if (expectedRes) {
-        std::string result = GetHexResult(buffer.get(), outputSize);
+        std::string result = GetHexResult(buffer.data(), outputSize);
         std::string expRes((const char*)expectedRes);
         EXPECT_EQ(result, expRes);
     }
@@ -48,7 +48,12 @@ TEST(GetPbkdf2Test, WrongOuput) {
 }
 
 TEST(GetPbkdf2Test, WrongOutputSize) {
-    GetPbkdf2MainTestFunc(TEST_STRING_8, 8, TEST_STRING_64, 64, HMAC_SHA1, 1000, 0, ERROR_TOO_SMALL_OUTPUT_SIZE, nullptr);
+    int status = NO_ERROR;
+    std::vector<uint8_t> buffer(1);
+    EVAL(GetPbkdf2(TEST_STRING_8, 8, TEST_STRING_8, 8, HMAC_SHA1, 100, buffer.data(), 0));
+
+exit:
+    EXPECT_TRUE(status == ERROR_TOO_SMALL_OUTPUT_SIZE);
 }
 
 // Main test

@@ -31,10 +31,8 @@ TEST(PrfStateFuncsTest, InitPrfStateMain) {
     EXPECT_EQ(*(Prf*)handle, HMAC_SHA3_224);
 
     {
-        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize);
-        memset(test.get(), 0, g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize);
-
-        EXPECT_TRUE(memcmp(((PrfState*)handle)->state, test.get(), g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize) == 0);
+        std::vector<uint8_t> test(g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize, 0);
+        EXPECT_TRUE(memcmp(((PrfState*)handle)->state, test.data(), g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize) == 0);
     }
 
     if (handle)
@@ -59,10 +57,8 @@ TEST(PrfStateFuncsTest, ResetPrfStateMain) {
     EXPECT_EQ(*(HashFunc*)handle, HMAC_SHA3_224);
 
     {
-        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize);
-        memset(test.get(), 0, g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize);
-
-        EXPECT_TRUE(memcmp(((HashState*)handle)->state, test.get(), g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize) == 0);
+        std::vector<uint8_t> test(g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize, 0);
+        EXPECT_TRUE(memcmp(((HashState*)handle)->state, test.data(), g_hashFuncsSizesMapping[HMAC_SHA3_224].stateSize) == 0);
     }
 
     allOk = true;
@@ -91,12 +87,10 @@ TEST(PrfStateFuncsTest, FreePrfStateMain) {
     EVAL(FreePrfState(handle));
 
     {
-        std::unique_ptr<uint8_t[]> test_1 = std::make_unique<uint8_t[]>(g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize);
-        std::unique_ptr<uint8_t[]> test_2 = std::make_unique<uint8_t[]>(g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize);
-        memset(test_1.get(), 0, g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize);
-        memset(test_2.get(), 0xdd, g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize);
+        std::vector<uint8_t> test_1(g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize, 0);
+        std::vector<uint8_t> test_2(g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize, 0xdd);
 
-        EXPECT_TRUE(memcmp(handle, test_1.get(), g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize) == 0 || memcmp(handle, test_2.get(), g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize) == 0);
+        EXPECT_TRUE(memcmp(handle, test_1.data(), g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize) == 0 || memcmp(handle, test_2.data(), g_hashFuncsSizesMapping[Prf_max - 1].stateAndHeaderSize) == 0);
     }
 
     allOk = true;

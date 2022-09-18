@@ -31,10 +31,8 @@ TEST(HashStateFuncsTest, InitHashStateMain) {
     EXPECT_EQ(*(HashFunc*)handle, SHA3_224);
 
     {
-        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_hashFuncsSizesMapping[SHA3_224].stateSize);
-        memset(test.get(), 0, g_hashFuncsSizesMapping[SHA3_224].stateSize);
-
-        EXPECT_TRUE(memcmp(((HashState*)handle)->state, test.get(), g_hashFuncsSizesMapping[SHA3_224].stateSize) == 0);
+        std::vector<uint8_t> test(g_hashFuncsSizesMapping[SHA3_224].stateSize, 0);
+        EXPECT_TRUE(memcmp(((HashState*)handle)->state, test.data(), g_hashFuncsSizesMapping[SHA3_224].stateSize) == 0);
     }
 
     if (handle)
@@ -59,10 +57,8 @@ TEST(HashStateFuncsTest, ResetHashStateMain) {
     EXPECT_EQ(*(HashFunc*)handle, SHA3_224);
 
     {
-        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_hashFuncsSizesMapping[SHA3_224].stateSize);
-        memset(test.get(), 0, g_hashFuncsSizesMapping[SHA3_224].stateSize);
-
-        EXPECT_TRUE(memcmp(((HashState*)handle)->state, test.get(), g_hashFuncsSizesMapping[SHA3_224].stateSize) == 0);
+        std::vector<uint8_t> test(g_hashFuncsSizesMapping[SHA3_224].stateSize, 0);
+        EXPECT_TRUE(memcmp(((HashState*)handle)->state, test.data(), g_hashFuncsSizesMapping[SHA3_224].stateSize) == 0);
     }
 
     allOk = true;
@@ -93,11 +89,9 @@ TEST(HashStateFuncsTest, FreeHashStateMain) {
     EVAL(FreeHashState(handle));
 
     {
-        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_hashFuncsSizesMapping[SHA_512].stateAndHeaderSize);
-        memset(test.get(), 0, g_hashFuncsSizesMapping[SHA_512].stateAndHeaderSize);
-
+        std::vector<uint8_t> test(g_hashFuncsSizesMapping[SHA_512].stateAndHeaderSize, 0);
         // here we adding offset of 8 bytes, cause compiler in release version fills that bytes by some other info after freeing
-        EXPECT_TRUE(memcmp((uint8_t*)handle + 8, test.get(), g_hashFuncsSizesMapping[SHA_512].stateAndHeaderSize - 8) == 0);
+        EXPECT_TRUE(memcmp((uint8_t*)handle + 8, test.data(), g_hashFuncsSizesMapping[SHA_512].stateAndHeaderSize - 8) == 0);
     }
 
     allOk = true;

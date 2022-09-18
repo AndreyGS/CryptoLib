@@ -47,10 +47,10 @@ TEST(ProcessingByBlockCipherKAT_AES, MainTest) {
                 enMode = Decryption_mode;
 
             size_t fileSize = (size_t)zip_entry_size(zip);
-            std::unique_ptr<const char[]> contents = std::make_unique<const char[]>(fileSize);
-            zip_entry_noallocread(zip, (void*)contents.get(), fileSize);
+            std::vector<char> contents(fileSize);
+            zip_entry_noallocread(zip, (void*)contents.data(), fileSize);
 
-            const char* cursor = contents.get();
+            const char* cursor = contents.data();
 
             while (cursor) {
                 unsigned char key[32] = { 0 };

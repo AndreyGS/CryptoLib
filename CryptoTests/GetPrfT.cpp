@@ -16,17 +16,17 @@ void GetPrfMainTestFunc(__in const void* input, __in size_t inputSize, __in cons
     if (func >= HMAC_SHA1 && func <= HMAC_SHA3_512)
         outputSize = g_hashFuncsSizesMapping[g_PrfSizesMapping[func].hashFunc].didgestSize;
 
-    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(outputSize);
+    std::vector<uint8_t> buffer(outputSize);
     PrfHandle handle = NULL;
     EVAL(InitPrfState(&handle, func));
-    EVAL(GetPrf(handle, input, inputSize, key, keySize, true, buffer.get(), outputSize));
+    EVAL(GetPrf(handle, input, inputSize, key, keySize, true, buffer.data(), outputSize));
 
 exit:
     if (handle)
         FreePrfState(handle);
 
     if (expectedRes) {
-        std::string result = GetHexResult(buffer.get(), outputSize);
+        std::string result = GetHexResult(buffer.data(), outputSize);
         std::string expRes((const char*)expectedRes);
         EXPECT_EQ(result, expRes);
     }
@@ -44,18 +44,18 @@ void GetPrfMultipleTestFunc(__in const void* input1, __in size_t inputSize1, __i
     if (func >= HMAC_SHA1 && func <= HMAC_SHA3_512)
         outputSize = g_hashFuncsSizesMapping[g_PrfSizesMapping[func].hashFunc].didgestSize;
 
-    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(outputSize);
+    std::vector<uint8_t> buffer(outputSize);
     PrfHandle handle = NULL;
     EVAL(InitPrfState(&handle, func));
-    EVAL(GetPrf(handle, input1, inputSize1, key, keySize, false, buffer.get(), outputSize));
-    EVAL(GetPrf(handle, input2, inputSize2, key, keySize, true, buffer.get(), outputSize));
+    EVAL(GetPrf(handle, input1, inputSize1, key, keySize, false, buffer.data(), outputSize));
+    EVAL(GetPrf(handle, input2, inputSize2, key, keySize, true, buffer.data(), outputSize));
 
 exit:
     if (handle)
         FreePrfState(handle);
 
     if (expectedRes) {
-        std::string result = GetHexResult(buffer.get(), outputSize);
+        std::string result = GetHexResult(buffer.data(), outputSize);
         std::string expRes((const char*)expectedRes);
         EXPECT_EQ(result, expRes);
     }
@@ -67,8 +67,8 @@ exit:
 
 TEST(GetPrfTest, WrongState) {
     size_t outputSize = g_hashFuncsSizesMapping[SHA1].didgestSize;
-    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(1);
-    EXPECT_TRUE(GetPrf(nullptr, TEST_STRING_8, 8, TEST_STRING_65, 64, true, buffer.get(), outputSize) == ERROR_NULL_STATE_HANDLE);
+    std::vector<uint8_t> buffer(1);
+    EXPECT_TRUE(GetPrf(nullptr, TEST_STRING_8, 8, TEST_STRING_65, 64, true, buffer.data(), outputSize) == ERROR_NULL_STATE_HANDLE);
 }
 
 TEST(GetPrfTest, WrongInput) {
@@ -97,13 +97,13 @@ exit:
 TEST(GetPrfTest, WrongOutput) {
     int status = NO_ERROR;
     size_t outputSize = g_hashFuncsSizesMapping[SHA1].didgestSize;
-    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(1);
+    std::vector<uint8_t> buffer(1);
     PrfHandle handle = NULL;
     EVAL(InitPrfState(&handle, HMAC_SHA1));
 
 exit:
     if (handle) {
-        EXPECT_TRUE(GetPrf(handle, TEST_STRING_7, 7, TEST_STRING_65, 64, false, buffer.get(), outputSize) == ERROR_WRONG_INPUT_SIZE);
+        EXPECT_TRUE(GetPrf(handle, TEST_STRING_7, 7, TEST_STRING_65, 64, false, buffer.data(), outputSize) == ERROR_WRONG_INPUT_SIZE);
         FreePrfState(handle);
     }
     else

@@ -273,15 +273,10 @@ TEST(BlockCipherStateFuncsTest, FreeBlockCipherStateMain) {
     uint64_t iv = 0, ivCopy = iv;
     bool allOk = false;
 
-    std::unique_ptr<uint8_t[]> test_1 = std::make_unique<uint8_t[]>(sizeof(DesState));
-    std::unique_ptr<uint8_t[]> test_2 = std::make_unique<uint8_t[]>(sizeof(DesState));
-    memset(test_1.get(), 0, sizeof(DesState));
-    memset(test_2.get(), 0xdd, sizeof(DesState));
-
-    std::unique_ptr<uint8_t[]> test_3 = std::make_unique<uint8_t[]>(sizeof(BlockCipherState));
-    std::unique_ptr<uint8_t[]> test_4 = std::make_unique<uint8_t[]>(sizeof(BlockCipherState));
-    memset(test_3.get(), 0, sizeof(BlockCipherState));
-    memset(test_4.get(), 0xdd, sizeof(BlockCipherState));
+    std::vector<uint8_t> test_1(sizeof(DesState), 0);
+    std::vector<uint8_t> test_2(sizeof(DesState), 0xdd);
+    std::vector<uint8_t> test_3(sizeof(BlockCipherState), 0);
+    std::vector<uint8_t> test_4(sizeof(BlockCipherState), 0xdd);
 
     EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, CBC_mode, No_padding, nullptr, KEY_8, &iv));
     state = (BlockCipherState*)handle;
@@ -290,8 +285,8 @@ TEST(BlockCipherStateFuncsTest, FreeBlockCipherStateMain) {
     EVAL(FreeBlockCipherState(handle));
 
     // here we adding offset of 8 bytes, cause compiler in release version fills that bytes by some other info after freeing
-    EXPECT_TRUE(memcmp((uint8_t*)(specificCipherState) + 8, test_1.get(), sizeof(DesState) - 8) == 0 || memcmp((uint8_t*)(specificCipherState)+8, test_2.get(), sizeof(DesState) - 8) == 0);
-    EXPECT_TRUE(memcmp(state, test_3.get(), sizeof(BlockCipherState)) == 0 || memcmp(state, test_4.get(), sizeof(BlockCipherState)) == 0);
+    EXPECT_TRUE(memcmp((uint8_t*)(specificCipherState) + 8, test_1.data(), sizeof(DesState) - 8) == 0 || memcmp((uint8_t*)(specificCipherState)+8, test_2.data(), sizeof(DesState) - 8) == 0);
+    EXPECT_TRUE(memcmp(state, test_3.data(), sizeof(BlockCipherState)) == 0 || memcmp(state, test_4.data(), sizeof(BlockCipherState)) == 0);
 
     allOk = true;
 

@@ -13,10 +13,10 @@ TEST(ProcessingByBlockCipherDecryptionTest, TooSmallOutputSize) {
     int status = NO_ERROR;
     uint8_t input[] = { 0xb9, 0xe9, 0x8a, 0x3c, 0x77, 0xa5, 0x10, 0x86 };
     size_t outputSize = 0;
-    uint8_t* buffer = new uint8_t[outputSize];
+    std::vector<uint8_t> buffer(8);
     BlockCipherHandle handle = nullptr;
     EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, nullptr, KEY_8, nullptr));
-    EVAL(ProcessingByBlockCipher(handle, input, 8, true, buffer, &outputSize));
+    EVAL(ProcessingByBlockCipher(handle, input, 8, true, buffer.data(), &outputSize));
 
 exit:
     if (handle)
@@ -24,7 +24,6 @@ exit:
 
     EXPECT_TRUE(status == ERROR_TOO_SMALL_OUTPUT_SIZE);
     EXPECT_EQ(outputSize, 7);
-    delete[] buffer;
 }
 
 // Main test

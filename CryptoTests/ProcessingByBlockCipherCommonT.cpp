@@ -9,13 +9,12 @@
 
 TEST(ProcessingByBlockCipherCommonT, NullState) {
     int status = NO_ERROR;
-    uint8_t* buffer = new uint8_t[8];
+    std::vector<uint8_t> buffer(8);
     size_t outputSize = 8;
-    EVAL(ProcessingByBlockCipher(nullptr, TEST_STRING_8, 8, true, buffer, &outputSize));
+    EVAL(ProcessingByBlockCipher(nullptr, TEST_STRING_8, 8, true, buffer.data(), &outputSize));
 
 exit:
     EXPECT_TRUE(status == ERROR_NULL_STATE_HANDLE);
-    delete[] buffer;
 }
 
 TEST(ProcessingByBlockCipherCommonT, NullInput) {
@@ -49,30 +48,28 @@ exit:
 
 TEST(ProcessingByBlockCipherCommonT, NullOutputSize) {
     int status = NO_ERROR;
-    uint8_t* buffer = new uint8_t[1];
+    std::vector<uint8_t> buffer(1);
     BlockCipherHandle handle = nullptr;
     EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, nullptr, KEY_8, nullptr));
-    EVAL(ProcessingByBlockCipher(handle, TEST_STRING_8, 8, true, buffer, nullptr));
+    EVAL(ProcessingByBlockCipher(handle, TEST_STRING_8, 8, true, buffer.data(), nullptr));
 
 exit:
     if (handle)
         FreeBlockCipherState(handle);
 
     EXPECT_TRUE(status == ERROR_NULL_OUTPUT_SIZE);
-    delete[] buffer;
 }
 
 TEST(ProcessingByBlockCipherCommonT, TooSmallOutputSize) {
     int status = NO_ERROR;
-    uint8_t* buffer = new uint8_t[1];
+    std::vector<uint8_t> buffer(1);
     BlockCipherHandle handle = nullptr;
     size_t outputSize = 7;
     EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, nullptr, KEY_8, nullptr));
-    EVAL(ProcessingByBlockCipher(handle, TEST_STRING_8, 8, false, buffer, &outputSize));
+    EVAL(ProcessingByBlockCipher(handle, TEST_STRING_8, 8, false, buffer.data(), &outputSize));
 
 exit:
     EXPECT_TRUE(status == ERROR_TOO_SMALL_OUTPUT_SIZE);
-    delete[] buffer;
 }
 
 TEST(ProcessingByBlockCipherCommonT, TooSmallOutputSize2) {

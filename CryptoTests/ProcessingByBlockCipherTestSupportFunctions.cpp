@@ -43,11 +43,11 @@ void ProcessingByBlockCipherMainTestFuncWithFeatures(__in const void* input, __i
 {
     int status = NO_ERROR;
 
-    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(outputSize);
+    std::vector<uint8_t> buffer(outputSize);
 
     if (inPlace) {
-        memcpy(buffer.get(), input, inputSize);
-        input = buffer.get();
+        memcpy(buffer.data(), input, inputSize);
+        input = buffer.data();
     }
 
     uint64_t blockSize = 0;
@@ -70,14 +70,14 @@ void ProcessingByBlockCipherMainTestFuncWithFeatures(__in const void* input, __i
 
     EVAL(InitBlockCipherState(&handle, cipherType, enMode, mode, padding, &hwFeatures, key, iv));
 
-    EVAL(ProcessingByBlockCipher(handle, input, inputSize, true, buffer.get(), &outputSize));
+    EVAL(ProcessingByBlockCipher(handle, input, inputSize, true, buffer.data(), &outputSize));
 
     if (expectedRes) {
         std::string result;
         if (enMode == Encryption_mode)
-            result = GetHexResult(buffer.get(), outputSize);
+            result = GetHexResult(buffer.data(), outputSize);
         else if (enMode == Decryption_mode)
-            result = std::string((const char*)buffer.get(), outputSize);
+            result = std::string((const char*)buffer.data(), outputSize);
 
         std::string expRes(expectedRes);
 
@@ -167,7 +167,7 @@ void ProcessingByBlockCipherMultipartTestFuncWithFeatures(__in const void* input
 
     size_t lastBlockAddition = blockSize - inputSize_2 % blockSize;
 
-    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(inputSize_1 + inputSize_2 + (lastBlockAddition ? lastBlockAddition : blockSize));
+    std::vector<uint8_t> buffer(inputSize_1 + inputSize_2 + (lastBlockAddition ? lastBlockAddition : blockSize));
 
     int status = NO_ERROR;
 
@@ -177,18 +177,18 @@ void ProcessingByBlockCipherMultipartTestFuncWithFeatures(__in const void* input
 
     EVAL(InitBlockCipherState(&handle, cipherType, enMode, mode, padding, &hwFeatures, key, iv));
 
-    if (NO_ERROR == (status = ProcessingByBlockCipher(handle, input_1, inputSize_1, false, buffer.get(), &outputSize))) {
+    if (NO_ERROR == (status = ProcessingByBlockCipher(handle, input_1, inputSize_1, false, buffer.data(), &outputSize))) {
         size_t totalSize = outputSize;
         outputSize = inputSize_2 + (lastBlockAddition ? lastBlockAddition : 0);
-        status = ProcessingByBlockCipher(handle, input_2, inputSize_2, true, (uint8_t*)buffer.get() + totalSize, &outputSize);
+        status = ProcessingByBlockCipher(handle, input_2, inputSize_2, true, (uint8_t*)buffer.data() + totalSize, &outputSize);
         totalSize += outputSize;
 
         if (expectedRes) {
             std::string result;
             if (enMode == Encryption_mode)
-                result = GetHexResult(buffer.get(), totalSize);
+                result = GetHexResult(buffer.data(), totalSize);
             else if (enMode == Decryption_mode)
-                result = std::string((const char*)buffer.get(), totalSize);
+                result = std::string((const char*)buffer.data(), totalSize);
 
             std::string expRes((const char*)expectedRes);
 

@@ -10,17 +10,17 @@
 void GetXofMainTestFunc(__in const void* input, __in size_t inputSize, __in Xof func, __in size_t outputSize, __in int expectedStatus, __in_opt const void* expectedRes)
 {
     int status = NO_ERROR;
-    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(outputSize);
+    std::vector<uint8_t> buffer(outputSize);
     XofHandle handle = NULL;
     EVAL(InitXofState(&handle, func));
-    EVAL(GetXof(handle, input, inputSize, true, buffer.get(), outputSize));
+    EVAL(GetXof(handle, input, inputSize, true, buffer.data(), outputSize));
 
 exit:
     if (handle)
         FreeXofState(handle);
 
     if (expectedRes) {
-        std::string result = GetHexResult(buffer.get(), outputSize);
+        std::string result = GetHexResult(buffer.data(), outputSize);
         std::string expRes((const char*)expectedRes);
         EXPECT_EQ(result, expRes);
     }
@@ -32,18 +32,18 @@ void GetXofMultipleTestFunc(__in const void* input1, __in size_t inputSize1, __i
     __in int expectedStatus, __in_opt const void* expectedRes)
 {
     int status = NO_ERROR;
-    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(outputSize);
+    std::vector<uint8_t> buffer(outputSize);
     XofHandle handle = NULL;
     EVAL(InitXofState(&handle, func));
     EVAL(GetXof(handle, input1, inputSize1, false, nullptr, outputSize));
-    EVAL(GetXof(handle, input2, inputSize2, true, buffer.get(), outputSize));
+    EVAL(GetXof(handle, input2, inputSize2, true, buffer.data(), outputSize));
 
 exit:
     if (handle)
         FreeXofState(handle);
 
     if (expectedRes) {
-        std::string result = GetHexResult(buffer.get(), outputSize);
+        std::string result = GetHexResult(buffer.data(), outputSize);
         std::string expRes((const char*)expectedRes);
         EXPECT_EQ(result, expRes);
     }
@@ -55,8 +55,8 @@ exit:
 
 TEST(GetXofTest, WrongState) {
     int status = NO_ERROR;
-    std::unique_ptr<uint8_t> buffer = std::make_unique<uint8_t>();
-    status = GetXof(nullptr, "", 0, true, buffer.get(), 0);
+    std::vector<uint8_t> buffer(1);
+    status = GetXof(nullptr, "", 0, true, buffer.data(), 0);
     EXPECT_TRUE(status == ERROR_NULL_STATE_HANDLE);
 }
 
@@ -70,7 +70,13 @@ TEST(GetXofTest, WrongOutput) {
 }
 
 TEST(GetXofTest, WrongOutputSize) {
-    GetXofMainTestFunc(nullptr, 0, SHAKE128, 0, ERROR_NULL_OUTPUT_SIZE, nullptr);
+    int status = NO_ERROR;
+    XofHandle handle = NULL;
+    std::vector<uint8_t> buffer(1);
+    InitXofState(&handle, SHAKE128);
+    status = GetXof(handle, "123", 3, true, buffer.data(), 0);
+    FreeXofState(handle);
+    EXPECT_TRUE(status == ERROR_NULL_OUTPUT_SIZE);
 }
 
 TEST(GetXofTest, WrongInput) {
@@ -79,16 +85,16 @@ TEST(GetXofTest, WrongInput) {
 
 TEST(GetXofTest, WrongInputSize) {
     int status = NO_ERROR;
-    std::unique_ptr<uint8_t> buffer = std::make_unique<uint8_t>();
+    std::vector<uint8_t> buffer(1);
     XofHandle handle = nullptr;
 
     InitXofState(&handle, SHAKE128);
-    status = GetXof(handle, "", 55, false, buffer.get(), 1);
+    status = GetXof(handle, "", 55, false, buffer.data(), 1);
     FreeXofState(handle);
     EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
     
     InitXofState(&handle, SHAKE256);
-    status = GetXof(handle, "", 55, false, buffer.get(), 1);
+    status = GetXof(handle, "", 55, false, buffer.data(), 1);
     FreeXofState(handle);
     EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
 }

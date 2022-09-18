@@ -31,10 +31,8 @@ TEST(XofStateFuncsTest, InitXofStateMain) {
     EXPECT_EQ(*(Xof*)handle, SHAKE256);
 
     {
-        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_XofSizesMapping[SHAKE256].stateSize);
-        memset(test.get(), 0, g_XofSizesMapping[SHAKE256].stateSize);
-
-        EXPECT_TRUE(memcmp(((HashState*)handle)->state, test.get(), g_XofSizesMapping[SHAKE256].stateSize) == 0);
+        std::vector<uint8_t> test(g_XofSizesMapping[SHAKE256].stateSize, 0);
+        EXPECT_TRUE(memcmp(((HashState*)handle)->state, test.data(), g_XofSizesMapping[SHAKE256].stateSize) == 0);
     }
 
     if (handle)
@@ -60,10 +58,8 @@ TEST(XofStateFuncsTest, ResetXofStateMain) {
     EXPECT_EQ(*(Xof*)handle, SHAKE256);
 
     {
-        std::unique_ptr<uint8_t[]> test = std::make_unique<uint8_t[]>(g_XofSizesMapping[SHAKE256].stateSize);
-        memset(test.get(), 0, g_XofSizesMapping[SHAKE256].stateSize);
-
-        EXPECT_TRUE(memcmp(((XofState*)handle)->state, test.get(), g_XofSizesMapping[SHAKE256].stateSize) == 0);
+        std::vector<uint8_t> test(g_XofSizesMapping[SHAKE256].stateSize, 0);
+        EXPECT_TRUE(memcmp(((XofState*)handle)->state, test.data(), g_XofSizesMapping[SHAKE256].stateSize) == 0);
     }
 
     allOk = true;
@@ -85,18 +81,16 @@ TEST(XofStateFuncsTest, FreeXofStateMain) {
     int status = NO_ERROR;
     XofHandle handle = NULL;
     bool allOk = false;
-    std::unique_ptr<uint8_t[]> test_1 = std::make_unique<uint8_t[]>(g_XofSizesMapping[SHAKE256].stateAndHeaderSize);
-    std::unique_ptr<uint8_t[]> test_2 = std::make_unique<uint8_t[]>(g_XofSizesMapping[SHAKE256].stateAndHeaderSize);
-    memset(test_1.get(), 0, g_XofSizesMapping[SHAKE256].stateAndHeaderSize);
-    memset(test_2.get(), 0xdd, g_XofSizesMapping[SHAKE256].stateAndHeaderSize);
+    std::vector<uint8_t> test_1(g_XofSizesMapping[SHAKE256].stateAndHeaderSize, 0);
+    std::vector<uint8_t> test_2(g_XofSizesMapping[SHAKE256].stateAndHeaderSize, 0xdd);
 
     EVAL(InitXofState(&handle, SHAKE256));
     EVAL(GetXof(handle, "aee25eaf93c3830774532547d36b4c5328743c7b08785fd391fd419b2001ffdc8811b649cda3102c1846de2eb12b28ce29f5"
                         "b40edfe0b670f637eff6f2cbaf691ebe8dda", 136, false, nullptr, 0));
     EVAL(FreeXofState(handle));
     // here we adding offset of 8 bytes, cause compiler in release version fills that bytes by some other info after freeing
-    EXPECT_TRUE(memcmp((uint8_t*)(((XofState*)handle)->state) + 8, test_1.get(), g_XofSizesMapping[SHAKE256].stateSize - 8) == 0
-        || memcmp((uint8_t*)(((XofState*)handle)->state) + 8, test_2.get(), g_XofSizesMapping[SHAKE256].stateSize - 8) == 0);
+    EXPECT_TRUE(memcmp((uint8_t*)(((XofState*)handle)->state) + 8, test_1.data(), g_XofSizesMapping[SHAKE256].stateSize - 8) == 0
+        || memcmp((uint8_t*)(((XofState*)handle)->state) + 8, test_2.data(), g_XofSizesMapping[SHAKE256].stateSize - 8) == 0);
 
     allOk = true;
 
