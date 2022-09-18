@@ -221,7 +221,7 @@ static inline size_t GetSpecificBlockCipherStateSize(__in BlockCipherType cipher
 }
 
 int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode
-    , __in PaddingType padding, __in HardwareFeatures hwFeatures, __in const void* key, __in_opt const void* iv)
+    , __in PaddingType padding, __inout_opt HardwareFeatures* hwFeatures, __in const void* key, __in_opt const void* iv)
 {
     assert(state && key && (opMode == ECB_mode || iv));
 
@@ -237,7 +237,7 @@ int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCiph
     HardwareFeatures emptyHwFeatures = { 0 };
     (*state)->hwFeatures = emptyHwFeatures;
 
-    if (cipher == AES128_cipher_type || cipher == AES192_cipher_type || cipher == AES256_cipher_type) {
+    if (hwFeatures && (cipher == AES128_cipher_type || cipher == AES192_cipher_type || cipher == AES256_cipher_type)) {
         HardwareFeatures supportedHwFeatures = HardwareFeaturesDetect();
 
         // Next features are not implemented for now and should be zeroed;
@@ -245,11 +245,13 @@ int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCiph
         supportedHwFeatures.vaes = false;
         supportedHwFeatures.aeskle = false;
 
-        (*state)->hwFeatures.avx = hwFeatures.avx ? supportedHwFeatures.avx : false;
-        (*state)->hwFeatures.aesni = hwFeatures.aesni || hwFeatures.avx ? supportedHwFeatures.aesni : false;
+        (*state)->hwFeatures.avx = hwFeatures->avx ? supportedHwFeatures.avx : false;
+        (*state)->hwFeatures.aesni = hwFeatures->aesni || hwFeatures->avx ? supportedHwFeatures.aesni : false;
         (*state)->hwFeatures.vex_aes = false;
         (*state)->hwFeatures.vaes = false;
         (*state)->hwFeatures.aeskle = false;
+
+        *hwFeatures = (*state)->hwFeatures;
     }
 
     size_t specificStateSize = GetSpecificBlockCipherStateSize(cipher, (*state)->hwFeatures);

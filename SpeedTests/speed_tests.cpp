@@ -53,7 +53,7 @@ int main()
         std::cout << "AES128_cipher_type\n\n";
         std::cout << "Software:\n";
 
-        InitBlockCipherState(&cipherHandle, AES128_cipher_type, Encryption_mode, CBC_mode, No_padding, hwFeatures, KEY_16, KEY_16);
+        InitBlockCipherState(&cipherHandle, AES128_cipher_type, Encryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_16, KEY_16);
         startTime = std::chrono::high_resolution_clock::now();
         ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
         finishTime = std::chrono::high_resolution_clock::now();
@@ -68,30 +68,38 @@ int main()
         hwFeatures.aesni = true;
         std::cout << "AESNI:\n";
 
-        InitBlockCipherState(&cipherHandle, AES128_cipher_type, Encryption_mode, CBC_mode, No_padding, hwFeatures, KEY_16, KEY_16);
-        startTime = std::chrono::high_resolution_clock::now();
-        ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
-        finishTime = std::chrono::high_resolution_clock::now();
-        elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
-        std::cout << "time elapsed: " << elapsedTime
-            << "s, speed: " << 1 / (elapsedTime / 16)
-            << "Mb/s, truncated sha1 of encrypted data: ";
-        PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        InitBlockCipherState(&cipherHandle, AES128_cipher_type, Encryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_16, KEY_16);
+        if (!hwFeatures.aesni)
+            std::cout << "not supported\n";
+        else {
+            startTime = std::chrono::high_resolution_clock::now();
+            ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
+            finishTime = std::chrono::high_resolution_clock::now();
+            elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
+            std::cout << "time elapsed: " << elapsedTime
+                << "s, speed: " << 1 / (elapsedTime / 16)
+                << "Mb/s, truncated sha1 of encrypted data: ";
+            PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        }
         std::cout << "\n\n";
         FreeBlockCipherState(cipherHandle);
 
         hwFeatures.avx = true;
         std::cout << "AVX:\n";
 
-        InitBlockCipherState(&cipherHandle, AES128_cipher_type, Encryption_mode, CBC_mode, No_padding, hwFeatures, KEY_16, KEY_16);
-        startTime = std::chrono::high_resolution_clock::now();
-        ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
-        finishTime = std::chrono::high_resolution_clock::now();
-        elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
-        std::cout << "time elapsed: " << elapsedTime
-            << "s, speed: " << 1 / (elapsedTime / 16)
-            << "Mb/s, truncated sha1 of encrypted data: ";
-        PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        InitBlockCipherState(&cipherHandle, AES128_cipher_type, Encryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_16, KEY_16);
+        if (!hwFeatures.avx)
+            std::cout << "not supported\n";
+        else {
+            startTime = std::chrono::high_resolution_clock::now();
+            ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
+            finishTime = std::chrono::high_resolution_clock::now();
+            elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
+            std::cout << "time elapsed: " << elapsedTime
+                << "s, speed: " << 1 / (elapsedTime / 16)
+                << "Mb/s, truncated sha1 of encrypted data: ";
+            PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        }
         std::cout << "\n------------------------\n\n";
         FreeBlockCipherState(cipherHandle);
 
@@ -100,7 +108,7 @@ int main()
         std::cout << "AES192_cipher_type\n\n";
         std::cout << "Software:\n";
 
-        InitBlockCipherState(&cipherHandle, AES192_cipher_type, Encryption_mode, CBC_mode, No_padding, hwFeatures, KEY_24, KEY_16);
+        InitBlockCipherState(&cipherHandle, AES192_cipher_type, Encryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_24, KEY_16);
         startTime = std::chrono::high_resolution_clock::now();
         ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
         finishTime = std::chrono::high_resolution_clock::now();
@@ -115,30 +123,38 @@ int main()
         hwFeatures.aesni = true;
         std::cout << "AESNI:\n";
 
-        InitBlockCipherState(&cipherHandle, AES192_cipher_type, Encryption_mode, CBC_mode, No_padding, hwFeatures, KEY_24, KEY_16);
-        startTime = std::chrono::high_resolution_clock::now();
-        ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
-        finishTime = std::chrono::high_resolution_clock::now();
-        elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
-        std::cout << "time elapsed: " << elapsedTime
-            << "s, speed: " << 1 / (elapsedTime / 16)
-            << "Mb/s, truncated sha1 of encrypted data: ";
-        PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        InitBlockCipherState(&cipherHandle, AES192_cipher_type, Encryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_24, KEY_16);
+        if (!hwFeatures.aesni)
+            std::cout << "not supported\n";
+        else {
+            startTime = std::chrono::high_resolution_clock::now();
+            ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
+            finishTime = std::chrono::high_resolution_clock::now();
+            elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
+            std::cout << "time elapsed: " << elapsedTime
+                << "s, speed: " << 1 / (elapsedTime / 16)
+                << "Mb/s, truncated sha1 of encrypted data: ";
+            PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        }
         std::cout << "\n\n";
         FreeBlockCipherState(cipherHandle);
 
         hwFeatures.avx = true;
         std::cout << "AVX:\n";
 
-        InitBlockCipherState(&cipherHandle, AES192_cipher_type, Encryption_mode, CBC_mode, No_padding, hwFeatures, KEY_24, KEY_16);
-        startTime = std::chrono::high_resolution_clock::now();
-        ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
-        finishTime = std::chrono::high_resolution_clock::now();
-        elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
-        std::cout << "time elapsed: " << elapsedTime
-            << "s, speed: " << 1 / (elapsedTime / 16)
-            << "Mb/s, truncated sha1 of encrypted data: ";
-        PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        InitBlockCipherState(&cipherHandle, AES192_cipher_type, Encryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_24, KEY_16);
+        if (!hwFeatures.avx)
+            std::cout << "not supported\n";
+        else {
+            startTime = std::chrono::high_resolution_clock::now();
+            ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
+            finishTime = std::chrono::high_resolution_clock::now();
+            elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
+            std::cout << "time elapsed: " << elapsedTime
+                << "s, speed: " << 1 / (elapsedTime / 16)
+                << "Mb/s, truncated sha1 of encrypted data: ";
+            PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        }
         std::cout << "\n------------------------\n\n";
         FreeBlockCipherState(cipherHandle);
 
@@ -147,7 +163,7 @@ int main()
         std::cout << "AES256_cipher_type\n\n";
         std::cout << "Software:\n";
 
-        InitBlockCipherState(&cipherHandle, AES256_cipher_type, Encryption_mode, CBC_mode, No_padding, hwFeatures, KEY_32, KEY_16);
+        InitBlockCipherState(&cipherHandle, AES256_cipher_type, Encryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_32, KEY_16);
         startTime = std::chrono::high_resolution_clock::now();
         ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
         finishTime = std::chrono::high_resolution_clock::now();
@@ -162,30 +178,38 @@ int main()
         hwFeatures.aesni = true;
         std::cout << "AESNI:\n";
 
-        InitBlockCipherState(&cipherHandle, AES256_cipher_type, Encryption_mode, CBC_mode, No_padding, hwFeatures, KEY_32, KEY_16);
-        startTime = std::chrono::high_resolution_clock::now();
-        ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
-        finishTime = std::chrono::high_resolution_clock::now();
-        elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
-        std::cout << "time elapsed: " << elapsedTime
-            << "s, speed: " << 1 / (elapsedTime / 16)
-            << "Mb/s, truncated sha1 of encrypted data: ";
-        PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        InitBlockCipherState(&cipherHandle, AES256_cipher_type, Encryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_32, KEY_16);
+        if (!hwFeatures.aesni)
+            std::cout << "not supported\n";
+        else {
+            startTime = std::chrono::high_resolution_clock::now();
+            ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
+            finishTime = std::chrono::high_resolution_clock::now();
+            elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
+            std::cout << "time elapsed: " << elapsedTime
+                << "s, speed: " << 1 / (elapsedTime / 16)
+                << "Mb/s, truncated sha1 of encrypted data: ";
+            PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        }
         std::cout << "\n\n";
         FreeBlockCipherState(cipherHandle);
 
         hwFeatures.avx = true;
         std::cout << "AVX:\n";
 
-        InitBlockCipherState(&cipherHandle, AES256_cipher_type, Encryption_mode, CBC_mode, No_padding, hwFeatures, KEY_32, KEY_16);
-        startTime = std::chrono::high_resolution_clock::now();
-        ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
-        finishTime = std::chrono::high_resolution_clock::now();
-        elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
-        std::cout << "time elapsed: " << elapsedTime
-            << "s, speed: " << 1 / (elapsedTime / 16)
-            << "Mb/s, truncated sha1 of encrypted data: ";
-        PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        InitBlockCipherState(&cipherHandle, AES256_cipher_type, Encryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_32, KEY_16);
+        if (!hwFeatures.avx)
+            std::cout << "not supported\n";
+        else {
+            startTime = std::chrono::high_resolution_clock::now();
+            ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
+            finishTime = std::chrono::high_resolution_clock::now();
+            elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
+            std::cout << "time elapsed: " << elapsedTime
+                << "s, speed: " << 1 / (elapsedTime / 16)
+                << "Mb/s, truncated sha1 of encrypted data: ";
+            PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        }
         std::cout << "\n-----------------------------------------------\n\n\n";
         FreeBlockCipherState(cipherHandle);
 
@@ -197,7 +221,7 @@ int main()
         std::cout << "AES128_cipher_type\n\n";
         std::cout << "Software:\n";
 
-        InitBlockCipherState(&cipherHandle, AES128_cipher_type, Decryption_mode, CBC_mode, No_padding, hwFeatures, KEY_16, KEY_16);
+        InitBlockCipherState(&cipherHandle, AES128_cipher_type, Decryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_16, KEY_16);
         startTime = std::chrono::high_resolution_clock::now();
         ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
         finishTime = std::chrono::high_resolution_clock::now();
@@ -212,30 +236,38 @@ int main()
         hwFeatures.aesni = true;
         std::cout << "AESNI:\n";
 
-        InitBlockCipherState(&cipherHandle, AES128_cipher_type, Decryption_mode, CBC_mode, No_padding, hwFeatures, KEY_16, KEY_16);
-        startTime = std::chrono::high_resolution_clock::now();
-        ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
-        finishTime = std::chrono::high_resolution_clock::now();
-        elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
-        std::cout << "time elapsed: " << elapsedTime
-            << "s, speed: " << 1 / (elapsedTime / 16)
-            << "Mb/s, truncated sha1 of encrypted data: ";
-        PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        InitBlockCipherState(&cipherHandle, AES128_cipher_type, Decryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_16, KEY_16);
+        if (!hwFeatures.aesni)
+            std::cout << "not supported\n";
+        else {
+            startTime = std::chrono::high_resolution_clock::now();
+            ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
+            finishTime = std::chrono::high_resolution_clock::now();
+            elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
+            std::cout << "time elapsed: " << elapsedTime
+                << "s, speed: " << 1 / (elapsedTime / 16)
+                << "Mb/s, truncated sha1 of encrypted data: ";
+            PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        }
         std::cout << "\n\n";
         FreeBlockCipherState(cipherHandle);
 
         hwFeatures.avx = true;
         std::cout << "AVX:\n";
 
-        InitBlockCipherState(&cipherHandle, AES128_cipher_type, Decryption_mode, CBC_mode, No_padding, hwFeatures, KEY_16, KEY_16);
-        startTime = std::chrono::high_resolution_clock::now();
-        ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
-        finishTime = std::chrono::high_resolution_clock::now();
-        elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
-        std::cout << "time elapsed: " << elapsedTime
-            << "s, speed: " << 1 / (elapsedTime / 16)
-            << "Mb/s, truncated sha1 of encrypted data: ";
-        PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        InitBlockCipherState(&cipherHandle, AES128_cipher_type, Decryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_16, KEY_16);
+        if (!hwFeatures.avx)
+            std::cout << "not supported\n";
+        else {
+            startTime = std::chrono::high_resolution_clock::now();
+            ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
+            finishTime = std::chrono::high_resolution_clock::now();
+            elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
+            std::cout << "time elapsed: " << elapsedTime
+                << "s, speed: " << 1 / (elapsedTime / 16)
+                << "Mb/s, truncated sha1 of encrypted data: ";
+            PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        }
         std::cout << "\n------------------------\n\n";
         FreeBlockCipherState(cipherHandle);
 
@@ -244,7 +276,7 @@ int main()
         std::cout << "AES192_cipher_type\n\n";
         std::cout << "Software:\n";
 
-        InitBlockCipherState(&cipherHandle, AES192_cipher_type, Decryption_mode, CBC_mode, No_padding, hwFeatures, KEY_24, KEY_16);
+        InitBlockCipherState(&cipherHandle, AES192_cipher_type, Decryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_24, KEY_16);
         startTime = std::chrono::high_resolution_clock::now();
         ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
         finishTime = std::chrono::high_resolution_clock::now();
@@ -259,30 +291,38 @@ int main()
         hwFeatures.aesni = true;
         std::cout << "AESNI:\n";
 
-        InitBlockCipherState(&cipherHandle, AES192_cipher_type, Decryption_mode, CBC_mode, No_padding, hwFeatures, KEY_24, KEY_16);
-        startTime = std::chrono::high_resolution_clock::now();
-        ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
-        finishTime = std::chrono::high_resolution_clock::now();
-        elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
-        std::cout << "time elapsed: " << elapsedTime
-            << "s, speed: " << 1 / (elapsedTime / 16)
-            << "Mb/s, truncated sha1 of encrypted data: ";
-        PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        InitBlockCipherState(&cipherHandle, AES192_cipher_type, Decryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_24, KEY_16);
+        if (!hwFeatures.aesni)
+            std::cout << "not supported\n";
+        else {
+            startTime = std::chrono::high_resolution_clock::now();
+            ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
+            finishTime = std::chrono::high_resolution_clock::now();
+            elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
+            std::cout << "time elapsed: " << elapsedTime
+                << "s, speed: " << 1 / (elapsedTime / 16)
+                << "Mb/s, truncated sha1 of encrypted data: ";
+            PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        }
         std::cout << "\n\n";
         FreeBlockCipherState(cipherHandle);
 
         hwFeatures.avx = true;
         std::cout << "AVX:\n";
 
-        InitBlockCipherState(&cipherHandle, AES192_cipher_type, Decryption_mode, CBC_mode, No_padding, hwFeatures, KEY_24, KEY_16);
-        startTime = std::chrono::high_resolution_clock::now();
-        ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
-        finishTime = std::chrono::high_resolution_clock::now();
-        elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
-        std::cout << "time elapsed: " << elapsedTime
-            << "s, speed: " << 1 / (elapsedTime / 16)
-            << "Mb/s, truncated sha1 of encrypted data: ";
-        PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        InitBlockCipherState(&cipherHandle, AES192_cipher_type, Decryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_24, KEY_16);
+        if (!hwFeatures.avx)
+            std::cout << "not supported\n";
+        else {
+            startTime = std::chrono::high_resolution_clock::now();
+            ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
+            finishTime = std::chrono::high_resolution_clock::now();
+            elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
+            std::cout << "time elapsed: " << elapsedTime
+                << "s, speed: " << 1 / (elapsedTime / 16)
+                << "Mb/s, truncated sha1 of encrypted data: ";
+            PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        }
         std::cout << "\n------------------------\n\n";
         FreeBlockCipherState(cipherHandle);
 
@@ -291,7 +331,7 @@ int main()
         std::cout << "AES256_cipher_type\n\n";
         std::cout << "Software:\n";
 
-        InitBlockCipherState(&cipherHandle, AES256_cipher_type, Decryption_mode, CBC_mode, No_padding, hwFeatures, KEY_32, KEY_16);
+        InitBlockCipherState(&cipherHandle, AES256_cipher_type, Decryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_32, KEY_16);
         startTime = std::chrono::high_resolution_clock::now();
         ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
         finishTime = std::chrono::high_resolution_clock::now();
@@ -306,30 +346,38 @@ int main()
         hwFeatures.aesni = true;
         std::cout << "AESNI:\n";
 
-        InitBlockCipherState(&cipherHandle, AES256_cipher_type, Decryption_mode, CBC_mode, No_padding, hwFeatures, KEY_32, KEY_16);
-        startTime = std::chrono::high_resolution_clock::now();
-        ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
-        finishTime = std::chrono::high_resolution_clock::now();
-        elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
-        std::cout << "time elapsed: " << elapsedTime
-            << "s, speed: " << 1 / (elapsedTime / 16)
-            << "Mb/s, truncated sha1 of encrypted data: ";
-        PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        InitBlockCipherState(&cipherHandle, AES256_cipher_type, Decryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_32, KEY_16);
+        if (!hwFeatures.aesni)
+            std::cout << "not supported\n";
+        else {
+            startTime = std::chrono::high_resolution_clock::now();
+            ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
+            finishTime = std::chrono::high_resolution_clock::now();
+            elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
+            std::cout << "time elapsed: " << elapsedTime
+                << "s, speed: " << 1 / (elapsedTime / 16)
+                << "Mb/s, truncated sha1 of encrypted data: ";
+            PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        }
         std::cout << "\n\n";
         FreeBlockCipherState(cipherHandle);
 
         hwFeatures.avx = true;
         std::cout << "AVX:\n";
 
-        InitBlockCipherState(&cipherHandle, AES256_cipher_type, Decryption_mode, CBC_mode, No_padding, hwFeatures, KEY_32, KEY_16);
-        startTime = std::chrono::high_resolution_clock::now();
-        ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
-        finishTime = std::chrono::high_resolution_clock::now();
-        elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
-        std::cout << "time elapsed: " << elapsedTime
-            << "s, speed: " << 1 / (elapsedTime / 16)
-            << "Mb/s, truncated sha1 of encrypted data: ";
-        PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        InitBlockCipherState(&cipherHandle, AES256_cipher_type, Decryption_mode, CBC_mode, No_padding, &hwFeatures, KEY_32, KEY_16);
+        if (!hwFeatures.avx)
+            std::cout << "not supported\n";
+        else {
+            startTime = std::chrono::high_resolution_clock::now();
+            ProcessingByBlockCipher(cipherHandle, testVectorInput.get(), testVectorsSize, true, testVectorOutput.get(), &testVectorsSize);
+            finishTime = std::chrono::high_resolution_clock::now();
+            elapsedTime = std::chrono::duration<double>(finishTime - startTime).count();
+            std::cout << "time elapsed: " << elapsedTime
+                << "s, speed: " << 1 / (elapsedTime / 16)
+                << "Mb/s, truncated sha1 of encrypted data: ";
+            PrintTruncHashAux(hashHandle, testVectorOutput.get(), testVectorsSize, didgest.get());
+        }
         std::cout << "\n-----------------------------------------------\n\n\n";
         FreeBlockCipherState(cipherHandle);
 

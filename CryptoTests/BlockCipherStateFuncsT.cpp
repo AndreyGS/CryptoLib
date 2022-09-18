@@ -12,7 +12,7 @@
 TEST(BlockCipherStateFuncsTest, NullStateInit) {
     int status = NO_ERROR;
 
-    EVAL(InitBlockCipherState(nullptr, DES_cipher_type, (CryptoMode)-1, ECB_mode, PKCSN7_padding, HardwareFeatures(), KEY_8, nullptr));
+    EVAL(InitBlockCipherState(nullptr, DES_cipher_type, (CryptoMode)-1, ECB_mode, PKCSN7_padding, nullptr, KEY_8, nullptr));
 
 exit:
     EXPECT_TRUE(status == ERROR_NULL_STATE_HANDLE);
@@ -53,58 +53,25 @@ TEST(BlockCipherStateFuncsTest, InitBlockCipherStateMain) {
     BlockCipherHandle handle = nullptr;
     BlockCipherState* state = nullptr;
     uint64_t desIv = 0x0123456789abcdef;
-
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Encryption_mode, CBC_mode, No_padding, HardwareFeatures(), KEY_8, &desIv));
-    state = (BlockCipherState*)handle;
-
-    EXPECT_TRUE(state->cipher == DES_cipher_type && state->enMode == Encryption_mode && state->opMode == CBC_mode && state->padding == No_padding && ((DesState*)state->state)->iv == desIv);
-
-    FreeBlockCipherState(handle);
-
-    EVAL(InitBlockCipherState(&handle, (BlockCipherType)(BlockCipherType_max - 1), (CryptoMode)(CryptoMode_max - 1), ECB_mode, (PaddingType)(PaddingType_max - 1), HardwareFeatures(), KEY_8, nullptr));
-    state = (BlockCipherState*)handle;
-
-    EXPECT_TRUE(state->cipher == (BlockCipherType)(BlockCipherType_max - 1) && state->enMode == (CryptoMode)(CryptoMode_max - 1) 
-        && state->opMode == ECB_mode && state->padding == (PaddingType)(PaddingType_max - 1));
-exit:
-    if (handle)
-        FreeBlockCipherState(handle);
-
-    EXPECT_TRUE(status == NO_ERROR);
-}
-
-// GetActiveHardwareFeatures
-
-TEST(BlockCipherStateFuncsTest, NullStateGetActiveHardwareFeatures) {
-    HardwareFeatures hwFeatures = { 0 };
-
-    EXPECT_TRUE(GetActiveHardwareFeatures(nullptr, &hwFeatures) == ERROR_NULL_STATE_HANDLE);
-}
-
-TEST(BlockCipherStateFuncsTest, NullHwFeaturesGetActiveHardwareFeatures) {
-    int status = NO_ERROR;
-    BlockCipherHandle handle = nullptr;
-    EVAL(InitBlockCipherState(&handle, AES128_cipher_type, Encryption_mode, ECB_mode, No_padding, HardwareFeatures(), KEY_8, nullptr));
-    EVAL(GetActiveHardwareFeatures(handle, nullptr));
-
-exit:
-    EXPECT_TRUE(status = ERROR_NULL_HW_FEATURES);
-}
-
-TEST(BlockCipherStateFuncsTest, GetActiveHardwareFeaturesMain) {
-    int status = NO_ERROR;
-    BlockCipherHandle handle = nullptr;
-    uint64_t desIv = 0x0123456789abcdef;
     HardwareFeatures hwFeatures = { 0 };
     hwFeatures.vaes = true;
     hwFeatures.avx = true;
 
-    EVAL(InitBlockCipherState(&handle, AES128_cipher_type, Encryption_mode, CBC_mode, No_padding, hwFeatures, KEY_8, &desIv));
-    EVAL(GetActiveHardwareFeatures(handle, &hwFeatures));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Encryption_mode, CBC_mode, No_padding, nullptr, KEY_8, &desIv));
+    state = (BlockCipherState*)handle;
 
-    EXPECT_TRUE(hwFeatures.aesni && hwFeatures.avx && !hwFeatures.aeskle && !hwFeatures.vaes && !hwFeatures.vex_aes
-        /* tested on aesni and avx supported hardare, aeskle, vaes, vex_aes currently not supported by AES library functions and must be reset in InitBlockCipherState*/);
+    EXPECT_TRUE(state->cipher == DES_cipher_type && state->enMode == Encryption_mode && state->opMode == CBC_mode && state->padding == No_padding && ((DesState*)state->state)->iv == desIv);
+    EXPECT_TRUE(!state->hwFeatures.aesni && !state->hwFeatures.avx && !state->hwFeatures.aeskle && !state->hwFeatures.vaes && !state->hwFeatures.vex_aes);
 
+    FreeBlockCipherState(handle);
+
+    EVAL(InitBlockCipherState(&handle, (BlockCipherType)(BlockCipherType_max - 1), (CryptoMode)(CryptoMode_max - 1), ECB_mode, (PaddingType)(PaddingType_max - 1), &hwFeatures, KEY_8, nullptr));
+    state = (BlockCipherState*)handle;
+
+    EXPECT_TRUE(state->cipher == (BlockCipherType)(BlockCipherType_max - 1) && state->enMode == (CryptoMode)(CryptoMode_max - 1) 
+        && state->opMode == ECB_mode && state->padding == (PaddingType)(PaddingType_max - 1));
+    EXPECT_TRUE(state->hwFeatures.aesni && state->hwFeatures.avx && !state->hwFeatures.aeskle && !state->hwFeatures.vaes && !state->hwFeatures.vex_aes
+        && hwFeatures.aesni && hwFeatures.avx && !hwFeatures.aeskle && !hwFeatures.vaes && !hwFeatures.vex_aes);
 exit:
     if (handle)
         FreeBlockCipherState(handle);
@@ -121,7 +88,7 @@ TEST(BlockCipherStateFuncsTest, NullStateReInitCryptoMode) {
 TEST(BlockCipherStateFuncsTest, UnsupportedEnModeReInit) {
     int status = NO_ERROR;
     BlockCipherHandle handle = nullptr;
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, HardwareFeatures(), KEY_8, nullptr));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, nullptr, KEY_8, nullptr));
     EVAL(ReInitBlockCipherCryptoMode(handle, (CryptoMode)-1));
 
 exit:
@@ -135,7 +102,7 @@ TEST(BlockCipherStateFuncsTest, ReInitBlockCipherCryptoModeMain) {
     int status = NO_ERROR;
     BlockCipherHandle handle = nullptr;
     BlockCipherState* state = nullptr;
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, HardwareFeatures(), KEY_8, nullptr));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, nullptr, KEY_8, nullptr));
     state = (BlockCipherState*)handle;
 
     EXPECT_EQ(state->enMode, Decryption_mode);
@@ -164,7 +131,7 @@ exit:
 TEST(BlockCipherStateFuncsTest, UnsupportedOpModeReInit) {
     int status = NO_ERROR;
     BlockCipherHandle handle = nullptr;
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, HardwareFeatures(), KEY_8, nullptr));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, nullptr, KEY_8, nullptr));
     EVAL(ReInitBlockCipherOpMode(handle, (BlockCipherOpMode)-1));
 
 exit:
@@ -178,7 +145,7 @@ TEST(BlockCipherStateFuncsTest, ReInitBlockCipherOpModeMain) {
     int status = NO_ERROR;
     BlockCipherHandle handle = nullptr;
     BlockCipherState* state = nullptr;
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, HardwareFeatures(), KEY_8, nullptr));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, nullptr, KEY_8, nullptr));
     state = (BlockCipherState*)handle;
 
     EXPECT_EQ(state->opMode, ECB_mode);
@@ -208,7 +175,7 @@ exit:
 TEST(BlockCipherStateFuncsTest, UnsupportedPaddingReInit) {
     int status = NO_ERROR;
     BlockCipherHandle handle = nullptr;
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, HardwareFeatures(), KEY_8, nullptr));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, nullptr, KEY_8, nullptr));
     EVAL(ReInitBlockCipherPaddingType(handle, (PaddingType)-1));
 
 exit:
@@ -223,7 +190,7 @@ TEST(BlockCipherStateFuncsTest, ReInitBlockCipherPaddingTypeMain) {
     int status = NO_ERROR;
     BlockCipherHandle handle = nullptr;
     BlockCipherState* state = nullptr;
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, No_padding, HardwareFeatures(), KEY_8, nullptr));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, No_padding, nullptr, KEY_8, nullptr));
     state = (BlockCipherState*)handle;
 
     EXPECT_EQ(state->padding, No_padding);
@@ -253,7 +220,7 @@ exit:
 TEST(BlockCipherStateFuncsTest, NullIvReInit) {
     int status = NO_ERROR;
     BlockCipherHandle handle = nullptr;
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, HardwareFeatures(), KEY_8, nullptr));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, nullptr, KEY_8, nullptr));
     EVAL(ReInitBlockCipherIv(handle, nullptr));
 
 exit:
@@ -269,7 +236,7 @@ TEST(BlockCipherStateFuncsTest, ReInitBlockCipherIvMain) {
     BlockCipherState* state = nullptr;
     uint64_t iv = 0, ivCopy = iv;
 
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, CBC_mode, No_padding, HardwareFeatures(), KEY_8, &iv));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, CBC_mode, No_padding, nullptr, KEY_8, &iv));
     state = (BlockCipherState*)handle;
 
     EXPECT_EQ(((DesState*)state->state)->iv, ivCopy);
@@ -316,7 +283,7 @@ TEST(BlockCipherStateFuncsTest, FreeBlockCipherStateMain) {
     memset(test_3.get(), 0, sizeof(BlockCipherState));
     memset(test_4.get(), 0xdd, sizeof(BlockCipherState));
 
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, CBC_mode, No_padding, HardwareFeatures(), KEY_8, &iv));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, CBC_mode, No_padding, nullptr, KEY_8, &iv));
     state = (BlockCipherState*)handle;
     specificCipherState = ((BlockCipherState*)handle)->state;
 

@@ -238,28 +238,18 @@ int AddPadding(__in const void* input, __in size_t inputSize, __in PaddingType p
  * @param cryptoMode encryption or decryption
  * @param opMode type of operation mode (ECB, CBC, etc)
  * @param padding type of padding that using in encryption/decryption
- * @param hwFeatures is what type of hardware encryption support user wants to enable (only for AES)
+ * @param hwFeatures Is what type of hardware encryption support user wants to enable as input and what was actually enabled for handle
+ *                   (based on user request and hardware features availible) as output (only for AES for now). If user pass nullptr
+ *                   then software-based processing will be assumed.
+ *                   * User may ask to enable as many hardware features as he wants, but if some of them 
+ *                     are not supported by execution enviroment, not all will be enabled.
  * @param key encryption key
  * @param iv initialization vector (for ECB is not used)
  * 
  * @return status
  */
 int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode
-    , __in PaddingType padding, __in HardwareFeatures hwFeatures, __in const void* key, __in_opt const void* iv);
-
-/**
- * Returns active set of hardware features for this handle (has sense only for AES)
- * 
- * User may ask to enable as many hardware features as he wants, but if some of them 
- * are not supported by execution enviroment, then this function gives an actual info
- * about active features in the current handle
- *
- * @param handle is a state handle that inited by InitBlockCipherState
- * @param hwFeatures struct that receives hw features enabled state for current handle
- *
- * @return status
- */
-int GetActiveHardwareFeatures(__in BlockCipherHandle handle, __out HardwareFeatures* hwFeatures);
+    , __in PaddingType padding, __inout_opt HardwareFeatures* hwFeatures, __in const void* key, __in_opt const void* iv);
 
 /**
  * ReInits crypto mode (encryption/decryption)

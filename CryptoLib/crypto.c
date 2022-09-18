@@ -28,6 +28,7 @@
 #include "crypto_internal.h"
 #include "des.h"
 #include "paddings.h"
+#include "kdf.h"
 
 int AddPadding(__in const void* input, __in size_t inputSize, __in PaddingType padding, __in size_t blockSize, __out void* output, __inout size_t* outputSize, __in bool fillLastBlock)
 {
@@ -46,7 +47,7 @@ int AddPadding(__in const void* input, __in size_t inputSize, __in PaddingType p
 }
 
 int InitBlockCipherState(__inout BlockCipherHandle* handle, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode
-    , __in PaddingType padding, __in HardwareFeatures hwFeatures, __in const void* key, __in_opt const void* iv)
+    , __in PaddingType padding, __inout_opt HardwareFeatures* hwFeatures, __in const void* key, __in_opt const void* iv)
 {
     if (!handle)
         return ERROR_NULL_STATE_HANDLE;

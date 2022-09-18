@@ -37,7 +37,7 @@ TEST(ProcessingByBlockCipherCommonT, NullOutput) {
     int status = NO_ERROR;
     size_t outputSize = sizeof(TEST_STRING_8) + DES_BLOCK_SIZE;
     BlockCipherHandle handle = nullptr;
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, HardwareFeatures(), KEY_8, nullptr));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, nullptr, KEY_8, nullptr));
     EVAL(ProcessingByBlockCipher(handle, TEST_STRING_8, 8, true, nullptr, &outputSize));
 
 exit:
@@ -51,7 +51,7 @@ TEST(ProcessingByBlockCipherCommonT, NullOutputSize) {
     int status = NO_ERROR;
     uint8_t* buffer = new uint8_t[1];
     BlockCipherHandle handle = nullptr;
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, HardwareFeatures(), KEY_8, nullptr));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, nullptr, KEY_8, nullptr));
     EVAL(ProcessingByBlockCipher(handle, TEST_STRING_8, 8, true, buffer, nullptr));
 
 exit:
@@ -67,7 +67,7 @@ TEST(ProcessingByBlockCipherCommonT, TooSmallOutputSize) {
     uint8_t* buffer = new uint8_t[1];
     BlockCipherHandle handle = nullptr;
     size_t outputSize = 7;
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, HardwareFeatures(), KEY_8, nullptr));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, nullptr, KEY_8, nullptr));
     EVAL(ProcessingByBlockCipher(handle, TEST_STRING_8, 8, false, buffer, &outputSize));
 
 exit:
@@ -80,7 +80,7 @@ TEST(ProcessingByBlockCipherCommonT, TooSmallOutputSize2) {
     BlockCipherHandle handle = nullptr;
     size_t outputSize = 0;
     uint8_t input[] = { 0xb9, 0xe9, 0x8a, 0x3c, 0x77, 0xa5, 0x10, 0x86 };
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Encryption_mode, ECB_mode, PKCSN7_padding, HardwareFeatures(), KEY_8, nullptr));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Encryption_mode, ECB_mode, PKCSN7_padding, nullptr, KEY_8, nullptr));
     EVAL(ProcessingByBlockCipher(handle, TEST_STRING_8, 8, true, nullptr, &outputSize));
 
 exit:
@@ -92,7 +92,7 @@ TEST(ProcessingByBlockCipherCommonT, TooSmallOutputSize3) {
     BlockCipherHandle handle = nullptr;
     size_t outputSize = 0;
     uint8_t input[] = { 0xb9, 0xe9, 0x8a, 0x3c, 0x77, 0xa5, 0x10, 0x86 };
-    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, HardwareFeatures(), KEY_8, nullptr));
+    EVAL(InitBlockCipherState(&handle, DES_cipher_type, Decryption_mode, ECB_mode, PKCSN7_padding, nullptr, KEY_8, nullptr));
     EVAL(ProcessingByBlockCipher(handle, input, 8, true, nullptr, &outputSize));
 
 exit:
