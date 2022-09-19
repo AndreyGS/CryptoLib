@@ -99,11 +99,17 @@ int AddPaddingInternal(__in const void* input, __in size_t inputSize, __in Paddi
         if (inputSize % blockSize)
             status = ERROR_INAPPLICABLE_PADDING_TYPE;
         else {
-            *outputSize = inputSize;
+            if (*outputSize < inputSize) {
+                *outputSize = inputSize;
+                status = ERROR_TOO_SMALL_OUTPUT_SIZE;
+            }
+            else {
+                *outputSize = inputSize;
 
-            if (fillLastBlock) {
-                size_t offset = inputSize - blockSize;
-                memcpy((uint8_t*)output + offset, (uint8_t*)input + offset, blockSize);
+                if (fillLastBlock) {
+                    size_t offset = inputSize - blockSize;
+                    memcpy((uint8_t*)output + offset, (uint8_t*)input + offset, blockSize);
+                }
             }
         }
         break;
