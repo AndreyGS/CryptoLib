@@ -35,7 +35,7 @@
 
 #define SHA_1_2_MAX_BLOCKS_NUMBER_IN_TAIL 2
 
-#define EVAL(expr) { status = expr; if (status < 0) goto exit; }
+#define EVAL(expr) { if ((status = (expr)) < 0) goto exit; }
 
 #ifdef __cplusplus
 extern "C" {
