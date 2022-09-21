@@ -334,10 +334,11 @@ int FreeBlockCipherState(__inout BlockCipherHandle handle);
  *
  * @param handle is a state handle
  * @param func is a hash function that will be used in hashing
+ * @param hwFeatures hardware processing not implemented for now (only software)
  * 
  * @return status
  */
-int InitHashState(__inout HashHandle* handle, __in HashFunc func);
+int InitHashState(__inout HashHandle* handle, __in HashFunc func, __inout_opt HardwareFeatures* hwFeatures);
 
 /**
  * Resets internal hash state
@@ -392,10 +393,11 @@ int FreeHashState(__inout HashHandle handle);
  *
  * @param handle is a state handle
  * @param func is a XOF that will be used in "hashing"
+ * @param hwFeatures hardware processing not implemented for now (only software)
  *
  * @return status
  */
-int InitXofState(__inout XofHandle* handle, __in Xof func);
+int InitXofState(__inout XofHandle* handle, __in Xof func, __inout_opt HardwareFeatures* hwFeatures);
 
 /**
  * Resets internal XOF state
@@ -450,10 +452,11 @@ int FreeXofState(__inout XofHandle handle);
  *
  * @param handle is a state handle
  * @param func is a PRF that will be used
+ * @param hwFeatures hardware processing not implemented for now (only software)
  *
  * @return status
  */
-int InitPrfState(__inout PrfHandle* handle, __in Prf func);
+int InitPrfState(__inout PrfHandle* handle, __in Prf func, __inout_opt HardwareFeatures* hwFeatures);
 
 /**
  * Resets internal PRF state
@@ -512,10 +515,12 @@ int FreePrfState(__inout PrfHandle handle);
  * @param iterationsNum number of iterations
  * @param output buffer allocated by user for derived key
  * @param outputSize size of output buffer and derived key
+ * @param hwFeatures hardware processing not implemented for now (only software)
  *
  * @return status
  */
-int GetPbkdf2(__in_opt const void* salt, __in size_t saltSize, __in_opt const void* password, __in size_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in size_t outputSize);
+int GetPbkdf2(__in_opt const void* salt, __in size_t saltSize, __in_opt const void* password, __in size_t passwordSize, __in Prf func
+    , __in uint64_t iterationsNum, __inout_opt HardwareFeatures* hwFeatures, __out void* output, __in size_t outputSize);
 
 #ifdef __cplusplus
 }

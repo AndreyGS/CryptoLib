@@ -11,7 +11,7 @@ void GetPbkdf2MainTestFunc(__in_opt const void* salt, __in size_t saltSize, __in
 {
     int status = NO_ERROR;
     std::vector<uint8_t> buffer(outputSize);
-    EVAL(GetPbkdf2(salt, saltSize, password, passwordSize, func, iterationsNum, buffer.data(), outputSize));
+    EVAL(GetPbkdf2(salt, saltSize, password, passwordSize, func, iterationsNum, nullptr, buffer.data(), outputSize));
 
 exit:
 
@@ -44,13 +44,13 @@ TEST(GetPbkdf2Test, WrongItNumber) {
 
 TEST(GetPbkdf2Test, WrongOuput) {
     uint16_t outputSize = 20;
-    EXPECT_TRUE(GetPbkdf2(TEST_STRING_8, 8, TEST_STRING_8, 8, HMAC_SHA1, 100, nullptr, outputSize) == ERROR_NULL_OUTPUT);
+    EXPECT_TRUE(GetPbkdf2(TEST_STRING_8, 8, TEST_STRING_8, 8, HMAC_SHA1, 100, nullptr, nullptr, outputSize) == ERROR_NULL_OUTPUT);
 }
 
 TEST(GetPbkdf2Test, WrongOutputSize) {
     int status = NO_ERROR;
     std::vector<uint8_t> buffer(1);
-    EVAL(GetPbkdf2(TEST_STRING_8, 8, TEST_STRING_8, 8, HMAC_SHA1, 100, buffer.data(), 0));
+    EVAL(GetPbkdf2(TEST_STRING_8, 8, TEST_STRING_8, 8, HMAC_SHA1, 100, nullptr, buffer.data(), 0));
 
 exit:
     EXPECT_TRUE(status == ERROR_TOO_SMALL_OUTPUT_SIZE);

@@ -446,6 +446,8 @@ int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     else if (status = AddPaddingInternal(input, inputSize, padding, AES_BLOCK_SIZE, output, outputSize, true))
         return status;
 
+    assert((*outputSize & 15) == 0);
+
     AesProcessingBlockFunction func = NULL;
     uint64_t* roundKeys = state;
     uint64_t* iv = NULL;
@@ -492,6 +494,8 @@ int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
             iv = ((Aes256State*)state)->iv;
         }
     }
+
+    assert(func && iv);
 
     uint64_t blocksNumber = *outputSize >> 4; // (outputSize / AES_BLOCK_SIZE) outputSize must be divisible by AES_BLOCK_SIZE without remainder
 
@@ -696,6 +700,8 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
         }
     }
 
+    assert(func && roundKeys && iv);
+
     uint64_t blocksNumber = inputSize >> 4; // (inputSize / AES_BLOCK_SIZE) inputSize must be divisible by AES_BLOCK_SIZE without remainder
     const uint64_t* lastInputBlock = input + ((blocksNumber - 1) << 1);
     uint64_t lastOutputBlock[2] = { 0 };
@@ -793,6 +799,8 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     }
     else if (status = FillLastDecryptedBlockInternal(padding, AES_BLOCK_SIZE, &lastOutputBlock, inputSize, output, outputSize))
         return status;
+
+    assert(*outputSize);
 
     switch (opMode) {
     case ECB_mode: {

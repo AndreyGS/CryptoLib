@@ -83,7 +83,7 @@ int TestAesSpeed()
     HashHandle hashHandle = NULL;
     HardwareFeatures hwFeatures = { 0 };
 
-    EVAL(InitHashState(&hashHandle, SHA1));
+    EVAL(InitHashState(&hashHandle, SHA1, nullptr));
 
     std::cout << "Speed tests of AES\n";
     std::cout << "Test vectors 16mb length, CBC_mode, No_padding \n";

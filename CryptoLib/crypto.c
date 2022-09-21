@@ -157,7 +157,7 @@ int FreeBlockCipherState(__inout BlockCipherHandle handle)
     return NO_ERROR;
 }
 
-int InitHashState(__inout HashHandle* handle, __in HashFunc func)
+int InitHashState(__inout HashHandle* handle, __in HashFunc func, __inout_opt HardwareFeatures* hwFeatures)
 {
     if (!handle)
         return ERROR_NULL_STATE_HANDLE;
@@ -199,7 +199,7 @@ int FreeHashState(__inout HashHandle handle)
     return NO_ERROR;
 }
 
-int InitXofState(__inout XofHandle* handle, __in Xof func)
+int InitXofState(__inout XofHandle* handle, __in Xof func, __inout_opt HardwareFeatures* hwFeatures)
 {
     if (!handle)
         return ERROR_NULL_STATE_HANDLE;
@@ -243,7 +243,7 @@ int FreeXofState(__inout XofHandle handle)
     return NO_ERROR;
 }
 
-int InitPrfState(__inout PrfHandle* handle, __in Prf func)
+int InitPrfState(__inout PrfHandle* handle, __in Prf func, __inout_opt HardwareFeatures* hwFeatures)
 {
     if (!handle)
         return ERROR_NULL_STATE_HANDLE;
@@ -291,7 +291,8 @@ int GetPrf(__inout PrfHandle handle, __in_opt const void* input, __in size_t inp
     return NO_ERROR;
 }
 
-int GetPbkdf2(__in_opt const void* salt, __in size_t saltSize, __in_opt const void* password, __in size_t passwordSize, __in Prf func, __in uint64_t iterationsNum, __out void* output, __in size_t outputSize)
+int GetPbkdf2(__in_opt const void* salt, __in size_t saltSize, __in_opt const void* password, __in size_t passwordSize, __in Prf func
+    , __in uint64_t iterationsNum, __inout_opt HardwareFeatures* hwFeatures, __out void* output, __in size_t outputSize)
 {
     int status = NO_ERROR;
     if (!salt && saltSize)

@@ -11,22 +11,22 @@
 
 TEST(PrfStateFuncsTest, InitPrfStateWrongPrfFunc) {
     PrfHandle handle;
-    EXPECT_TRUE(InitPrfState(&handle, (Prf)-1) == ERROR_UNSUPPORTED_PRF_FUNC);
+    EXPECT_TRUE(InitPrfState(&handle, (Prf)-1, nullptr) == ERROR_UNSUPPORTED_PRF_FUNC);
 }
 
 TEST(PrfStateFuncsTest, InitPrfStateWrongPrfFunc2) {
     PrfHandle handle;
-    EXPECT_TRUE(InitPrfState(&handle, Prf_max) == ERROR_UNSUPPORTED_PRF_FUNC);
+    EXPECT_TRUE(InitPrfState(&handle, Prf_max, nullptr) == ERROR_UNSUPPORTED_PRF_FUNC);
 }
 
 TEST(PrfStateFuncsTest, InitPrfStateWrongHandle) {
-    EXPECT_TRUE(InitPrfState(nullptr, HMAC_SHA3_224) == ERROR_NULL_STATE_HANDLE);
+    EXPECT_TRUE(InitPrfState(nullptr, HMAC_SHA3_224, nullptr) == ERROR_NULL_STATE_HANDLE);
 }
 
 TEST(PrfStateFuncsTest, InitPrfStateMain) {
     int status = NO_ERROR;
     PrfHandle handle = NULL;
-    EXPECT_TRUE(InitPrfState(&handle, HMAC_SHA3_224) == NO_ERROR);
+    EXPECT_TRUE(InitPrfState(&handle, HMAC_SHA3_224, nullptr) == NO_ERROR);
 
     EXPECT_EQ(*(Prf*)handle, HMAC_SHA3_224);
 
@@ -50,7 +50,7 @@ TEST(PrfStateFuncsTest, ResetPrfStateMain) {
     PrfHandle handle = NULL;
     bool allOk = false;
 
-    EVAL(InitPrfState(&handle, HMAC_SHA3_224));
+    EVAL(InitPrfState(&handle, HMAC_SHA3_224, nullptr));
 
     EVAL(ResetPrfState(handle));
 
@@ -82,7 +82,7 @@ TEST(PrfStateFuncsTest, FreePrfStateMain) {
     PrfHandle handle = NULL;
     bool allOk = false;
 
-    EVAL(InitPrfState(&handle, (Prf)(Prf_max - 1)));
+    EVAL(InitPrfState(&handle, (Prf)(Prf_max - 1), nullptr));
 
     EVAL(FreePrfState(handle));
 

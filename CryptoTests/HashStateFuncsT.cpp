@@ -11,22 +11,22 @@
 
 TEST(HashStateFuncsTest, InitHashStateWrongHashFunc) {
     HashHandle handle;
-    EXPECT_TRUE(InitHashState(&handle, (HashFunc)-1) == ERROR_UNSUPPORTED_HASHING_FUNC);
+    EXPECT_TRUE(InitHashState(&handle, (HashFunc)-1, nullptr) == ERROR_UNSUPPORTED_HASHING_FUNC);
 }
 
 TEST(HashStateFuncsTest, InitHashStateWrongHashFunc2) {
     HashHandle handle;
-    EXPECT_TRUE(InitHashState(&handle, HashFunc_max) == ERROR_UNSUPPORTED_HASHING_FUNC);
+    EXPECT_TRUE(InitHashState(&handle, HashFunc_max, nullptr) == ERROR_UNSUPPORTED_HASHING_FUNC);
 }
 
 TEST(HashStateFuncsTest, InitHashStateWrongHandle) {
-    EXPECT_TRUE(InitHashState(nullptr, SHA1) == ERROR_NULL_STATE_HANDLE);
+    EXPECT_TRUE(InitHashState(nullptr, SHA1, nullptr) == ERROR_NULL_STATE_HANDLE);
 }
 
 TEST(HashStateFuncsTest, InitHashStateMain) {
     int status = NO_ERROR;
     HashHandle handle = NULL;
-    EXPECT_TRUE(InitHashState(&handle, SHA3_224) == NO_ERROR);
+    EXPECT_TRUE(InitHashState(&handle, SHA3_224, nullptr) == NO_ERROR);
 
     EXPECT_EQ(*(HashFunc*)handle, SHA3_224);
 
@@ -50,7 +50,7 @@ TEST(HashStateFuncsTest, ResetHashStateMain) {
     HashHandle handle = NULL;
     bool allOk = false;
 
-    EVAL(InitHashState(&handle, SHA3_224));
+    EVAL(InitHashState(&handle, SHA3_224, nullptr));
 
     EVAL(ResetHashState(handle));
 
@@ -82,7 +82,7 @@ TEST(HashStateFuncsTest, FreeHashStateMain) {
     HashHandle handle = NULL;
     bool allOk = false;
 
-    EVAL(InitHashState(&handle, SHA_512));
+    EVAL(InitHashState(&handle, SHA_512, nullptr));
     EVAL(GetHash(handle, "aee25eaf93c3830774532547d36b4c5328743c7b08785fd391fd419b2001ffdc8811b649cda3102c1846de2eb12b28ce29f5"
         "b40edfe0b670f637eff6f2cbaf69", 128, false, nullptr));
 

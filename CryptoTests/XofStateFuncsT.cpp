@@ -11,22 +11,22 @@
 
 TEST(XofStateFuncsTest, InitXofStateWrongXofFunc) {
     XofHandle handle;
-    EXPECT_TRUE(InitXofState(&handle, (Xof)-1) == ERROR_UNSUPPORTED_XOF);
+    EXPECT_TRUE(InitXofState(&handle, (Xof)-1, nullptr) == ERROR_UNSUPPORTED_XOF);
 }
 
 TEST(XofStateFuncsTest, InitXofStateWrongXofFunc2) {
     XofHandle handle;
-    EXPECT_TRUE(InitXofState(&handle, Xof_max) == ERROR_UNSUPPORTED_XOF);
+    EXPECT_TRUE(InitXofState(&handle, Xof_max, nullptr) == ERROR_UNSUPPORTED_XOF);
 }
 
 TEST(XofStateFuncsTest, InitXofStateWrongHandle) {
-    EXPECT_TRUE(InitXofState(nullptr, SHAKE128) == ERROR_NULL_STATE_HANDLE);
+    EXPECT_TRUE(InitXofState(nullptr, SHAKE128, nullptr) == ERROR_NULL_STATE_HANDLE);
 }
 
 TEST(XofStateFuncsTest, InitXofStateMain) {
     int status = NO_ERROR;
     XofHandle handle = NULL;
-    EXPECT_TRUE(InitXofState(&handle, SHAKE256) == NO_ERROR);
+    EXPECT_TRUE(InitXofState(&handle, SHAKE256, nullptr) == NO_ERROR);
 
     EXPECT_EQ(*(Xof*)handle, SHAKE256);
 
@@ -50,7 +50,7 @@ TEST(XofStateFuncsTest, ResetXofStateMain) {
     XofHandle handle = NULL;
     bool allOk = false;
 
-    EVAL(InitXofState(&handle, SHAKE256));
+    EVAL(InitXofState(&handle, SHAKE256, nullptr));
     EVAL(GetXof(handle, "aee25eaf93c3830774532547d36b4c5328743c7b08785fd391fd419b2001ffdc8811b649cda3102c1846de2eb12b28ce29f5"
         "b40edfe0b670f637eff6f2cbaf691ebe8dda", 136, false, nullptr, 0));
     EVAL(ResetXofState(handle));
@@ -84,7 +84,7 @@ TEST(XofStateFuncsTest, FreeXofStateMain) {
     std::vector<uint8_t> test_1(g_XofSizesMapping[SHAKE256].stateAndHeaderSize, 0);
     std::vector<uint8_t> test_2(g_XofSizesMapping[SHAKE256].stateAndHeaderSize, 0xdd);
 
-    EVAL(InitXofState(&handle, SHAKE256));
+    EVAL(InitXofState(&handle, SHAKE256, nullptr));
     EVAL(GetXof(handle, "aee25eaf93c3830774532547d36b4c5328743c7b08785fd391fd419b2001ffdc8811b649cda3102c1846de2eb12b28ce29f5"
                         "b40edfe0b670f637eff6f2cbaf691ebe8dda", 136, false, nullptr, 0));
     EVAL(FreeXofState(handle));

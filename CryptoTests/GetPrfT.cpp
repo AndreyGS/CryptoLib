@@ -18,7 +18,7 @@ void GetPrfMainTestFunc(__in const void* input, __in size_t inputSize, __in cons
 
     std::vector<uint8_t> buffer(outputSize);
     PrfHandle handle = NULL;
-    EVAL(InitPrfState(&handle, func));
+    EVAL(InitPrfState(&handle, func, nullptr));
     EVAL(GetPrf(handle, input, inputSize, key, keySize, true, buffer.data(), outputSize));
 
 exit:
@@ -46,7 +46,7 @@ void GetPrfMultipleTestFunc(__in const void* input1, __in size_t inputSize1, __i
 
     std::vector<uint8_t> buffer(outputSize);
     PrfHandle handle = NULL;
-    EVAL(InitPrfState(&handle, func));
+    EVAL(InitPrfState(&handle, func, nullptr));
     EVAL(GetPrf(handle, input1, inputSize1, key, keySize, false, buffer.data(), outputSize));
     EVAL(GetPrf(handle, input2, inputSize2, key, keySize, true, buffer.data(), outputSize));
 
@@ -83,7 +83,7 @@ TEST(GetPrfTest, WrongInputSize) {
     int status = NO_ERROR;
     size_t outputSize = g_hashFuncsSizesMapping[SHA1].didgestSize;
     PrfHandle handle = NULL;
-    EVAL(InitPrfState(&handle, HMAC_SHA1));
+    EVAL(InitPrfState(&handle, HMAC_SHA1, nullptr));
     
 exit:
     if (handle) {
@@ -99,7 +99,7 @@ TEST(GetPrfTest, WrongOutput) {
     size_t outputSize = g_hashFuncsSizesMapping[SHA1].didgestSize;
     std::vector<uint8_t> buffer(1);
     PrfHandle handle = NULL;
-    EVAL(InitPrfState(&handle, HMAC_SHA1));
+    EVAL(InitPrfState(&handle, HMAC_SHA1, nullptr));
 
 exit:
     if (handle) {

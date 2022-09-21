@@ -12,7 +12,7 @@ void GetXofMainTestFunc(__in const void* input, __in size_t inputSize, __in Xof 
     int status = NO_ERROR;
     std::vector<uint8_t> buffer(outputSize);
     XofHandle handle = NULL;
-    EVAL(InitXofState(&handle, func));
+    EVAL(InitXofState(&handle, func, nullptr));
     EVAL(GetXof(handle, input, inputSize, true, buffer.data(), outputSize));
 
 exit:
@@ -34,7 +34,7 @@ void GetXofMultipleTestFunc(__in const void* input1, __in size_t inputSize1, __i
     int status = NO_ERROR;
     std::vector<uint8_t> buffer(outputSize);
     XofHandle handle = NULL;
-    EVAL(InitXofState(&handle, func));
+    EVAL(InitXofState(&handle, func, nullptr));
     EVAL(GetXof(handle, input1, inputSize1, false, nullptr, outputSize));
     EVAL(GetXof(handle, input2, inputSize2, true, buffer.data(), outputSize));
 
@@ -63,7 +63,7 @@ TEST(GetXofTest, WrongState) {
 TEST(GetXofTest, WrongOutput) {
     int status = NO_ERROR;
     XofHandle handle = NULL;
-    InitXofState(&handle, SHAKE128);
+    InitXofState(&handle, SHAKE128, nullptr);
     status = GetXof(handle, "", 0, true, nullptr, 0);
     FreeXofState(handle);
     EXPECT_TRUE(status == ERROR_NULL_OUTPUT);
@@ -73,7 +73,7 @@ TEST(GetXofTest, WrongOutputSize) {
     int status = NO_ERROR;
     XofHandle handle = NULL;
     std::vector<uint8_t> buffer(1);
-    InitXofState(&handle, SHAKE128);
+    InitXofState(&handle, SHAKE128, nullptr);
     status = GetXof(handle, "123", 3, true, buffer.data(), 0);
     FreeXofState(handle);
     EXPECT_TRUE(status == ERROR_NULL_OUTPUT_SIZE);
@@ -88,12 +88,12 @@ TEST(GetXofTest, WrongInputSize) {
     std::vector<uint8_t> buffer(1);
     XofHandle handle = nullptr;
 
-    InitXofState(&handle, SHAKE128);
+    InitXofState(&handle, SHAKE128, nullptr);
     status = GetXof(handle, "", 55, false, buffer.data(), 1);
     FreeXofState(handle);
     EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);
     
-    InitXofState(&handle, SHAKE256);
+    InitXofState(&handle, SHAKE256, nullptr);
     status = GetXof(handle, "", 55, false, buffer.data(), 1);
     FreeXofState(handle);
     EXPECT_TRUE(status == ERROR_WRONG_INPUT_SIZE);

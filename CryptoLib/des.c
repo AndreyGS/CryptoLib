@@ -591,6 +591,8 @@ int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     else if (status = AddPaddingInternal(input, inputSize, padding, DES_BLOCK_SIZE, output, outputSize, true))
         return status;
 
+    assert((*outputSize & 7) == 0);
+
     DesEncDecFunction func = NULL;
     uint64_t* roundKeys = NULL;
     uint64_t iv = 0;

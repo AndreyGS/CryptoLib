@@ -40,7 +40,7 @@ int GetPbkdf2Internal(__in_opt const void* salt, __in size_t saltSize, __in_opt 
     PrfState* state = NULL;
     EVAL(AlignedAllocBuffer(&buffer1, didgestSize, 8));
     EVAL(AlignedAllocBuffer(&buffer2, didgestSize, 8));
-    EVAL(InitPrfState(&state, func));
+    EVAL(InitPrfState(&state, func, NULL));
 
     uint8_t* reserveBuffer2 = buffer2;
 
