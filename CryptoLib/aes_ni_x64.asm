@@ -28,9 +28,6 @@ Aes128AvxKeySchedule PROC
 ; rdx: roundKeys: xmmword ptr
 ; r8: decryptionRoundKeys : xmmword ptr
 
-	enter 16, 0
-	vmovdqa xmmword ptr [rbp-16], xmm0
-
 	vmovdqu xmm0, xmmword ptr [rcx]
 	vmovdqa xmmword ptr [rdx], xmm0
 	add rdx, 16
@@ -102,11 +99,14 @@ decryptionRoundKeysSchedule:
 	vmovdqa xmmword ptr [r8], xmm0
 
 ; end of decryptionRoundKeysSchedule
-
-	vmovdqa xmm0, xmmword ptr [rbp-16]
-	vmovdqa xmm4, xmm0
-	vmovdqa xmm5, xmm0
-	leave
+	
+	vpxor xmm5, xmm5, xmm5				; secure clearing of registers
+	vpxor xmm4, xmm4, xmm4
+	vpxor xmm0, xmm0, xmm0
+	xor rax, rax
+	xor rcx, rcx
+	xor rdx, rdx
+	
 	ret
 Aes128AvxKeySchedule ENDP
 
@@ -114,10 +114,6 @@ Aes192AvxKeySchedule PROC
 ; rcx:  key: xmmword ptr
 ; rdx: roundKeys: xmmword ptr
 ; r8: decryptionRoundKeys : xmmword ptr
-
-	enter 32, 0
-	vmovdqa xmmword ptr [rbp-16], xmm0
-	vmovdqa xmmword ptr [rbp-32], xmm1
 
 	vmovdqu xmm0, xmmword ptr [rcx]
 	movq xmm1, qword ptr [rcx+16]
@@ -201,11 +197,14 @@ decryptionRoundKeysSchedule:
 
 ; end of decryptionRoundKeysSchedule
 
-	vmovdqa xmm1, xmmword ptr [rbp-32]
-	vmovdqa xmm0, xmmword ptr [rbp-16]
-	vmovdqa xmm4, xmm0
-	vmovdqa xmm5, xmm0
-	leave
+	vpxor xmm5, xmm5, xmm5				; secure clearing of registers
+	vpxor xmm4, xmm4, xmm4
+	vpxor xmm1, xmm1, xmm1
+	vpxor xmm0, xmm0, xmm0
+	xor rax, rax
+	xor rcx, rcx
+	xor rdx, rdx
+
 	ret
 Aes192AvxKeySchedule ENDP
 
@@ -213,10 +212,6 @@ Aes256AvxKeySchedule PROC
 ; rcx:  key: xmmword ptr
 ; rdx: roundKeys: xmmword ptr
 ; r8: decryptionRoundKeys : xmmword ptr
-
-	enter 32, 0
-	vmovdqa xmmword ptr [rbp-16], xmm0
-	vmovdqa xmmword ptr [rbp-32], xmm1
 
 	vmovdqu xmm0, xmmword ptr [rcx]
 	vmovdqu xmm1, xmmword ptr [rcx+16]
@@ -317,11 +312,14 @@ decryptionRoundKeysSchedule:
 
 ; end of decryptionRoundKeysSchedule
 
-	vmovdqa xmm1, xmmword ptr [rbp-32]
-	vmovdqa xmm0, xmmword ptr [rbp-16]
-	vmovdqa xmm4, xmm0
-	vmovdqa xmm5, xmm0
-	leave
+	vpxor xmm5, xmm5, xmm5				; secure clearing of registers
+	vpxor xmm4, xmm4, xmm4
+	vpxor xmm1, xmm1, xmm1
+	vpxor xmm0, xmm0, xmm0
+	xor rax, rax
+	xor rcx, rcx
+	xor rdx, rdx
+
 	ret
 Aes256AvxKeySchedule ENDP
 
@@ -329,9 +327,6 @@ Aes128NiKeySchedule PROC
 ; rcx:  key: xmmword ptr
 ; rdx: roundKeys: xmmword ptr
 ; r8: decryptionRoundKeys : xmmword ptr
-
-	enter 16, 0
-	movdqa xmmword ptr [rbp-16], xmm0
 
 	movdqu xmm0, xmmword ptr [rcx]
 	movdqa xmmword ptr [rdx], xmm0
@@ -406,10 +401,13 @@ decryptionRoundKeysSchedule:
 
 ; end of decryptionRoundKeysSchedule
 
-	movdqa xmm0, xmmword ptr [rbp-16]
-	movdqa xmm4, xmm0
-	movdqa xmm5, xmm0
-	leave
+	pxor xmm5, xmm5					; secure clearing of registers
+	pxor xmm4, xmm4
+	pxor xmm0, xmm0
+	xor rax, rax
+	xor rcx, rcx
+	xor rdx, rdx
+
 	ret
 Aes128NiKeySchedule ENDP
 
@@ -417,10 +415,6 @@ Aes192NiKeySchedule PROC
 ; rcx:  key: xmmword ptr
 ; rdx: roundKeys: xmmword ptr
 ; r8: decryptionRoundKeys : xmmword ptr
-
-	enter 32, 0
-	movdqa xmmword ptr [rbp-16], xmm0
-	movdqa xmmword ptr [rbp-32], xmm1
 
 	movdqu xmm0, xmmword ptr [rcx]
 	movq xmm1, qword ptr [rcx+16]
@@ -506,11 +500,14 @@ decryptionRoundKeysSchedule:
 
 ; end of decryptionRoundKeysSchedule
 
-	movdqa xmm1, xmmword ptr [rbp-32]
-	movdqa xmm0, xmmword ptr [rbp-16]
-	movdqa xmm4, xmm0
-	movdqa xmm5, xmm0
-	leave
+	pxor xmm5, xmm5					; secure clearing of registers
+	pxor xmm4, xmm4
+	pxor xmm1, xmm1
+	pxor xmm0, xmm0
+	xor rax, rax
+	xor rcx, rcx
+	xor rdx, rdx
+
 	ret
 Aes192NiKeySchedule ENDP
 
@@ -518,10 +515,6 @@ Aes256NiKeySchedule PROC
 ; rcx:  key: xmmword ptr
 ; rdx: roundKeys: xmmword ptr
 ; r8: decryptionRoundKeys : xmmword ptr
-
-	enter 32, 0
-	movdqa xmmword ptr [rbp-16], xmm0
-	movdqa xmmword ptr [rbp-32], xmm1
 
 	movdqu xmm0, xmmword ptr [rcx]
 	movdqu xmm1, xmmword ptr [rcx+16]
@@ -624,11 +617,14 @@ decryptionRoundKeysSchedule:
 
 ; end of decryptionRoundKeysSchedule
 
-	movdqa xmm1, xmmword ptr [rbp-32]
-	movdqa xmm0, xmmword ptr [rbp-16]
-	movdqa xmm4, xmm0
-	movdqa xmm5, xmm0
-	leave
+	pxor xmm5, xmm5					; secure clearing of registers
+	pxor xmm4, xmm4
+	pxor xmm4, xmm4
+	pxor xmm0, xmm0
+	xor rax, rax
+	xor rcx, rcx
+	xor rdx, rdx
+
 	ret
 Aes256NiKeySchedule ENDP
 
@@ -922,5 +918,20 @@ Aes256NiDecryptBlock PROC
 
 	ret
 Aes256NiDecryptBlock ENDP
+
+
+SecureClearRegistersUsedInAes PROC
+	call SecureClearXmm0
+	call SecureClearRax
+	ret
+SecureClearRegistersUsedInAes ENDP
+
+SecureClearXmm0:
+	xorpd xmm0, xmm0
+	ret
+
+SecureClearRax:
+	xor rax, rax
+	ret
 
 END

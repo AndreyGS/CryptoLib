@@ -63,6 +63,8 @@ void Aes128AvxDecryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t*
 void Aes192AvxDecryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t* input, __out uint64_t* output);
 void Aes256AvxDecryptBlock(__in const uint64_t* roundKeys, __in  const uint64_t* input, __out uint64_t* output);
 
+void SecureClearRegistersUsedInAes();
+
 #ifdef __cplusplus
 }
 #endif

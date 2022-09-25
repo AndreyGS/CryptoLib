@@ -110,9 +110,12 @@ decryptionRoundKeysSchedule:
 
 ; end of decryptionRoundKeysSchedule
 	
-	mov eax, 0								; secure registers clearing
-	mov ecx, 0
-	mov edx, 0
+	vpxor xmm5, xmm5, xmm5				; secure clearing of registers
+	vpxor xmm4, xmm4, xmm4
+	vpxor xmm0, xmm0, xmm0
+	xor eax, eax
+	xor ecx, ecx
+	xor edx, edx
 	pop edi
 	ret	
 Aes128AvxKeySchedule ENDP
@@ -209,9 +212,13 @@ decryptionRoundKeysSchedule:
 
 ; end of decryptionRoundKeysSchedule
 
-	mov eax, 0								; secure registers clearing
-	mov ecx, 0
-	mov edx, 0
+	vpxor xmm5, xmm5, xmm5				; secure clearing of registers
+	vpxor xmm4, xmm4, xmm4
+	vpxor xmm1, xmm1, xmm1
+	vpxor xmm0, xmm0, xmm0
+	xor eax, eax
+	xor ecx, ecx
+	xor edx, edx
 	pop edi
 	ret
 Aes192AvxKeySchedule ENDP
@@ -326,9 +333,13 @@ decryptionRoundKeysSchedule:
 
 ; end of decryptionRoundKeysSchedule
 
-	mov eax, 0								; secure registers clearing
-	mov ecx, 0
-	mov edx, 0
+	vpxor xmm5, xmm5, xmm5				; secure clearing of registers
+	vpxor xmm4, xmm4, xmm4
+	vpxor xmm1, xmm1, xmm1
+	vpxor xmm0, xmm0, xmm0
+	xor eax, eax
+	xor ecx, ecx
+	xor edx, edx
 	pop edi
 	pop esi
 	ret
@@ -417,9 +428,12 @@ decryptionRoundKeysSchedule:
 
 ; end of decryptionRoundKeysSchedule
 
-	mov eax, 0								; secure registers clearing
-	mov ecx, 0
-	mov edx, 0
+	pxor xmm5, xmm5					; secure clearing of registers
+	pxor xmm4, xmm4
+	pxor xmm0, xmm0
+	xor eax, eax
+	xor ecx, ecx
+	xor edx, edx
 	pop edi
 	ret
 Aes128NiKeySchedule ENDP
@@ -518,9 +532,13 @@ decryptionRoundKeysSchedule:
 
 ; end of decryptionRoundKeysSchedule
 
-	mov eax, 0								; secure registers clearing
-	mov ecx, 0
-	mov edx, 0
+	pxor xmm5, xmm5					; secure clearing of registers
+	pxor xmm4, xmm4
+	pxor xmm1, xmm1
+	pxor xmm0, xmm0
+	xor eax, eax
+	xor ecx, ecx
+	xor edx, edx
 	pop edi
 	ret
 Aes192NiKeySchedule ENDP
@@ -637,9 +655,13 @@ decryptionRoundKeysSchedule:
 
 ; end of decryptionRoundKeysSchedule
 
-	mov eax, 0								; secure registers clearing
-	mov ecx, 0
-	mov edx, 0
+	pxor xmm5, xmm5					; secure clearing of registers
+	pxor xmm4, xmm4
+	pxor xmm1, xmm1
+	pxor xmm0, xmm0
+	xor eax, eax
+	xor ecx, ecx
+	xor edx, edx
 	pop edi
 	pop esi
 	ret
@@ -933,5 +955,20 @@ Aes256NiDecryptBlock PROC roundKeys: PTR, input: PTR, output: PTR
 
 	ret
 Aes256NiDecryptBlock ENDP
+
+
+SecureClearRegistersUsedInAes PROC
+	call SecureClearXmm0
+	call SecureClearEax
+	ret
+SecureClearRegistersUsedInAes ENDP
+
+SecureClearXmm0:
+	xorpd xmm0, xmm0
+	ret
+
+SecureClearEax:
+	xor eax, eax
+	ret
 
 END
