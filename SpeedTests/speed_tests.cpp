@@ -20,11 +20,11 @@ int TestAesSpeedAux(BlockCipherType cipher, CryptoMode cryptoMode, HardwareFeatu
 {
     int status = NO_ERROR;
 
-    const char KEY_16[] = "81cav5ASkv8vwel0";
-    const char KEY_24[] = "which is listed on somer";
-    const char KEY_32[] = "arguments than any operator that";
+    static const char KEY_16[] = "81cav5ASkv8vwel0";
+    static const char KEY_24[] = "which is listed on somer";
+    static const char KEY_32[] = "arguments than any operator that";
 
-    const void* key = cipher == AES128_cipher_type ? KEY_16 : cipher == AES192_cipher_type ? KEY_24 : KEY_32;
+    const void* const key = cipher == AES128_cipher_type ? KEY_16 : cipher == AES192_cipher_type ? KEY_24 : KEY_32;
 
     BlockCipherHandle cipherHandle = nullptr;
     HardwareFeatures hwFeatures_orig = hwFeatures;
@@ -52,7 +52,7 @@ int TestAesSpeedAux(BlockCipherType cipher, CryptoMode cryptoMode, HardwareFeatu
 
         std::cout << "time elapsed: " << elapsedTime
             << "s, speed: " << 16 / elapsedTime
-            << "Mb/s, truncated sha1 of encrypted data: ";
+            << "Mb/s, sha1 of processed data: ";
 
         EVAL(PrintTruncHashAux(hashHandle, output.data(), output.size(), didgestBuffer.data()));
     }
@@ -135,7 +135,7 @@ int TestAesSpeed()
 
     hwFeatures.avx = hwFeatures.aesni = false;
 
-    std::cout << "\-----------------------------------------------\n\n\n";
+    std::cout << "-----------------------------------------------\n\n\n";
 
     std::cout << "Decryption\n";
     std::cout << "\n";

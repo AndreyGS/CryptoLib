@@ -30,17 +30,13 @@ include macro_asm_only_x86.inc
 
 Aes128AvxKeySchedule PROC key: PTR, roundKeys: PTR, decryptionRoundKeys: PTR
 	mov eax, key
+	mov dword ptr [key], 0					; secure clearing of pointers to sensetive data which resides on the stack
 	mov ecx, roundKeys
+	mov dword ptr [roundKeys], 0
 	mov edx, decryptionRoundKeys
-	push ebx
+	mov dword ptr [decryptionRoundKeys], 0
 	push edi
 
-	MakeStack16BytesAligned 48
-	
-	vmovdqa xmmword ptr [ebp-16], xmm0
-	vmovdqa xmmword ptr [ebp-32], xmm4
-	vmovdqa xmmword ptr [ebp-48], xmm5
-	
 	vmovdqu xmm0, xmmword ptr [eax]
 	vmovdqa xmmword ptr [ecx], xmm0
 	add ecx, 16
@@ -113,31 +109,25 @@ decryptionRoundKeysSchedule:
 	vmovdqa xmmword ptr [edx], xmm0
 
 ; end of decryptionRoundKeysSchedule
-
-	vmovdqa xmm5, xmmword ptr [ebp-48]
-	vmovdqa xmm4, xmmword ptr [ebp-32]
-	vmovdqa xmm0, xmmword ptr [ebp-16]
-
-	RestoreStack16BytesAligned ebx
-	leave
+	
+	vpxor xmm5, xmm5, xmm5				; secure clearing of registers
+	vpxor xmm4, xmm4, xmm4
+	vpxor xmm0, xmm0, xmm0
+	xor eax, eax
+	xor ecx, ecx
+	xor edx, edx
 	pop edi
-	pop ebx
 	ret	
 Aes128AvxKeySchedule ENDP
 
 Aes192AvxKeySchedule PROC key: PTR, roundKeys: PTR, decryptionRoundKeys: PTR
 	mov eax, key
+	mov dword ptr [key], 0					; secure clearing of pointers to sensetive data which resides on the stack
 	mov ecx, roundKeys
+	mov dword ptr [roundKeys], 0
 	mov edx, decryptionRoundKeys
-	push ebx
+	mov dword ptr [decryptionRoundKeys], 0
 	push edi
-
-	MakeStack16BytesAligned 64
-
-	vmovdqa xmmword ptr [ebp-16], xmm0
-	vmovdqa xmmword ptr [ebp-32], xmm1
-	vmovdqa xmmword ptr [ebp-48], xmm4
-	vmovdqa xmmword ptr [ebp-64], xmm5
 
 	vmovdqu xmm0, xmmword ptr [eax]
 	movq xmm1, qword ptr [eax+16]
@@ -222,32 +212,26 @@ decryptionRoundKeysSchedule:
 
 ; end of decryptionRoundKeysSchedule
 
-	vmovdqa xmm5, xmmword ptr [ebp-64]
-	vmovdqa xmm4, xmmword ptr [ebp-48]
-	vmovdqa xmm1, xmmword ptr [ebp-32]
-	vmovdqa xmm0, xmmword ptr [ebp-16]
-
-	RestoreStack16BytesAligned ebx
-	leave
+	vpxor xmm5, xmm5, xmm5				; secure clearing of registers
+	vpxor xmm4, xmm4, xmm4
+	vpxor xmm1, xmm1, xmm1
+	vpxor xmm0, xmm0, xmm0
+	xor eax, eax
+	xor ecx, ecx
+	xor edx, edx
 	pop edi
-	pop ebx
 	ret
 Aes192AvxKeySchedule ENDP
 
 Aes256AvxKeySchedule PROC key: PTR, roundKeys: PTR, decryptionRoundKeys: PTR
 	mov eax, key
+	mov dword ptr [key], 0					; secure clearing of pointers to sensetive data which resides on the stack
 	mov ecx, roundKeys
+	mov dword ptr [roundKeys], 0
 	mov edx, decryptionRoundKeys
-	push ebx
+	mov dword ptr [decryptionRoundKeys], 0
 	push esi
 	push edi
-
-	MakeStack16BytesAligned 64
-
-	vmovdqa xmmword ptr [ebp-16], xmm0
-	vmovdqa xmmword ptr [ebp-32], xmm1
-	vmovdqa xmmword ptr [ebp-48], xmm4
-	vmovdqa xmmword ptr [ebp-64], xmm5
 
 	vmovdqu xmm0, xmmword ptr [eax]
 	vmovdqu xmm1, xmmword ptr [eax+16]
@@ -348,33 +332,28 @@ decryptionRoundKeysSchedule:
 	vmovdqa xmmword ptr [edx], xmm0
 
 ; end of decryptionRoundKeysSchedule
-	
-	vmovdqa xmm5, xmmword ptr [ebp-64]
-	vmovdqa xmm4, xmmword ptr [ebp-48]
-	vmovdqa xmm1, xmmword ptr [ebp-32]
-	vmovdqa xmm0, xmmword ptr [ebp-16]
 
-	RestoreStack16BytesAligned ebx
-	leave
+	vpxor xmm5, xmm5, xmm5				; secure clearing of registers
+	vpxor xmm4, xmm4, xmm4
+	vpxor xmm1, xmm1, xmm1
+	vpxor xmm0, xmm0, xmm0
+	xor eax, eax
+	xor ecx, ecx
+	xor edx, edx
 	pop edi
 	pop esi
-	pop ebx
 	ret
 Aes256AvxKeySchedule ENDP
 
 Aes128NiKeySchedule PROC key: PTR, roundKeys: PTR, decryptionRoundKeys: PTR
 	mov eax, key
+	mov dword ptr [key], 0					; secure clearing of pointers to sensetive data which resides on the stack
 	mov ecx, roundKeys
+	mov dword ptr [roundKeys], 0
 	mov edx, decryptionRoundKeys
-	push ebx
+	mov dword ptr [decryptionRoundKeys], 0
 	push edi
 	
-	MakeStack16BytesAligned 48
-
-	movdqa xmmword ptr [ebp-16], xmm0
-	movdqa xmmword ptr [ebp-48], xmm4
-	movdqa xmmword ptr [ebp-64], xmm5
-
 	movdqu xmm0, xmmword ptr [eax]
 	movdqa xmmword ptr [ecx], xmm0
 	add ecx, 16
@@ -448,31 +427,25 @@ decryptionRoundKeysSchedule:
 	movdqa xmmword ptr [edx], xmm0
 
 ; end of decryptionRoundKeysSchedule
-	
-	movdqa xmm5, xmmword ptr [ebp-48]
-	movdqa xmm4, xmmword ptr [ebp-32]
-	movdqa xmm0, xmmword ptr [ebp-16]
 
-	RestoreStack16BytesAligned ebx
-	leave
+	pxor xmm5, xmm5					; secure clearing of registers
+	pxor xmm4, xmm4
+	pxor xmm0, xmm0
+	xor eax, eax
+	xor ecx, ecx
+	xor edx, edx
 	pop edi
-	pop ebx
 	ret
 Aes128NiKeySchedule ENDP
 
 Aes192NiKeySchedule PROC key: PTR, roundKeys: PTR, decryptionRoundKeys: PTR
 	mov eax, key
+	mov dword ptr [key], 0					; secure clearing of pointers to sensetive data which resides on the stack
 	mov ecx, roundKeys
+	mov dword ptr [roundKeys], 0
 	mov edx, decryptionRoundKeys
-	push ebx
+	mov dword ptr [decryptionRoundKeys], 0
 	push edi
-
-	MakeStack16BytesAligned 64
-
-	movdqa xmmword ptr [ebp-16], xmm0
-	movdqa xmmword ptr [ebp-32], xmm1
-	movdqa xmmword ptr [ebp-48], xmm4
-	movdqa xmmword ptr [ebp-64], xmm5
 
 	movdqu xmm0, xmmword ptr [eax]
 	movq xmm1, qword ptr [eax+16]
@@ -559,32 +532,26 @@ decryptionRoundKeysSchedule:
 
 ; end of decryptionRoundKeysSchedule
 
-	movdqa xmm5, xmmword ptr [ebp-64]
-	movdqa xmm4, xmmword ptr [ebp-48]
-	movdqa xmm1, xmmword ptr [ebp-32]
-	movdqa xmm0, xmmword ptr [ebp-16]
-
-	RestoreStack16BytesAligned ebx
-	leave
+	pxor xmm5, xmm5					; secure clearing of registers
+	pxor xmm4, xmm4
+	pxor xmm1, xmm1
+	pxor xmm0, xmm0
+	xor eax, eax
+	xor ecx, ecx
+	xor edx, edx
 	pop edi
-	pop ebx
 	ret
 Aes192NiKeySchedule ENDP
 
 Aes256NiKeySchedule PROC key: PTR, roundKeys: PTR, decryptionRoundKeys: PTR
 	mov eax, key
+	mov dword ptr [key], 0					; secure clearing of pointers to sensetive data which resides on the stack
 	mov ecx, roundKeys
+	mov dword ptr [roundKeys], 0
 	mov edx, decryptionRoundKeys
-	push ebx
+	mov dword ptr [decryptionRoundKeys], 0
 	push esi
 	push edi
-
-	MakeStack16BytesAligned 64
-
-	movdqa xmmword ptr [ebp-16], xmm0
-	movdqa xmmword ptr [ebp-32], xmm1
-	movdqa xmmword ptr [ebp-48], xmm4
-	movdqa xmmword ptr [ebp-64], xmm5
 
 	movdqu xmm0, xmmword ptr [eax]
 	movdqu xmm1, xmmword ptr [eax+16]
@@ -687,17 +654,16 @@ decryptionRoundKeysSchedule:
 	movdqa xmmword ptr [edx], xmm0
 
 ; end of decryptionRoundKeysSchedule
-	
-	movdqa xmm5, xmmword ptr [ebp-64]
-	movdqa xmm4, xmmword ptr [ebp-48]
-	movdqa xmm1, xmmword ptr [ebp-32]
-	movdqa xmm0, xmmword ptr [ebp-16]
 
-	RestoreStack16BytesAligned ebx
-	leave
+	pxor xmm5, xmm5					; secure clearing of registers
+	pxor xmm4, xmm4
+	pxor xmm1, xmm1
+	pxor xmm0, xmm0
+	xor eax, eax
+	xor ecx, ecx
+	xor edx, edx
 	pop edi
 	pop esi
-	pop ebx
 	ret
 Aes256NiKeySchedule ENDP
 
@@ -989,5 +955,20 @@ Aes256NiDecryptBlock PROC roundKeys: PTR, input: PTR, output: PTR
 
 	ret
 Aes256NiDecryptBlock ENDP
+
+
+SecureClearRegistersUsedInAes PROC
+	call SecureClearXmm0
+	call SecureClearEax
+	ret
+SecureClearRegistersUsedInAes ENDP
+
+SecureClearXmm0:
+	xorpd xmm0, xmm0
+	ret
+
+SecureClearEax:
+	xor eax, eax
+	ret
 
 END

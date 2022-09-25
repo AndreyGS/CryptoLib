@@ -877,5 +877,8 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     iv[0] = lastIvBlock[0];
     iv[1] = lastIvBlock[1];
 
+    if (hwFeatures.aesni)
+        SecureClearRegistersUsedInAes();
+
     return NO_ERROR;
 }

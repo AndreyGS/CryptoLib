@@ -23,13 +23,13 @@ MakeStack16BytesAligned MACRO neededLocalSpace
 	add ebx, 12
 	and ebx, 0fh
 
-	push ebp
-	mov ebp, esp
+	enter 0, 0
+	sub esp, ebx
 	sub ebp, ebx
 	sub esp, neededLocalSpace
-	sub esp, ebx
 ENDM
 
 RestoreStack16BytesAligned MACRO restoredOffset
 	add ebp, restoredOffset
+	leave
 ENDM
