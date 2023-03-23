@@ -78,7 +78,7 @@ decryptionRoundKeysSchedule:			; AES-NI not using raw round keys in decryption r
 
 	aesimc xmm0, xmmword ptr [rdx-32]   ; From Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume 2 (2A, 2B & 2C) (3-52 Vol. 2A):
 	vmovdqa xmmword ptr [r8+144], xmm0  ; "AESIMC instruction should be applied to the expanded AES round keys (except for the first and last round key)
-	aesimc xmm0, xmmword ptr [rdx-48]	; in order to prepare them for decryption using the “Equivalent Inverse Cipher” (defined in FIPS 197)."
+	aesimc xmm0, xmmword ptr [rdx-48]	; in order to prepare them for decryption using the "Equivalent Inverse Cipher" (defined in FIPS 197)."
 	vmovdqa xmmword ptr [r8+128], xmm0
 	aesimc xmm0, xmmword ptr [rdx-64]
 	vmovdqa xmmword ptr [r8+112], xmm0
