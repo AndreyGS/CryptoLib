@@ -1,8 +1,6 @@
 [*]
 end_of_line = crlf
 
-[*.xml]
-indent_style = space
-
 [*.{c,h,cpp}]
 charset = utf-8
+indent_style = space

@@ -35,17 +35,17 @@
 // The order of mappings must be equal to the order of HashFunc consts
 const HashFuncsSizes g_hashFuncsSizesMapping[11] =
 {
-    { SHA1,         SHA1_BLOCK_SIZE,     SHA1_DIGEST_SIZE,          sizeof(Sha1State),      HASH_STATE_SHA1_SIZE },
-    { SHA_224,      SHA2_32_BLOCK_SIZE,  SHA_224_DIGEST_SIZE,       sizeof(Sha2_32State),   HASH_STATE_SHA2_32_SIZE },
-    { SHA_256,      SHA2_32_BLOCK_SIZE,  SHA_256_DIGEST_SIZE,       sizeof(Sha2_32State),   HASH_STATE_SHA2_32_SIZE },
-    { SHA_384,      SHA2_64_BLOCK_SIZE,  SHA_384_DIGEST_SIZE,       sizeof(Sha2_64State),   HASH_STATE_SHA2_64_SIZE },
-    { SHA_512_224,  SHA2_64_BLOCK_SIZE,  SHA_512_224_DIGEST_SIZE,   sizeof(Sha2_64State),   HASH_STATE_SHA2_64_SIZE },
-    { SHA_512_256,  SHA2_64_BLOCK_SIZE,  SHA_512_256_DIGEST_SIZE,   sizeof(Sha2_64State),   HASH_STATE_SHA2_64_SIZE },
-    { SHA_512,      SHA2_64_BLOCK_SIZE,  SHA_512_DIGEST_SIZE,       sizeof(Sha2_64State),   HASH_STATE_SHA2_64_SIZE },
-    { SHA3_224,     SHA3_224_BLOCK_SIZE, SHA3_224_DIGEST_SIZE,      sizeof(Sha3_224State),  HASH_STATE_SHA3_224_SIZE },
-    { SHA3_256,     SHA3_256_BLOCK_SIZE, SHA3_256_DIGEST_SIZE,      sizeof(Sha3_256State),  HASH_STATE_SHA3_256_SIZE },
-    { SHA3_384,     SHA3_384_BLOCK_SIZE, SHA3_384_DIGEST_SIZE,      sizeof(Sha3_384State),  HASH_STATE_SHA3_384_SIZE },
-    { SHA3_512,     SHA3_512_BLOCK_SIZE, SHA3_512_DIGEST_SIZE,      sizeof(Sha3_512State),  HASH_STATE_SHA3_512_SIZE }
+    { .func = SHA1,         .blockSize = SHA1_BLOCK_SIZE,     .didgestSize = SHA1_DIGEST_SIZE,          .stateSize = sizeof(Sha1State),      .stateAndHeaderSize = HASH_STATE_SHA1_SIZE     },
+    { .func = SHA_224,      .blockSize = SHA2_32_BLOCK_SIZE,  .didgestSize = SHA_224_DIGEST_SIZE,       .stateSize = sizeof(Sha2_32State),   .stateAndHeaderSize = HASH_STATE_SHA2_32_SIZE  },
+    { .func = SHA_256,      .blockSize = SHA2_32_BLOCK_SIZE,  .didgestSize = SHA_256_DIGEST_SIZE,       .stateSize = sizeof(Sha2_32State),   .stateAndHeaderSize = HASH_STATE_SHA2_32_SIZE  },
+    { .func = SHA_384,      .blockSize = SHA2_64_BLOCK_SIZE,  .didgestSize = SHA_384_DIGEST_SIZE,       .stateSize = sizeof(Sha2_64State),   .stateAndHeaderSize = HASH_STATE_SHA2_64_SIZE  },
+    { .func = SHA_512_224,  .blockSize = SHA2_64_BLOCK_SIZE,  .didgestSize = SHA_512_224_DIGEST_SIZE,   .stateSize = sizeof(Sha2_64State),   .stateAndHeaderSize = HASH_STATE_SHA2_64_SIZE  },
+    { .func = SHA_512_256,  .blockSize = SHA2_64_BLOCK_SIZE,  .didgestSize = SHA_512_256_DIGEST_SIZE,   .stateSize = sizeof(Sha2_64State),   .stateAndHeaderSize = HASH_STATE_SHA2_64_SIZE  },
+    { .func = SHA_512,      .blockSize = SHA2_64_BLOCK_SIZE,  .didgestSize = SHA_512_DIGEST_SIZE,       .stateSize = sizeof(Sha2_64State),   .stateAndHeaderSize = HASH_STATE_SHA2_64_SIZE  },
+    { .func = SHA3_224,     .blockSize = SHA3_224_BLOCK_SIZE, .didgestSize = SHA3_224_DIGEST_SIZE,      .stateSize = sizeof(Sha3_224State),  .stateAndHeaderSize = HASH_STATE_SHA3_224_SIZE },
+    { .func = SHA3_256,     .blockSize = SHA3_256_BLOCK_SIZE, .didgestSize = SHA3_256_DIGEST_SIZE,      .stateSize = sizeof(Sha3_256State),  .stateAndHeaderSize = HASH_STATE_SHA3_256_SIZE },
+    { .func = SHA3_384,     .blockSize = SHA3_384_BLOCK_SIZE, .didgestSize = SHA3_384_DIGEST_SIZE,      .stateSize = sizeof(Sha3_384State),  .stateAndHeaderSize = HASH_STATE_SHA3_384_SIZE },
+    { .func = SHA3_512,     .blockSize = SHA3_512_BLOCK_SIZE, .didgestSize = SHA3_512_DIGEST_SIZE,      .stateSize = sizeof(Sha3_512State),  .stateAndHeaderSize = HASH_STATE_SHA3_512_SIZE }
 };
 
 #define XOF_STATE_HEADER_SIZE           sizeof(XofState) - sizeof(uint64_t)
@@ -55,8 +55,8 @@ const HashFuncsSizes g_hashFuncsSizesMapping[11] =
 
 const XofSizes g_XofSizesMapping[2] =
 {
-    { SHAKE128, SHAKE128_BLOCK_SIZE, sizeof(Shake128State), XOF_STATE_SHAKE128_SIZE },
-    { SHAKE256, SHAKE256_BLOCK_SIZE, sizeof(Shake256State), XOF_STATE_SHAKE256_SIZE }
+    { .func = SHAKE128, .blockSize = SHAKE128_BLOCK_SIZE, .stateSize = sizeof(Shake128State), .stateAndHeaderSize = XOF_STATE_SHAKE128_SIZE },
+    { .func = SHAKE256, .blockSize = SHAKE256_BLOCK_SIZE, .stateSize = sizeof(Shake256State), .stateAndHeaderSize = XOF_STATE_SHAKE256_SIZE }
 };
 
 #define PRF_STATE_HEADER_SIZE                sizeof(PrfState) - sizeof(uint64_t)
@@ -70,17 +70,17 @@ const XofSizes g_XofSizesMapping[2] =
 #define PRF_STATE_HMAC_SHA3_512_SIZE         PRF_STATE_HEADER_SIZE + sizeof(Hmac_Sha3_512State)
 
 const PrfSizes g_PrfSizesMapping[11] = {
-    { HMAC_SHA1,        SHA1,        sizeof(Hmac_Sha1State),        PRF_STATE_HMAC_SHA1_SIZE     },
-    { HMAC_SHA_224,     SHA_224,     sizeof(Hmac_Sha2_32State),     PRF_STATE_HMAC_SHA2_32_SIZE  },
-    { HMAC_SHA_256,     SHA_256,     sizeof(Hmac_Sha2_32State),     PRF_STATE_HMAC_SHA2_32_SIZE  },
-    { HMAC_SHA_384,     SHA_384,     sizeof(Hmac_Sha2_64State),     PRF_STATE_HMAC_SHA2_64_SIZE  },
-    { HMAC_SHA_512_224, SHA_512_224, sizeof(Hmac_Sha2_64State),     PRF_STATE_HMAC_SHA2_64_SIZE  },
-    { HMAC_SHA_512_256, SHA_512_256, sizeof(Hmac_Sha2_64State),     PRF_STATE_HMAC_SHA2_64_SIZE  },
-    { HMAC_SHA_512,     SHA_512,     sizeof(Hmac_Sha2_64State),     PRF_STATE_HMAC_SHA2_64_SIZE  },
-    { HMAC_SHA3_224,    SHA3_224,    sizeof(Hmac_Sha3_224State),    PRF_STATE_HMAC_SHA3_224_SIZE },
-    { HMAC_SHA3_256,    SHA3_256,    sizeof(Hmac_Sha3_256State),    PRF_STATE_HMAC_SHA3_256_SIZE },
-    { HMAC_SHA3_384,    SHA3_384,    sizeof(Hmac_Sha3_384State),    PRF_STATE_HMAC_SHA3_384_SIZE },
-    { HMAC_SHA3_512,    SHA3_512,    sizeof(Hmac_Sha3_512State),    PRF_STATE_HMAC_SHA3_512_SIZE }
+    { .prf = HMAC_SHA1,        .hashFunc = SHA1,        .stateSize = sizeof(Hmac_Sha1State),        .stateAndHeaderSize = PRF_STATE_HMAC_SHA1_SIZE     },
+    { .prf = HMAC_SHA_224,     .hashFunc = SHA_224,     .stateSize = sizeof(Hmac_Sha2_32State),     .stateAndHeaderSize = PRF_STATE_HMAC_SHA2_32_SIZE  },
+    { .prf = HMAC_SHA_256,     .hashFunc = SHA_256,     .stateSize = sizeof(Hmac_Sha2_32State),     .stateAndHeaderSize = PRF_STATE_HMAC_SHA2_32_SIZE  },
+    { .prf = HMAC_SHA_384,     .hashFunc = SHA_384,     .stateSize = sizeof(Hmac_Sha2_64State),     .stateAndHeaderSize = PRF_STATE_HMAC_SHA2_64_SIZE  },
+    { .prf = HMAC_SHA_512_224, .hashFunc = SHA_512_224, .stateSize = sizeof(Hmac_Sha2_64State),     .stateAndHeaderSize = PRF_STATE_HMAC_SHA2_64_SIZE  },
+    { .prf = HMAC_SHA_512_256, .hashFunc = SHA_512_256, .stateSize = sizeof(Hmac_Sha2_64State),     .stateAndHeaderSize = PRF_STATE_HMAC_SHA2_64_SIZE  },
+    { .prf = HMAC_SHA_512,     .hashFunc = SHA_512,     .stateSize = sizeof(Hmac_Sha2_64State),     .stateAndHeaderSize = PRF_STATE_HMAC_SHA2_64_SIZE  },
+    { .prf = HMAC_SHA3_224,    .hashFunc = SHA3_224,    .stateSize = sizeof(Hmac_Sha3_224State),    .stateAndHeaderSize = PRF_STATE_HMAC_SHA3_224_SIZE },
+    { .prf = HMAC_SHA3_256,    .hashFunc = SHA3_256,    .stateSize = sizeof(Hmac_Sha3_256State),    .stateAndHeaderSize = PRF_STATE_HMAC_SHA3_256_SIZE },
+    { .prf = HMAC_SHA3_384,    .hashFunc = SHA3_384,    .stateSize = sizeof(Hmac_Sha3_384State),    .stateAndHeaderSize = PRF_STATE_HMAC_SHA3_384_SIZE },
+    { .prf = HMAC_SHA3_512,    .hashFunc = SHA3_512,    .stateSize = sizeof(Hmac_Sha3_512State),    .stateAndHeaderSize = PRF_STATE_HMAC_SHA3_512_SIZE }
 };
 
 static inline void BlockCipherKeySchedule(__in BlockCipherType cipher, __in_opt HardwareFeatures hwFeatures, __in const void* key, __inout void* specificCipherState);
