@@ -83,7 +83,7 @@ Currently supported x86 and AMD64 AESNI implementations (there is SSE and AVX ve
 
 ## License
 
-Copyright (c) 2022 Andrey Grabov-Smetankin
+Copyright (c) 2022-2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
