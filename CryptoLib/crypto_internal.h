@@ -113,16 +113,16 @@ int
 InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCipherType cipher, __in CryptoMode cryptoMode, __in BlockCipherOpMode opMode
     , __in PaddingType padding, __inout_opt HardwareFeatures* hwFeatures, __in const void* key, __in_opt const void* iv);
 
-extern inline void
+void
 GetActiveHardwareFeaturesInternal(__in BlockCipherState* state, __out HardwareFeatures* hwFeatures);
 
-extern inline void 
+void 
 ReInitBlockCipherCryptoModeInternal(__inout BlockCipherState* state, __in CryptoMode cryptoMode);
 
-extern inline void 
+void 
 ReInitBlockCipherOpModeInternal(__inout BlockCipherState* state, __in BlockCipherOpMode opMode);
 
-extern inline void 
+void 
 ReInitBlockCipherPaddingTypeInternal(__inout BlockCipherState* state, __in PaddingType padding);
 
 void 
@@ -147,33 +147,33 @@ ResetHashStateInternal(__inout HashState* state);
 void 
 GetHashInternal(__inout HashState* state, __in const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output);
 
-extern inline void 
+void 
 FreeHashStateInternal(__inout HashState* state);
 
 // XOF functions
 int
 InitXofStateInternal(__inout XofState** state, __in Xof func);
 
-extern inline void
+void
 ResetXofStateInternal(__inout XofState* state);
 
 void 
 GetXofInternal(__inout XofState* state, __in const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output, __in size_t outputSize);
 
-extern inline void 
+void 
 FreeXofStateInternal(__inout XofState* state);
 
 // Prf functions
 int 
 InitPrfStateInternal(__inout PrfState** state, __in Prf func);
 
-extern inline void 
+void 
 ResetPrfStateInternal(__inout PrfState* state);
 
 void 
 GetPrfInternal(__inout PrfState* state, __in_opt const void* input, __in size_t inputSize, __in_opt const void* key, __in size_t keySize, __in bool finalize, __out_opt void* output, __in_opt size_t outputSize);
 
-extern inline void 
+void 
 FreePrfStateInternal(__inout PrfState* state);
 
 #ifdef __cplusplus

@@ -29,6 +29,14 @@
 #include <stdalign.h>
 #endif // !KERNEL
 
+#if defined _MSC_VER
+#define AllignedAlloc _aligned_malloc
+#define AllignedFree _aligned_free
+#else
+#define AllignedAlloc aligned_alloc
+#define AllignedFree free
+#endif
+
 #define QWORDS_IN_XMM 2
 #define XMM_NUMBER_WITHOUT_AVX 8
 #define XMM_NUMBER_WITH_AVX 16
@@ -50,20 +58,105 @@ extern "C" {
 
 int CheckHashAndXofPrimaryArguments(const StateHandle state, const void* input, uint64_t inputSize, bool finalize, const void* output);
 
-extern inline uint32_t Uint32BigEndianLeftRotateByOne(uint32_t word);
-extern inline uint32_t Uint32BigEndianLeftRotate(uint32_t word, int rounds);
-extern inline uint32_t Uint32BigEndianRightRotate(uint32_t word, int rounds);
-extern inline uint64_t Uint64BigEndianRightRotate(uint64_t word, int rounds);
+inline uint32_t Uint32BigEndianLeftRotateByOne(uint32_t word) // big-endian style
+{
+    return word << 1 | (word & 0x80000000 ? 1 : 0); // on 10700K this is more than 10% faster than word << 1 | word >> 31
+}
 
-// All "le to be" funcs also working as "be to le", obviously
-extern inline uint32_t Uint32LittleEndianToBigEndian(uint32_t input);
-extern inline uint64_t Uint64LittleEndianToBigEndian(uint64_t input);
-extern inline uint64_t Uint64LittleEndianToBigEndianBits(uint64_t input);
+inline uint32_t Uint32BigEndianLeftRotate(uint32_t word, int rounds) // big-endian style, rounds max == 32
+{
+    return word << rounds | word >> (32 - rounds);
+}
 
-extern inline int AllocBuffer(void** buffer, size_t size);
-extern inline int AlignedAllocBuffer(void** buffer, size_t size, size_t alignment);
-extern inline void FreeBuffer(void* buffer);
-extern inline void AlignedFreeBuffer(void* buffer);
+inline uint32_t Uint32BigEndianRightRotate(uint32_t word, int rounds)
+{
+    return word >> rounds | word << (32 - rounds);
+}
+
+inline uint64_t Uint64BigEndianRightRotate(uint64_t word, int rounds)
+{
+    return word >> rounds | word << (64 - rounds);
+}
+
+inline uint64_t Uint64LittleEndianToBigEndian(uint64_t input)
+{
+    return input >> 56
+        | (input >> 40 & 0x000000000000ff00)
+        | (input >> 24 & 0x0000000000ff0000)
+        | (input >> 8 & 0x00000000ff000000)
+        | (input << 8 & 0x000000ff00000000)
+        | (input << 24 & 0x0000ff0000000000)
+        | (input << 40 & 0x00ff000000000000)
+        | input << 56;
+}
+
+inline uint32_t Uint32LittleEndianToBigEndian(uint32_t input)
+{
+    return input >> 24
+        | (input >> 8 & 0x0000ff00)
+        | (input << 8 & 0x00ff0000)
+        | input << 24;
+}
+
+// Example of input and output of Uint64LittleEndianToBigEndianBits:
+//
+// first two bytes:
+// input:
+// 1010 0110 1110 0010 (0xa6e2)
+// output:
+// 0110 0101 0100 0111 (0x6547)
+inline uint64_t Uint64LittleEndianToBigEndianBits(uint64_t input)
+{
+    return (input & 0x8080808080808080) >> 7
+        | (input & 0x4040404040404040) >> 5
+        | (input & 0x2020202020202020) >> 3
+        | (input & 0x1010101010101010) >> 1
+        | (input & 0x0808080808080808) << 1
+        | (input & 0x0404040404040404) << 3
+        | (input & 0x0202020202020202) << 5
+        | (input & 0x0101010101010101) << 7;
+}
+
+inline int AllocBuffer(void** buffer, size_t size)
+{
+    assert(buffer);
+
+#ifndef KERNEL
+    * buffer = malloc(size);
+#endif
+    if (!*buffer)
+        return ERROR_NO_MEMORY;
+    else
+        return NO_ERROR;
+}
+
+inline int AlignedAllocBuffer(void** buffer, size_t size, size_t alignment)
+{
+    assert(buffer);
+
+#ifndef KERNEL
+    * buffer = AllignedAlloc(size, alignment);
+#endif
+    if (!*buffer)
+        return ERROR_NO_MEMORY;
+    else
+        return NO_ERROR;
+}
+
+inline void FreeBuffer(void* buffer)
+{
+#ifndef KERNEL
+    free(buffer);
+#endif
+}
+
+inline void AlignedFreeBuffer(void* buffer)
+{
+#ifndef KERNEL
+    AllignedFree(buffer);
+#endif
+}
+
 
 #ifdef __cplusplus
 }

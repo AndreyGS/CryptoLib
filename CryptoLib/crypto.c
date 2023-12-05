@@ -180,7 +180,7 @@ int ResetHashState(__inout HashHandle handle)
 int GetHash(__inout HashHandle handle, __in_opt const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output)
 {
     int status = NO_ERROR;
-    if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output))
+    if ((status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output)))
         return status;
     else if (!finalize && (inputSize % g_hashFuncsSizesMapping[*(HashFunc*)handle].blockSize))
         return ERROR_WRONG_INPUT_SIZE;
@@ -222,7 +222,7 @@ int ResetXofState(__inout XofHandle handle)
 int GetXof(__inout XofHandle handle, __in_opt const void* input, __in size_t inputSize, __in bool finalize, __out_opt void* output, __in size_t outputSize)
 {
     int status = NO_ERROR;
-    if (status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output))
+    if ((status = CheckHashAndXofPrimaryArguments(handle, input, inputSize, finalize, output)))
         return status;
     else if (finalize && !outputSize)
         return ERROR_NULL_OUTPUT_SIZE;
@@ -308,7 +308,7 @@ int GetPbkdf2(__in_opt const void* salt, __in size_t saltSize, __in_opt const vo
     else if (!outputSize)
         return ERROR_TOO_SMALL_OUTPUT_SIZE;
     else {
-        uint8_t* saltBuffer = NULL;
+        void* saltBuffer = NULL;
         EVAL(AllocBuffer(&saltBuffer, (size_t)saltSize + 4));
 
         memcpy(saltBuffer, salt, (size_t)saltSize);

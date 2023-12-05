@@ -227,7 +227,7 @@ static void TripleDesKeySchedule(__in const uint64_t* extendedKeys, __out uint64
     SingleDesKeySchedule(*extendedKeys, roundKeys + DES_ROUND_KEYS_NUMBER_X2);
 }
 
-inline void DesKeySchedule(__in BlockCipherType cipher, __in const uint64_t* key, __out uint64_t* roundKeys)
+void DesKeySchedule(__in BlockCipherType cipher, __in const uint64_t* key, __out uint64_t* roundKeys)
 {
     assert(key && roundKeys);
 
@@ -237,6 +237,8 @@ inline void DesKeySchedule(__in BlockCipherType cipher, __in const uint64_t* key
         break;
     case TDES_cipher_type:
         TripleDesKeySchedule(key, roundKeys);
+        break;
+    default:
         break;
     }
 }
@@ -588,7 +590,7 @@ int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
         else
             *outputSize = inputSize;
     }
-    else if (status = AddPaddingInternal(input, inputSize, padding, DES_BLOCK_SIZE, output, outputSize, true))
+    else if ((status = AddPaddingInternal(input, inputSize, padding, DES_BLOCK_SIZE, output, outputSize, true)))
         return status;
 
     assert((*outputSize & 7) == 0);
@@ -666,6 +668,9 @@ int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
 
         break;
     }
+
+    default:
+        break;
 
     }
 
@@ -771,6 +776,9 @@ int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
         break;
     }
 
+    default:
+        break;
+
     }
 
     if (!finalize) {
@@ -779,7 +787,7 @@ int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
 
         *outputSize = inputSize;
     } 
-    else if (status = FillLastDecryptedBlockInternal(padding, DES_BLOCK_SIZE, &lastOutputBlock, inputSize, output, outputSize))
+    else if ((status = FillLastDecryptedBlockInternal(padding, DES_BLOCK_SIZE, &lastOutputBlock, inputSize, output, outputSize)))
         return status;
 
     switch (opMode) {
@@ -825,6 +833,9 @@ int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
 
         break;
     }
+
+    default:
+        break;
 
     }
 

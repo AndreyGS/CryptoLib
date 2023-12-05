@@ -233,7 +233,7 @@ int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCiph
 
     int status = NO_ERROR;
     
-    EVAL(AllocBuffer(state, sizeof(BlockCipherState)));
+    EVAL(AllocBuffer((void**)state, sizeof(BlockCipherState)));
     (*state)->cipher = cipher;
 
     ReInitBlockCipherCryptoModeInternal(*state, cryptoMode);
@@ -272,6 +272,8 @@ int InitBlockCiperStateInternal(__inout BlockCipherState** state, __in BlockCiph
     case AES256_cipher_type:
         EVAL(AlignedAllocBuffer(&(*state)->state, specificStateSize, 16));
         break;
+    default:
+        break;
     }
 
     BlockCipherKeySchedule(cipher, (*state)->hwFeatures, key, (*state)->state);
@@ -296,31 +298,33 @@ static inline void BlockCipherKeySchedule(__in BlockCipherType cipher, __in_opt 
     case AES192_cipher_type:
     case AES256_cipher_type:
         AesKeySchedule(cipher, key, hwFeatures, specificCipherState);
+    default:
+        break;
     }
 }
 
-inline void GetActiveHardwareFeaturesInternal(__in BlockCipherState* state, __out HardwareFeatures* hwFeatures)
+void GetActiveHardwareFeaturesInternal(__in BlockCipherState* state, __out HardwareFeatures* hwFeatures)
 {
     assert(state && hwFeatures);
 
     *hwFeatures = state->hwFeatures;
 }
 
-inline void ReInitBlockCipherCryptoModeInternal(__inout BlockCipherState* state, __in CryptoMode cryptoMode)
+void ReInitBlockCipherCryptoModeInternal(__inout BlockCipherState* state, __in CryptoMode cryptoMode)
 {
     assert(state);
 
     state->enMode = cryptoMode;
 }
 
-inline void ReInitBlockCipherOpModeInternal(__inout BlockCipherState* state, __in BlockCipherOpMode opMode)
+void ReInitBlockCipherOpModeInternal(__inout BlockCipherState* state, __in BlockCipherOpMode opMode)
 {
     assert(state);
 
     state->opMode = opMode;
 }
 
-inline void ReInitBlockCipherPaddingTypeInternal(__inout BlockCipherState* state, __in PaddingType padding)
+void ReInitBlockCipherPaddingTypeInternal(__inout BlockCipherState* state, __in PaddingType padding)
 {
     assert(state);
 
@@ -364,6 +368,9 @@ void ReInitBlockCipherIvInternal(__in BlockCipherType cipher, __in HardwareFeatu
         else
             stateIv = ((Aes256State*)specificCipherState)->iv;
         break;
+
+    default:
+        break;
     }
 
     assert(stateIv);
@@ -401,7 +408,7 @@ int FillLastDecryptedBlockInternal(__in PaddingType padding, __in size_t blockSi
     int status = NO_ERROR;
     size_t paddingSize = 0;
 
-    if (status = PullPaddingSizeInternal(padding, lastOutputBlock, blockSize, &paddingSize))
+    if ((status = PullPaddingSizeInternal(padding, lastOutputBlock, blockSize, &paddingSize)))
         return status;
     else if (paddingSize > blockSize)
         return ERROR_PADDING_CORRUPTED;
@@ -441,7 +448,7 @@ int InitHashStateInternal(__inout HashState** state, __in HashFunc func)
 
     int status = NO_ERROR;
 
-    EVAL(AllocBuffer(state, g_hashFuncsSizesMapping[func].stateAndHeaderSize));
+    EVAL(AllocBuffer((void**)state, g_hashFuncsSizesMapping[func].stateAndHeaderSize));
     (*state)->func = func;
     ResetHashStateInternal(*state);
 
@@ -476,6 +483,8 @@ void ResetHashStateInternal(__inout HashState* state)
         startZeroing += sizeof(((Sha2_64State*)0)->state);
         sizeZeroing -= sizeof(((Sha2_64State*)0)->state);
         break;
+    default:
+        break;
     }
 
     memset(startZeroing, 0, sizeZeroing);
@@ -505,13 +514,15 @@ void GetHashInternal(__inout HashState* state, __in_opt const void* input, __in 
     case SHA3_512:
         Sha3GetHash(state->state, input, inputSize, state->func, finalize, output);
         break;
+    default:
+        break;
     }
 
     if (finalize)
         ResetHashStateInternal(state);
 }
 
-inline void FreeHashStateInternal(__inout HashState* state)
+void FreeHashStateInternal(__inout HashState* state)
 {
     assert(state);
 
@@ -526,7 +537,7 @@ int InitXofStateInternal(__inout XofState** state, __in Xof func)
 
     int status = NO_ERROR;
 
-    EVAL(AllocBuffer(state, g_XofSizesMapping[func].stateAndHeaderSize));
+    EVAL(AllocBuffer((void**)state, g_XofSizesMapping[func].stateAndHeaderSize));
     (*state)->func = func;
     ResetXofStateInternal(*state);
 
@@ -534,7 +545,7 @@ exit:
     return status;
 }
 
-inline void ResetXofStateInternal(__inout XofState* state)
+void ResetXofStateInternal(__inout XofState* state)
 {
     assert(state);
 
@@ -552,13 +563,15 @@ void GetXofInternal(__inout XofState* state, __in const void* input, __in size_t
     case SHAKE256:
         Sha3GetXof(state->state, input, inputSize, func, finalize, output, outputSize);
         break;
+    default:
+        break;
     }
 
     if (finalize)
         ResetXofStateInternal(state);
 }
 
-inline void FreeXofStateInternal(__inout XofState* state)
+void FreeXofStateInternal(__inout XofState* state)
 {
     assert(state);
 
@@ -573,7 +586,7 @@ int InitPrfStateInternal(__inout PrfState** state, __in Prf func)
 
     int status = NO_ERROR;
 
-    EVAL(AllocBuffer(state, g_PrfSizesMapping[func].stateAndHeaderSize));
+    EVAL(AllocBuffer((void**)state, g_PrfSizesMapping[func].stateAndHeaderSize));
     (*state)->func = func;
     ResetPrfStateInternal(*state);
 
@@ -581,7 +594,7 @@ exit:
     return status;
 }
 
-inline void ResetPrfStateInternal(__inout PrfState* state)
+void ResetPrfStateInternal(__inout PrfState* state)
 {
     assert(state);
 
@@ -609,13 +622,15 @@ void GetPrfInternal(__inout PrfState* state, __in_opt const void* input, __in si
         GetHmac(state->state, input, inputSize, key, keySize, func, finalize, output);
         break;
     }
+    default:
+        break;
     }
 
     if (finalize)
         ResetPrfStateInternal(state);
 }
 
-inline void FreePrfStateInternal(__inout PrfState* state)
+void FreePrfStateInternal(__inout PrfState* state)
 {
     assert(state);
 
