@@ -171,7 +171,7 @@ static void Sha2_32ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t
     assert(input && words && output);
 
     for (int i = 0; i < SHA2_32_DWORD_CHUNKS_IN_BLOCK_NUMBER; ++i)
-        words[i] = Uint32LittleEndianToBigEndian(*input++);
+        words[i] = ReverseEndiannessUint32(*input++);
 
     for (int i = SHA2_32_DWORD_CHUNKS_IN_BLOCK_NUMBER; i < SHA2_32_DWORDS_IN_ALOGO_NUMBER; ++i)
         words[i] = 
@@ -243,16 +243,16 @@ void Sha2_32Get(__inout Sha2_32State* state, __in_opt const void* input, __in si
             tailBlocks += SHA2_32_BLOCK_SIZE;
         }
 
-        output[0] = Uint32LittleEndianToBigEndian(mainState[0]);
-        output[1] = Uint32LittleEndianToBigEndian(mainState[1]);
-        output[2] = Uint32LittleEndianToBigEndian(mainState[2]);
-        output[3] = Uint32LittleEndianToBigEndian(mainState[3]);
-        output[4] = Uint32LittleEndianToBigEndian(mainState[4]);
-        output[5] = Uint32LittleEndianToBigEndian(mainState[5]);
-        output[6] = Uint32LittleEndianToBigEndian(mainState[6]);
+        output[0] = ReverseEndiannessUint32(mainState[0]);
+        output[1] = ReverseEndiannessUint32(mainState[1]);
+        output[2] = ReverseEndiannessUint32(mainState[2]);
+        output[3] = ReverseEndiannessUint32(mainState[3]);
+        output[4] = ReverseEndiannessUint32(mainState[4]);
+        output[5] = ReverseEndiannessUint32(mainState[5]);
+        output[6] = ReverseEndiannessUint32(mainState[6]);
 
         if (func == SHA_256)
-            output[7] = Uint32LittleEndianToBigEndian(mainState[7]);
+            output[7] = ReverseEndiannessUint32(mainState[7]);
     }
 }
 
@@ -261,7 +261,7 @@ static void Sha2_64ProcessBlock(const uint64_t* input, uint64_t* words, uint64_t
     assert(input && words && output);
 
     for (int i = 0; i < SHA2_64_QWORD_CHUNKS_IN_BLOCK_NUMBER; ++i)
-        words[i] = Uint64LittleEndianToBigEndian(*input++);
+        words[i] = ReverseEndiannessUint64(*input++);
 
     for (int i = SHA2_64_QWORD_CHUNKS_IN_BLOCK_NUMBER; i < SHA2_64_QWORDS_IN_ALOGO_NUMBER; ++i)
         words[i] =
@@ -336,20 +336,20 @@ void Sha2_64Get(__inout Sha2_64State* state, __in_opt const void* input, __in si
 
         switch (func) {
         case SHA_512:
-            output[7] = Uint64LittleEndianToBigEndian(mainState[7]);
-            output[6] = Uint64LittleEndianToBigEndian(mainState[6]);
+            output[7] = ReverseEndiannessUint64(mainState[7]);
+            output[6] = ReverseEndiannessUint64(mainState[6]);
         case SHA_384:
-            output[5] = Uint64LittleEndianToBigEndian(mainState[5]);
-            output[4] = Uint64LittleEndianToBigEndian(mainState[4]);
+            output[5] = ReverseEndiannessUint64(mainState[5]);
+            output[4] = ReverseEndiannessUint64(mainState[4]);
         default:
             if (func == SHA_512_224)
-                (uint32_t)output[3] = Uint32LittleEndianToBigEndian(*(((uint32_t*)&mainState[3]) + 1));
+                (uint32_t)output[3] = ReverseEndiannessUint32(*(((uint32_t*)&mainState[3]) + 1));
             else
-                output[3] = Uint64LittleEndianToBigEndian(mainState[3]);
+                output[3] = ReverseEndiannessUint64(mainState[3]);
 
-            output[2] = Uint64LittleEndianToBigEndian(mainState[2]);
-            output[1] = Uint64LittleEndianToBigEndian(mainState[1]);
-            output[0] = Uint64LittleEndianToBigEndian(mainState[0]);
+            output[2] = ReverseEndiannessUint64(mainState[2]);
+            output[1] = ReverseEndiannessUint64(mainState[1]);
+            output[0] = ReverseEndiannessUint64(mainState[0]);
             break;
         }
     }

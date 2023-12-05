@@ -605,7 +605,7 @@ int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
             func(roundKeys, iv, output);
             *output++ ^= inputCopy[0], * output++ ^= inputCopy[1];
 
-            iv[1] = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv[1]) + 1);    // I'm not sure that approach with Big Endian counter is necessary
+            iv[1] = ReverseEndiannessUint64(ReverseEndiannessUint64(iv[1]) + 1);    // I'm not sure that approach with Big Endian counter is necessary
                                                                                                 // but the other working examplse of AES with ctr with which I can compare the result
                                                                                                 // has such (based on my calculations).
         }
@@ -623,7 +623,7 @@ int AesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
         output[0] ^= inputCopy[0], output[1] ^= inputCopy[1];
 
         if (!finalize)
-            iv[1] = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv[1]) + 1);
+            iv[1] = ReverseEndiannessUint64(ReverseEndiannessUint64(iv[1]) + 1);
 
         break;
     }
@@ -778,11 +778,11 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
 
     case CTR_mode: {
         lastIvBlock[0] = iv[0];
-        lastIvBlock[1] = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv[1]) + blocksNumber - 1);
+        lastIvBlock[1] = ReverseEndiannessUint64(ReverseEndiannessUint64(iv[1]) + blocksNumber - 1);
         func(roundKeys, lastIvBlock, lastOutputBlock);
         lastOutputBlock[0] ^= lastInputBlock[0],
         lastOutputBlock[1] ^= lastInputBlock[1],
-        lastIvBlock[1] = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv[1]) + blocksNumber);
+        lastIvBlock[1] = ReverseEndiannessUint64(ReverseEndiannessUint64(iv[1]) + blocksNumber);
 
         break;
     }
@@ -866,7 +866,7 @@ int AesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
             func(roundKeys, iv, output);
             *output++ ^= inputCopy[0],
             *output++ ^= inputCopy[1];
-            iv[1] = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv[1]) + 1);
+            iv[1] = ReverseEndiannessUint64(ReverseEndiannessUint64(iv[1]) + 1);
         }
 
         break;

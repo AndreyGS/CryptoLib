@@ -235,13 +235,13 @@ void AddShaPadding(__in const uint8_t* input, __in uint64_t inputSize, __out uin
     if (lastBlockSize >= SHA_START_LENGTH_OFFSET) {
         size_t paddingFillSize = SHA1_BLOCK_SIZE;
         AddPaddingInternal(input, lastBlockSize, ISO_7816_padding, SHA1_BLOCK_SIZE, output, &paddingFillSize, true);
-        ((uint64_t*)output)[15] = Uint64LittleEndianToBigEndian(messageBitsSize);                                               // 15 == ((SHA1_BLOCK_SIZE * 2) / sizeof(uint64_t)) - 1
+        ((uint64_t*)output)[15] = ReverseEndiannessUint64(messageBitsSize);                                               // 15 == ((SHA1_BLOCK_SIZE * 2) / sizeof(uint64_t)) - 1
         *outputBlocksNum = 2;
     }
     else {
         size_t paddingFillSize = SHA_START_LENGTH_OFFSET;
         AddPaddingInternal(input, lastBlockSize, ISO_7816_padding, SHA_START_LENGTH_OFFSET, output, &paddingFillSize, true);
-        ((uint64_t*)output)[7] = Uint64LittleEndianToBigEndian(messageBitsSize);                                                // 7 == (SHA1_BLOCK_SIZE / sizeof(uint64_t)) - 1
+        ((uint64_t*)output)[7] = ReverseEndiannessUint64(messageBitsSize);                                                // 7 == (SHA1_BLOCK_SIZE / sizeof(uint64_t)) - 1
         *outputBlocksNum = 1;
     }
 }
@@ -255,15 +255,15 @@ void AddSha2_64Padding(__in const uint8_t* input, __in uint64_t inputSizeLowPart
     if (lastBlockSize >= SHA2_START_LENGTH_OFFSET) {
         size_t paddingFillSize = SHA2_64_BLOCK_SIZE;
         AddPaddingInternal(input, lastBlockSize, ISO_7816_padding, SHA2_64_BLOCK_SIZE, output, &paddingFillSize, true);
-        ((uint64_t*)output)[30] = Uint64LittleEndianToBigEndian(messageBitsSizeHigh);                                           // 30 == ((SHA2_BLOCK_SIZE * 2) / sizeof(uint64_t)) - 2
-        ((uint64_t*)output)[31] = Uint64LittleEndianToBigEndian(messageBitsSizeLow);
+        ((uint64_t*)output)[30] = ReverseEndiannessUint64(messageBitsSizeHigh);                                           // 30 == ((SHA2_BLOCK_SIZE * 2) / sizeof(uint64_t)) - 2
+        ((uint64_t*)output)[31] = ReverseEndiannessUint64(messageBitsSizeLow);
         *outputBlocksNum = 2;
     }
     else {
         size_t paddingFillSize = SHA2_START_LENGTH_OFFSET;
         AddPaddingInternal(input, lastBlockSize, ISO_7816_padding, SHA2_START_LENGTH_OFFSET, output, &paddingFillSize, true);
-        ((uint64_t*)output)[14] = Uint64LittleEndianToBigEndian(messageBitsSizeHigh);                                           // 14 == (SHA2_BLOCK_SIZE / sizeof(uint64_t)) - 2
-        ((uint64_t*)output)[15] = Uint64LittleEndianToBigEndian(messageBitsSizeLow);
+        ((uint64_t*)output)[14] = ReverseEndiannessUint64(messageBitsSizeHigh);                                           // 14 == (SHA2_BLOCK_SIZE / sizeof(uint64_t)) - 2
+        ((uint64_t*)output)[15] = ReverseEndiannessUint64(messageBitsSizeLow);
         *outputBlocksNum = 1;
     }
 }

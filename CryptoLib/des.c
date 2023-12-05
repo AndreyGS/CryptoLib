@@ -658,13 +658,13 @@ int DesEncrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     case CTR_mode: {
         while (--blocksNumber) {
             *output++ = func(roundKeys, iv) ^ *input++;
-            iv = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv) + 1); // I'm not sure that approach with Big Endian counter is necessary
+            iv = ReverseEndiannessUint64(ReverseEndiannessUint64(iv) + 1); // I'm not sure that approach with Big Endian counter is necessary
                                                                                        // but the other working examplse of des with ctr with which I can compare the result
                                                                                        // has that (based on my calculations).
         }
 
         *output = func(roundKeys, iv) ^ (finalize ? *output : *input);
-        iv = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv) + 1);
+        iv = ReverseEndiannessUint64(ReverseEndiannessUint64(iv) + 1);
 
         break;
     }
@@ -770,8 +770,8 @@ int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     }
 
     case CTR_mode: {
-        lastOutputBlock = func(roundKeys, Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv) + blocksNumber - 1)) ^ *lastInputBlock;
-        lastIvBlock = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv) + blocksNumber);
+        lastOutputBlock = func(roundKeys, ReverseEndiannessUint64(ReverseEndiannessUint64(iv) + blocksNumber - 1)) ^ *lastInputBlock;
+        lastIvBlock = ReverseEndiannessUint64(ReverseEndiannessUint64(iv) + blocksNumber);
 
         break;
     }
@@ -828,7 +828,7 @@ int DesDecrypt(__inout StateHandle state, __in BlockCipherType cipher, __in Bloc
     case CTR_mode: {
         while (--blocksNumber) {
             *output++ = func(roundKeys, iv) ^ *input++;
-            iv = Uint64LittleEndianToBigEndian(Uint64LittleEndianToBigEndian(iv) + 1);
+            iv = ReverseEndiannessUint64(ReverseEndiannessUint64(iv) + 1);
         }
 
         break;

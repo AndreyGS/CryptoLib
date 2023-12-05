@@ -52,7 +52,7 @@ int GetPbkdf2Internal(__in_opt const void* salt, __in size_t saltSize, __in_opt 
     size_t saltFullSize = saltSize + 4;
 
     while (blocksNum--) {
-        *(uint32_t*)((uint8_t*)salt + saltSize) = Uint32LittleEndianToBigEndian(++blocksCounter);
+        *(uint32_t*)((uint8_t*)salt + saltSize) = ReverseEndiannessUint32(++blocksCounter);
         GetPrfInternal(state, salt, saltFullSize, password, passwordSize, true, buffer1, 0);
 
         if (blocksNum) {

@@ -78,7 +78,7 @@ inline uint64_t Uint64BigEndianRightRotate(uint64_t word, int rounds)
     return word >> rounds | word << (64 - rounds);
 }
 
-inline uint64_t Uint64LittleEndianToBigEndian(uint64_t input)
+inline uint64_t ReverseEndiannessUint64(uint64_t input)
 {
     return input >> 56
         | (input >> 40 & 0x000000000000ff00)
@@ -90,7 +90,7 @@ inline uint64_t Uint64LittleEndianToBigEndian(uint64_t input)
         | input << 56;
 }
 
-inline uint32_t Uint32LittleEndianToBigEndian(uint32_t input)
+inline uint32_t ReverseEndiannessUint32(uint32_t input)
 {
     return input >> 24
         | (input >> 8 & 0x0000ff00)
@@ -98,14 +98,14 @@ inline uint32_t Uint32LittleEndianToBigEndian(uint32_t input)
         | input << 24;
 }
 
-// Example of input and output of Uint64LittleEndianToBigEndianBits:
+// Example of input and output of ReverseEndiannessBitsUint64:
 //
 // first two bytes:
 // input:
 // 1010 0110 1110 0010 (0xa6e2)
 // output:
 // 0110 0101 0100 0111 (0x6547)
-inline uint64_t Uint64LittleEndianToBigEndianBits(uint64_t input)
+inline uint64_t ReverseEndiannessBitsUint64(uint64_t input)
 {
     return (input & 0x8080808080808080) >> 7
         | (input & 0x4040404040404040) >> 5

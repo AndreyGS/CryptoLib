@@ -55,7 +55,7 @@ static void Sha1ProcessBlock(const uint32_t* input, uint32_t* words, uint32_t* o
     assert(input && words && output);
 
     for (int i = 0; i < SHA1_DWORD_CHUNKS_IN_BLOCK_NUMBER; ++i)
-        words[i] = Uint32LittleEndianToBigEndian(*input++);
+        words[i] = ReverseEndiannessUint32(*input++);
 
     for (int i = SHA1_DWORD_CHUNKS_IN_BLOCK_NUMBER; i < 32; ++i)
         words[i] = Uint32BigEndianLeftRotateByOne(words[i - 3] ^ words[i - 8] ^ words[i - 14] ^ words[i - 16]);
@@ -129,10 +129,10 @@ void Sha1Get(__inout Sha1State* state, __in_opt const void* input, __in size_t i
             tailBlocks += SHA1_BLOCK_SIZE;
         }
 
-        output[0] = Uint32LittleEndianToBigEndian(mainState[0]);
-        output[1] = Uint32LittleEndianToBigEndian(mainState[1]);
-        output[2] = Uint32LittleEndianToBigEndian(mainState[2]);
-        output[3] = Uint32LittleEndianToBigEndian(mainState[3]);
-        output[4] = Uint32LittleEndianToBigEndian(mainState[4]);
+        output[0] = ReverseEndiannessUint32(mainState[0]);
+        output[1] = ReverseEndiannessUint32(mainState[1]);
+        output[2] = ReverseEndiannessUint32(mainState[2]);
+        output[3] = ReverseEndiannessUint32(mainState[3]);
+        output[4] = ReverseEndiannessUint32(mainState[4]);
     }
 }
